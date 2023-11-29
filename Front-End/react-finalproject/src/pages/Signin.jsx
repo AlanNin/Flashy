@@ -11,7 +11,8 @@ import IdiomaIcono from "../assets/IdiomaIcono.png";
 import { useDispatch } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-
+import { auth, provider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
 
 const MainContainer = styled.div`
   position: relative;
@@ -325,6 +326,34 @@ const Signin = () => {
     window.open('https://www.hcaptcha.com/terms', '_blank');
   };
 
+  const signInWithGoogle = async () => {
+    dispatch(loginStart());
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        axios
+          .post("/auth/googlesignin", {
+            name: result.user.displayName,
+            email: result.user.email,
+            img: result.user.photoURL,
+          })
+          .then((res) => {
+            console.log(res);
+            dispatch(loginSuccess(res.data));
+            navigate("/");
+          })
+          .catch((error) => {
+            console.error("Error in axios.post:", error);
+            dispatch(loginFailure());
+          });
+      })
+      .catch((error) => {
+        console.error("Error in signInWithPopup:", error);
+        dispatch(loginFailure());
+      });
+  };
+
+
   const handleDivSigninClick = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
@@ -428,7 +457,7 @@ const Signin = () => {
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
 
-            <ButtonGoogle>
+            <ButtonGoogle onClick={signInWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>
           </SignButtons>

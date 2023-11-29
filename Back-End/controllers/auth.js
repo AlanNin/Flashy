@@ -14,7 +14,17 @@ export const signup = async (req, res, next) => {
         const newUser = new User({ ...req.body, password: hash });
 
         await newUser.save();
-        res.status(200).send("¡Usuario creado existosamente!")
+
+        const user = await User.findOne({ name: req.body.name });
+        const token = jwt.sign({ id: user._id }, process.env.JWT);
+        const { password, ...others } = user._doc;
+
+        res.cookie("access_token", token, {
+            httpOnly: true
+        });
+
+        req.body = { name: req.body.name, password: req.body.password };
+        await signin(req, res, next);
     } catch (error) {
         next(error)
     }
@@ -41,3 +51,50 @@ export const signin = async (req, res, next) => {
     }
 
 }
+
+export const SigninGoogleAuth = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (user) {
+            const token = jwt.sign({ id: user._id }, process.env.JWT);
+            res
+                .cookie("access_token", token, {
+                    httpOnly: true,
+                })
+                .status(200)
+                .json(user._doc);
+        } else {
+            const error = new Error("User not found");
+            error.status = 404;
+            throw error;
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const SignupGoogleAuth = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            const newUser = new User({
+                ...req.body,
+                fromGoogle: true,
+            });
+            const savedUser = await newUser.save();
+            const token = jwt.sign({ id: savedUser._id }, process.env.JWT);
+            res
+                .cookie("access_token", token, {
+                    httpOnly: true,
+                })
+                .status(200)
+                .json(savedUser._doc);
+        } else {
+            const error = new Error("User already exists");
+            error.status = 400;
+            throw error;
+        }
+    } catch (error) {
+        next(error);
+    }
+};

@@ -662,7 +662,10 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
                 (<ImgLogin src={InicioSesionIcono2} />)
 
             }
-            <ButtonLoginText>{currentUser ? currentUser.name : 'Sign in'}</ButtonLoginText>
+            <ButtonLoginText>
+              {currentUser ? currentUser.name.split(' ')[0] : 'Sign in'}
+            </ButtonLoginText>
+
           </ItemLogin>
         </Link>
 

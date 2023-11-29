@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from '../utils/LanguageContext';
-import { Link } from 'react-router-dom';
 import styled, { keyframes, css } from "styled-components";
 import SigninBackground from "../assets/SigninBackground.jpg";
 import FacebookSignin from "../assets/FacebookSignin.png";
 import GoogleSignin from "../assets/GoogleSignin.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
-import ReCAPTCHA from "react-google-recaptcha";
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { auth, provider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
+import { useDispatch } from 'react-redux';
+import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 
 const MainContainer = styled.div`
   position: relative;
@@ -172,15 +177,7 @@ const GoogleImg = styled.img`
   height: 24px;
 `;
 
-const ButtonSignIn = styled.button`
-  border-radius: 8px;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  background-color: ${({ theme }) => theme.soft};
-`;
-
-const DivSignin = styled.div`
+const DivSignup = styled.div`
   margin-top: 60px;
   margin-bottom: 10px;
 `;
@@ -215,17 +212,6 @@ const AlreadyAccount = styled.label`
   &:hover {
     color: #9A9A9A;
   }
-`;
-
-const ButtonSignUp = styled.button`
-  border-radius: 3px;
-  border: none;
-  padding: 10px 20px;
-  font-weight: 500;
-  cursor: pointer;
-  background-color: ${({ theme }) => theme.soft};
-  color: ${({ theme }) => theme.textSoft};
-  margin-top: 5px;
 `;
 
 const MoreInfo = styled.div`
@@ -292,61 +278,89 @@ const LanguageSquare = styled.div`
 
 
 const Signup = () => {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [usernameFocused, setUsernameFocused] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const { language, setLanguage } = useLanguage();
-  const [recaptchaValue, setRecaptchaValue] = useState(null);
-  const recaptchaRef = useRef();
+  const captchaRef = useRef(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleHCaptchaVerify = () => {
+    captchaRef.current.execute();
+  };
+
+  const onLoad = () => {
+    // Puedes realizar alguna lógica cuando el hCaptcha se carga (opcional)
+  };
 
   const privacyCaptcha = () => {
-    window.open('https://policies.google.com/privacy?hl=en-GB', '_blank')
-  }
+    window.open('https://www.hcaptcha.com/privacy', '_blank');
+  };
+
   const termsCaptcha = () => {
-    window.open('https://policies.google.com/terms?hl=en-GB', '_blank')
-  }
-
-  const handleRecaptchaChange = (value) => {
-    setRecaptchaValue(value);
+    window.open('https://www.hcaptcha.com/terms', '_blank');
   };
 
-  const handleRecaptchaError = () => {
-    console.error("Error loading or verifying ReCAPTCHA");
+  const signUpWithGoogle = async () => {
+    dispatch(loginStart());
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        axios
+          .post("/auth/googlesignup", {
+            name: result.user.displayName,
+            email: result.user.email,
+            img: result.user.photoURL,
+          })
+          .then((res) => {
+            console.log(res);
+            dispatch(loginSuccess(res.data));
+            navigate("/");
+          })
+          .catch((error) => {
+            console.error("Error in axios.post:", error);
+            dispatch(loginFailure());
+          });
+      })
+      .catch((error) => {
+        console.error("Error in signInWithPopup:", error);
+        dispatch(loginFailure());
+      });
   };
 
-  const handleSignIn = () => {
-    // Verifica si tanto el usuario como la contraseña tienen valores
-    if (username !== "" && password !== "") {
-      // Verifica si el valor del reCAPTCHA está presente
-      if (recaptchaValue) {
-        // Log o alerta del valor de reCAPTCHA
-        console.log("reCAPTCHA value:", recaptchaValue);
+  const handleDivSignupClick = async (e) => {
+    e.preventDefault();
+    dispatch(loginStart());
+    if (email !== "" && name !== "" && password !== "") {
+      // Inicia el proceso de verificación del hCaptcha
+      handleHCaptchaVerify();
+    } else {
+      console.error("Username and password are required");
+    }
+  };
 
-        // Realiza la autenticación aquí
-        // ...
-      } else {
-        // No se ha completado reCAPTCHA
-        console.error("reCAPTCHA not completed");
+
+  const onHCaptchaVerify = async (token) => {
+    // Verifica si el token hCaptcha se recibió con éxito
+    if (token) {
+      try {
+        // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
+        const res = await axios.post("/auth/signup", { name, email, password, captchaToken: token });
+        dispatch(loginSuccess(res.data));
+        navigate('/');
+      } catch (error) {
+        dispatch(loginFailure());
+        console.error("Failed to sign up", error);
       }
     } else {
-      // El usuario o la contraseña están vacíos
-      console.error("Username and password are required");
+      console.error("hCaptcha verification failed");
     }
   };
 
-  const handleDivSigninClick = () => {
-    // Inicia la validación de ReCAPTCHA cuando se hace clic en DivSignin
-    if (email !== "" && username !== "" && password !== "") {
-      recaptchaRef.current.execute();
-      handleSignIn();
-    } else {
-      // El usuario o la contraseña están vacíos
-      console.error("Username and password are required");
-    }
-  };
 
   const translations = {
     en: {
@@ -394,8 +408,6 @@ const Signup = () => {
 
           <InputContainer>
             <Input
-              type="email"
-              value={email}
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setEmailFocused(true)}
               onBlur={() => setEmailFocused(false)}
@@ -408,14 +420,12 @@ const Signup = () => {
 
           <InputContainer>
             <Input
-              type="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              onFocus={() => setUsernameFocused(true)}
-              onBlur={() => setUsernameFocused(false)}
+              onChange={(e) => setName(e.target.value)}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
               required
             />
-            <Placeholder hasFocus={usernameFocused || username !== ""} hasValue={username !== ""}>
+            <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
               {translations[language].placeholderusername}
             </Placeholder>
           </InputContainer>
@@ -439,25 +449,22 @@ const Signup = () => {
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
 
-            <ButtonGoogle>
+            <ButtonGoogle onClick={signUpWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>
           </SignButtons>
 
+          <HCaptcha
+            sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
+            size="invisible"
+            onLoad={onLoad}
+            onVerify={onHCaptchaVerify}
+            ref={captchaRef}
+          />
 
-
-          <DivSignin onClick={handleDivSigninClick} id="DivSignin">
-            {/* ReCAPTCHA invisible */}
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey="6Ld3sBwpAAAAAOk_wCuQs0VY5x5a3_BuQDXGfND5"
-              onChange={handleRecaptchaChange}
-              onErrored={handleRecaptchaError}
-              size="invisible"
-              badge="none"
-            />
-            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={email !== "" && username !== "" && password !== ""} />
-          </DivSignin>
+          <DivSignup onClick={handleDivSignupClick} id="DivSignup">
+            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={email !== "" && name !== "" && password !== ""} />
+          </DivSignup>
 
           <LabelAcc>
             <AlreadyAccount>
