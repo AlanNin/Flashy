@@ -124,6 +124,7 @@ const ButtonLoginText = styled.h3`
   font-family: "Roboto Condensed", Helvetica;
   font-size: 24px;
   font-weight: normal;
+  margin-bottom: 3px;
   color: ${({ theme }) => theme.text};
   
   @media only screen and (max-width: 980px),

@@ -93,30 +93,23 @@ const Home = ({ type }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/videos/${type}`);
+        let res;
+        // Si hay un usuario autenticado y tiene suscriptores o suscripciones
+        if (currentUser && (currentUser.subscribers > 0 || currentUser.subscribedUsers.length > 0)) {
+          res = await axios.get(`/videos/${type}`);
+        } else {
+          // Si no hay usuario autenticado o no tiene suscriptores/suscripciones, cargar videos aleatorios
+          res = await axios.get("/videos/random");
+        }
         setVideos(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);
       }
     };
 
-    // Check if there is a currentUser
-    if (currentUser) {
-      fetchVideos();
-    } else {
-      // If no user is logged in, fetch random videos
-      const fetchRandomVideos = async () => {
-        try {
-          const res = await axios.get("/videos/random");
-          setVideos(res.data);
-        } catch (error) {
-          console.error("Error fetching random videos:", error);
-        }
-      };
-
-      fetchRandomVideos();
-    }
+    fetchVideos();
   }, [type, currentUser]);
+
 
   return (
     <MainContainer>
