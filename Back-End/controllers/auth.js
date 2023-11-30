@@ -52,7 +52,7 @@ export const signin = async (req, res, next) => {
 
 }
 
-export const SigninGoogleAuth = async (req, res, next) => {
+export const SigninExternalAuth = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
         if (user) {
@@ -73,7 +73,7 @@ export const SigninGoogleAuth = async (req, res, next) => {
     }
 };
 
-export const SignupGoogleAuth = async (req, res, next) => {
+export const SignupExternalAuth = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
@@ -95,6 +95,51 @@ export const SignupGoogleAuth = async (req, res, next) => {
             throw error;
         }
     } catch (error) {
-        next(error);
+        if (error.code === 11000) {
+            // Manejar el error de clave duplicada (nombre duplicado en este caso)
+            console.error("Duplicated Key:", error);
+            // Puedes enviar una respuesta al cliente indicando que el usuario ya existe
+            res.status(400).json({ error: "This email is already connected to an account." });
+        } else {
+            // Otro tipo de error, propagarlo
+            console.error("Error SignupExternalAuth:", error);
+            next(error);
+        }
+    }
+};
+
+export const checkName = async (req, res, next) => {
+    try {
+        const existingUser = await User.findOne({ name: req.body.name });
+
+        if (existingUser) {
+            // The username is already taken
+            res.status(200).json({ exists: true });
+        } else {
+            // The username is available
+            res.status(200).json({ exists: false });
+        }
+    } catch (error) {
+        // Handle errors
+        console.error("Error in checkName:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const checkEmail = async (req, res, next) => {
+    try {
+        const existingEmail = await User.findOne({ email: req.body.email });
+
+        if (existingEmail) {
+            // El correo electrónico ya está tomado
+            res.status(200).json({ exists: true });
+        } else {
+            // El correo electrónico está disponible
+            res.status(200).json({ exists: false });
+        }
+    } catch (error) {
+        // Manejar errores
+        console.error("Error en checkEmail:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 };

@@ -6,12 +6,14 @@ import styled, { keyframes, css } from "styled-components";
 import SigninBackground from "../assets/SigninBackground.jpg";
 import FacebookSignin from "../assets/FacebookSignin.png";
 import GoogleSignin from "../assets/GoogleSignin.png";
+import AppleIcono from "../assets/AppleIcono.png";
+import MicrosoftIcono from "../assets/MicrosoftIcono.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
 import { useDispatch } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-import { auth, provider } from "../firebase";
+import { auth, GoogleProvider, FacebookProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 
 const MainContainer = styled.div`
@@ -72,7 +74,7 @@ const Input = styled.input`
   border-radius: 3px;
   padding: 10px 10px;
   background-color: #303030;
-  width: 324px;
+  width: 410px;
   color: ${({ theme }) => theme.text};
   transition: border-color 0.3s ease-in-out;
   &:focus {
@@ -145,7 +147,7 @@ const SignButtons = styled.div`
 
 const ButtonFacebook = styled.button`
   border-radius: 9px;
-  width: 124px;
+  width: 100px;
   height: 32px;
   border: none;
   cursor: pointer;
@@ -162,7 +164,7 @@ const FacebookImg = styled.img`
 
 const ButtonGoogle = styled.button`
   border-radius: 9px;
-  width: 124px;
+  width: 100px;
   height: 32px;
   border: none;
   cursor: pointer;
@@ -176,6 +178,41 @@ const GoogleImg = styled.img`
   width: 24px;
   height: 24px;
 `;
+
+const ButtonApple = styled.button`
+  border-radius: 9px;
+  width: 100px;
+  height: 32px;
+  border: none;
+  cursor: pointer;
+  background: rgb(36, 35, 35);
+  &:hover {
+    background-color: rgb(0,0,0);
+  }
+`;
+
+const AppleImg = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
+const ButtonMicrosoft = styled.button`
+  border-radius: 9px;
+  width: 100px;
+  height: 32px;
+  border: none;
+  cursor: pointer;
+  background: rgb(17,125,16);
+  &:hover {
+    background-color: rgb(17,125,16, 0.7);
+  }
+`;
+
+const MicrosoftImg = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
 
 const DivSignin = styled.div`
   margin-top: 60px;
@@ -225,16 +262,6 @@ const CreateAcc = styled.label`
 
 `;
 
-const ButtonSignUp = styled.button`
-  border-radius: 3px;
-  border: none;
-  padding: 10px 20px;
-  font-weight: 500;
-  cursor: pointer;
-  background-color: ${({ theme }) => theme.soft};
-  color: ${({ theme }) => theme.textSoft};
-  margin-top: 5px;
-`;
 
 const MoreInfo = styled.div`
   position: absolute; 
@@ -329,10 +356,10 @@ const Signin = () => {
   const signInWithGoogle = async () => {
     dispatch(loginStart());
 
-    signInWithPopup(auth, provider)
+    signInWithPopup(auth, GoogleProvider)
       .then((result) => {
         axios
-          .post("/auth/googlesignin", {
+          .post("/auth/externalsignin", {
             name: result.user.displayName,
             email: result.user.email,
             img: result.user.photoURL,
@@ -351,6 +378,44 @@ const Signin = () => {
         console.error("Error in signInWithPopup:", error);
         dispatch(loginFailure());
       });
+  };
+
+  const signInWithFacebook = async () => {
+    dispatch(loginStart());
+
+    try {
+      const result = await signInWithPopup(auth, FacebookProvider);
+
+      const facebookId = result.user.providerData[0].uid;
+      const photoURL = `http://graph.facebook.com/${facebookId}/picture?type=square`;
+
+      const userData = {
+        name: result.user.displayName,
+        email: result.user.email,
+        img: photoURL,
+      };
+
+      console.log('Data being sent in the POST request:', userData);
+
+      const res = await axios.post("/auth/externalsignin", userData);
+
+      console.log('Response from the server:', res);
+
+      dispatch(loginSuccess(res.data));
+      navigate("/");
+    } catch (error) {
+      console.error("Error in signInWithFacebook:", error);
+
+      if (error.response) {
+        // Error de respuesta del servidor
+        console.error("Error del servidor:", error.response.data.error);
+        // Puedes mostrar el mensaje de error al usuario
+        // Por ejemplo, con un estado de error en tu componente
+        // setErrorMessage(error.response.data.error);
+      }
+
+      dispatch(loginFailure());
+    }
   };
 
 
@@ -453,13 +518,23 @@ const Signin = () => {
           </InputContainer>
 
           <SignButtons>
-            <ButtonFacebook>
+            <ButtonFacebook onClick={signInWithFacebook}>
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
 
             <ButtonGoogle onClick={signInWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>
+
+
+            <ButtonApple>
+              <AppleImg src={AppleIcono} />
+            </ButtonApple>
+
+
+            <ButtonMicrosoft>
+              <MicrosoftImg src={MicrosoftIcono} />
+            </ButtonMicrosoft>
           </SignButtons>
 
           <HCaptcha

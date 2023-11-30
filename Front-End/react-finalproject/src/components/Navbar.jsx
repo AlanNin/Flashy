@@ -244,13 +244,14 @@ const UserImg = styled.img`
   background-color: #999; 
 `;
 
-const UserName = styled.h3`
+const DisplayName = styled.h3`
   font-family: "Roboto Condensed", Helvetica;
   font-size: 18px;
   font-weight: bold;
   color: rgba(224, 175, 208);
   margin-right: auto;
 `;
+
 
 const Email = styled.h3`
   font-family: "Roboto Condensed", Helvetica;
@@ -485,7 +486,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       </Wrapper>
       {dropdownVisible && (
         <UserOptions>
-          <UserName>{currentUser.name}</UserName>
+          <DisplayName>{currentUser.displayname}</DisplayName>
           <Email>{currentUser.email}</Email>
           <WrapperMenuUser>
             {/* Dropdown content goes here */}

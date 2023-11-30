@@ -9,7 +9,7 @@ import GoogleSignin from "../assets/GoogleSignin.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-import { auth, provider } from "../firebase";
+import { auth, GoogleProvider, FacebookProvider } from "../firebase"
 import { signInWithPopup } from "firebase/auth";
 import { useDispatch } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
@@ -33,14 +33,15 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  border-radius: 12px; 
+  border-radius: 15px; 
+  margin-top: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   background: #1D1D1D;
   background: linear-gradient(#1D1D1D, #1A191B,#191819, #141214, #201D21   99% );
-  padding: 80px 48px 25px 48px;
+  padding: 25px 48px 25px 48px;
   gap: 10px;
 `;
 
@@ -72,13 +73,14 @@ const Input = styled.input`
   border-radius: 3px;
   padding: 10px 10px;
   background-color: #303030;
-  width: 324px;
+  width: 350px;
   color: ${({ theme }) => theme.text};
   transition: border-color 0.3s ease-in-out;
   &:focus {
     border-color: ${({ theme }) => theme.accent};
   }
 `;
+
 
 const Placeholder = styled.label`
   position: absolute;
@@ -142,10 +144,16 @@ const SignButtons = styled.div`
   gap: 8px;
 `;
 
+const SignButtonsTxt = styled.h1`
+font-size: 14px;
+padding: 0px 15px;
+font-family: "Roboto Condensed", Helvetica;
+font-weight: 400;
+`;
 
 const ButtonFacebook = styled.button`
   border-radius: 9px;
-  width: 124px;
+  width: 100px;
   height: 32px;
   border: none;
   cursor: pointer;
@@ -162,7 +170,7 @@ const FacebookImg = styled.img`
 
 const ButtonGoogle = styled.button`
   border-radius: 9px;
-  width: 124px;
+  width: 100px;
   height: 32px;
   border: none;
   cursor: pointer;
@@ -178,7 +186,7 @@ const GoogleImg = styled.img`
 `;
 
 const DivSignup = styled.div`
-  margin-top: 60px;
+  margin-top: 15px;
   margin-bottom: 10px;
 `;
 
@@ -225,7 +233,7 @@ const More = styled.div`
   font-size: 11px;
   color: ${({ theme }) => theme.textSoft};
   z-index: 2;
-  gap: 5px;
+  gap: 15px;
 `;
 
 const Links = styled.span`
@@ -264,7 +272,7 @@ const LanguageSwitch = styled.div`
   align-items: center;
   gap: 0px;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: -2px;
   margin-bottom:-8px;
 `;
 
@@ -277,17 +285,62 @@ const LanguageSquare = styled.div`
 `;
 
 
+
+const Checkbox1 = styled.div`
+  width: 100%;
+  margin-right: auto;
+  display: flex;
+  margin-top: 10px;
+`;
+
+const Checkbox2 = styled.div`
+  width: 100%;
+  margin-right: auto;
+  display: flex;
+`;
+
+const CheckboxTxt = styled.h1`
+  font-size: 14px;
+  margin-left: 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 400;
+`;
+
+const ErrorMessage = ({ children }) => (
+  <div style={{ color: 'red', marginTop: '5px', marginRight: 'auto', fontFamily: '"Roboto Condensed", Helvetica' }}>{children}</div>
+);
+
+
 const Signup = () => {
   const [name, setName] = useState("");
+  const [displayname, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmpassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [nameFocused, setNameFocused] = useState(false);
+  const [displaynameFocused, setDisplayNameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmpasswordFocused, setConfirmPasswordFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const { language, setLanguage } = useLanguage();
   const captchaRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [authError, setAuthError] = useState(false);
+  const [checkboxError, setCheckboxError] = useState(false);
+  const [confirmpasswordError, setConfirmPasswordError] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [receiveEmails, setReceiveEmails] = useState(false);
+
+  const handleAcceptTermsChange = () => {
+    setAcceptTerms(!acceptTerms);
+  };
+
+  const handleReceiveEmailsChange = () => {
+    setReceiveEmails(!receiveEmails);
+  };
 
   const handleHCaptchaVerify = () => {
     captchaRef.current.execute();
@@ -308,40 +361,154 @@ const Signup = () => {
   const signUpWithGoogle = async () => {
     dispatch(loginStart());
 
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        axios
-          .post("/auth/googlesignup", {
-            name: result.user.displayName,
-            email: result.user.email,
-            img: result.user.photoURL,
-          })
-          .then((res) => {
-            console.log(res);
-            dispatch(loginSuccess(res.data));
-            navigate("/");
-          })
-          .catch((error) => {
-            console.error("Error in axios.post:", error);
-            dispatch(loginFailure());
-          });
-      })
-      .catch((error) => {
-        console.error("Error in signInWithPopup:", error);
-        dispatch(loginFailure());
-      });
+    try {
+      const result = await signInWithPopup(auth, GoogleProvider);
+
+      const userData = {
+        name: result.user.uid,
+        displayname: result.user.displayName,
+        email: result.user.email,
+        img: result.user.photoURL,
+      };
+
+      // Check if the name and email are already registered
+      const nameCheckResponse = await axios.post("/auth/checkname", { name: userData.name });
+      const emailCheckResponse = await axios.post("/auth/checkemail", { email: userData.email });
+
+      if (nameCheckResponse.data.exists) {
+        // Display an error message for username
+        console.error("Username is already taken");
+        setAuthError(true);
+        dispatch(loginFailure()); // You might want to handle this according to your UI
+        return;
+      }
+
+      else if (emailCheckResponse.data.exists) {
+        // Display an error message for email
+        console.error("Email is already taken");
+        setAuthError(true);
+        dispatch(loginFailure()); // You might want to handle this according to your UI
+        return;
+      }
+
+      // If both username and email are available, proceed with external signup
+      const res = await axios.post("/auth/externalsignup", userData);
+
+      console.log('Response from the server:', res);
+
+      dispatch(loginSuccess(res.data));
+      navigate("/");
+    } catch (error) {
+      console.error("Error in signUpWithGoogle:", error);
+      dispatch(loginFailure());
+    }
+  };
+
+
+  const signUpWithFacebook = async () => {
+    dispatch(loginStart());
+
+    try {
+      const result = await signInWithPopup(auth, FacebookProvider);
+
+      const facebookId = result.user.providerData[0].uid;
+      const photoURL = `http://graph.facebook.com/${facebookId}/picture?type=square`;
+
+      const userData = {
+        name: facebookId,
+        displayname: result.user.displayName,
+        email: result.user.email,
+        img: photoURL,
+      };
+
+      // Check if the name and email are already registered
+      const nameCheckResponse = await axios.post("/auth/checkname", { name: userData.name });
+      const emailCheckResponse = await axios.post("/auth/checkemail", { email: userData.email });
+
+      if (nameCheckResponse.data.exists) {
+        // Display an error message for username
+        console.error("Username is already taken");
+        setAuthError(true);
+        dispatch(loginFailure()); // You might want to handle this according to your UI
+        return;
+      }
+
+      else if (emailCheckResponse.data.exists) {
+        // Display an error message for email
+        console.error("Email is already taken");
+        setAuthError(true);
+        dispatch(loginFailure()); // You might want to handle this according to your UI
+        return;
+      }
+
+      console.log('Data being sent in the POST request:', userData);
+
+      const res = await axios.post("/auth/externalsignup", userData);
+
+      console.log('Response from the server:', res);
+
+      dispatch(loginSuccess(res.data));
+      navigate("/");
+    } catch (error) {
+      console.error("Error in signUpWithFacebook:", error);
+
+      if (error.response) {
+        // Error de respuesta del servidor
+        console.error("Error del servidor:", error.response.data.error);
+        // Puedes mostrar el mensaje de error al usuario
+        // Por ejemplo, con un estado de error en tu componente
+        // setErrorMessage(error.response.data.error);
+      }
+
+      dispatch(loginFailure());
+    }
   };
 
   const handleDivSignupClick = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
-    if (email !== "" && name !== "" && password !== "") {
-      // Inicia el proceso de verificación del hCaptcha
-      handleHCaptchaVerify();
+
+    if (email !== "" && name !== "" && displayname !== "" && password !== "" && confirmpassword !== "") {
+      try {
+        // Check if the name is already registered
+        const nameCheckResponse = await axios.post("/auth/checkname", { name });
+        const emailCheckResponse = await axios.post("/auth/checkemail", { email });
+
+        if (nameCheckResponse.data.exists) {
+          // Display an error message for username
+          console.error("Username is already taken");
+          setNameError(true);
+        }
+        if (emailCheckResponse.data.exists) {
+          // Display an error message for email
+          console.error("Email is already taken");
+          setEmailError(true);
+        }
+        if (password !== confirmpassword) {
+          // Display an error password not matching
+          console.error("Password do not match");
+          setConfirmPasswordError(true);
+        }
+        if (!acceptTerms || !receiveEmails) {
+          // Display an error checkbox missing
+          console.error("Checkbox missing");
+          setCheckboxError(true);
+        } else {
+          // Continue with the hCaptcha verification if the name is not taken
+          handleHCaptchaVerify();
+        }
+
+      } catch (error) {
+        // Handle the error appropriately
+        console.error("Error checking username:", error);
+        dispatch(loginFailure());
+      }
     } else {
-      console.error("Username and password are required");
+      console.error("Username, email, and password are required");
     }
   };
+
+
 
 
   const onHCaptchaVerify = async (token) => {
@@ -349,7 +516,7 @@ const Signup = () => {
     if (token) {
       try {
         // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
-        const res = await axios.post("/auth/signup", { name, email, password, captchaToken: token });
+        const res = await axios.post("/auth/signup", { name, displayname, email, password, captchaToken: token });
         dispatch(loginSuccess(res.data));
         navigate('/');
       } catch (error) {
@@ -367,11 +534,15 @@ const Signup = () => {
       title: "Sign up",
       subtitle: "Welcome to Flashy!",
       placeholderemail: "Email",
+      emailtaken: "Email is already taken.",
       placeholderusername: "Username",
+      usernametaken: "Username is already taken.",
+      placeholderdisplayname: "Display name",
       placeholderpassword: "Password",
+      placeholderconfirmpassword: "Confirm Password",
       doyoualreadyhaveanaccount: "DO YOU ALREADY HAVE AN ACCOUNT?",
       support: "SUPPORT",
-      privacenotice: "PRIVACE NOTICE",
+      privacynotice: "PRIVACY NOTICE",
       termsofservice: "TERMS OF SERVICE",
       cookiepreferences: "COOKIE PREFERENCES",
       subtextlink1: "THIS SITE IS PROTECTED BY RECAPTCHA AND ITS ",
@@ -379,16 +550,25 @@ const Signup = () => {
       subtextlink3: " APPLY.",
       privacypolicyclick: "PRIVACY POLICY",
       termsofserviceclick: "TERMS OF SERVICE",
+      authtaken: "An account already exists linked to this service.",
+      confirmpassworderror: "Passwords do not match.",
+      checkboxtermsofservice: "I agree to the Terms of Service",
+      checkboxtemails: "I agree to recive emails",
+      checkboxmissing: "Please check the requeriments in order to continue.",
     },
     es: {
       title: "Inicio de Sesión",
       subtitle: "Bienvenido a Flashy!",
-      placeholderusername: "Correo",
+      placeholderemail: "Correo",
+      emailtaken: "Este correo ya ha sido registrado anteriormente.",
       placeholderusername: "Usuario",
+      usernametaken: "Este usuario ya ha sido registrado anteriormente.",
+      placeholderdisplayname: "Nombre a mostrar",
       placeholderpassword: "Contraseña",
-      doyoualreadyhaveanaccount: "YA TIENES UNA CUENTA?",
+      placeholderconfirmpassword: "Confirmar contraseña",
+      doyoualreadyhaveanaccount: "¿YA TIENES UNA CUENTA?",
       support: "SOPORTE",
-      privacenotice: "AVISO DE PRIVACIDAD",
+      privacynotice: "AVISO DE PRIVACIDAD",
       termsofservice: "TÉRMINOS DE USO",
       cookiepreferences: "PREFERENCIAS DE COOKIES",
       subtextlink1: "ESTA PÁGINA ESTÁ PROTEGIDA POR RECAPTCHA Y SU ",
@@ -396,6 +576,11 @@ const Signup = () => {
       subtextlink3: " APLICAN.",
       privacypolicyclick: "AVISO DE PRIVACIDAD",
       termsofserviceclick: "TÉRMINOS DE SERVICIO",
+      authtaken: "Ya existe una cuenta vinculada a este servicio.",
+      confirmpassworderror: "Las contraseñas no coinciden.",
+      checkboxtermsofservice: "Acepto los Términos de Servicio",
+      checkboxtemails: "Acepto recibir correos electrónicos",
+      checkboxmissing: "Por favor acepta los requerimientos para continuar.",
     },
   };
 
@@ -408,25 +593,49 @@ const Signup = () => {
 
           <InputContainer>
             <Input
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setEmailFocused(true)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setEmailError(false);
+              }}
+              onFocus={() => {
+                setEmailFocused(true);
+              }}
               onBlur={() => setEmailFocused(false)}
               required
             />
             <Placeholder hasFocus={emailFocused || email !== ""} hasValue={email !== ""}>
               {translations[language].placeholderemail}
             </Placeholder>
+            {emailError && <ErrorMessage>{translations[language].emailtaken}</ErrorMessage>}
           </InputContainer>
 
           <InputContainer>
             <Input
-              onChange={(e) => setName(e.target.value)}
-              onFocus={() => setNameFocused(true)}
+              onChange={(e) => {
+                setName(e.target.value)
+                setNameError(false);
+              }}
+              onFocus={() => {
+                setNameFocused(true);
+              }}
               onBlur={() => setNameFocused(false)}
               required
             />
             <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
               {translations[language].placeholderusername}
+            </Placeholder>
+            {nameError && <ErrorMessage>{translations[language].usernametaken}</ErrorMessage>}
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              onChange={(e) => setDisplayName(e.target.value)}
+              onFocus={() => setDisplayNameFocused(true)}
+              onBlur={() => setDisplayNameFocused(false)}
+              required
+            />
+            <Placeholder hasFocus={displaynameFocused || displayname !== ""} hasValue={displayname !== ""}>
+              {translations[language].placeholderdisplayname}
             </Placeholder>
           </InputContainer>
 
@@ -444,15 +653,31 @@ const Signup = () => {
             </Placeholder>
           </InputContainer>
 
+          <InputContainer>
+            <Input
+              type="password"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onFocus={() => setConfirmPasswordFocused(true)}
+              onBlur={() => setConfirmPasswordFocused(false)}
+              required
+            />
+            <Placeholder hasFocus={confirmpasswordFocused || confirmpassword !== ""} hasValue={confirmpassword !== ""}>
+              {translations[language].placeholderconfirmpassword}
+            </Placeholder>
+            {confirmpasswordError && <ErrorMessage>{translations[language].confirmpassworderror}</ErrorMessage>}
+          </InputContainer>
+
           <SignButtons>
-            <ButtonFacebook>
+            <ButtonFacebook onClick={signUpWithFacebook}>
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
-
+            <SignButtonsTxt>OR</SignButtonsTxt>
             <ButtonGoogle onClick={signUpWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>
+
           </SignButtons>
+          {authError && <ErrorMessage>{translations[language].authtaken}</ErrorMessage>}
 
           <HCaptcha
             sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
@@ -461,9 +686,22 @@ const Signup = () => {
             onVerify={onHCaptchaVerify}
             ref={captchaRef}
           />
+          <Checkbox1>
+            <input type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
+            <CheckboxTxt>{translations[language].checkboxtermsofservice}</CheckboxTxt>
+          </Checkbox1>
+          <Checkbox2>
+            <input type="checkbox" checked={receiveEmails} onChange={handleReceiveEmailsChange} />
+            <CheckboxTxt>{translations[language].checkboxtemails}</CheckboxTxt>
+
+
+          </Checkbox2>
+
+          {checkboxError && <ErrorMessage>{translations[language].checkboxmissing}</ErrorMessage>}
+
 
           <DivSignup onClick={handleDivSignupClick} id="DivSignup">
-            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={email !== "" && name !== "" && password !== ""} />
+            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={email !== "" && name !== "" && displayname !== "" && password !== "" && confirmpassword !== ""} />
           </DivSignup>
 
           <LabelAcc>
@@ -482,7 +720,7 @@ const Signup = () => {
 
         <More>
           <Links>{translations[language].support}</Links>
-          <Links>{translations[language].privacenotice}</Links>
+          <Links>{translations[language].privacynotice}</Links>
           <Links>{translations[language].termsofservice}</Links>
           <Links>{translations[language].cookiepreferences}</Links>
 

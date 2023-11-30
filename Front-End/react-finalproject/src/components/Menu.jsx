@@ -663,7 +663,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
 
             }
             <ButtonLoginText>
-              {currentUser ? currentUser.name.split(' ')[0] : 'Sign in'}
+              {currentUser ? currentUser.displayname.split(' ')[0] : 'Sign in'}
             </ButtonLoginText>
 
           </ItemLogin>

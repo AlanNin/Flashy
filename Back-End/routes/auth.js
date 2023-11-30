@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { signin, signup, SigninGoogleAuth, SignupGoogleAuth } from "../controllers/auth.js";
+import { signin, signup, SigninExternalAuth, SignupExternalAuth, checkName, checkEmail } from "../controllers/auth.js";
 
 const router = express.Router();
 router.use(cors());
@@ -11,10 +11,16 @@ router.post("/signup", signup);
 // SIGN IN
 router.post("/signin", signin)
 
-// SIGN IN GOOGLE AUTH
-router.post("/googlesignin", SigninGoogleAuth);
+// SIGN IN EXTERNAL
+router.post("/externalsignin", SigninExternalAuth);
 
-// CREATE A USER GOOGLE AUTH
-router.post("/googlesignup", SignupGoogleAuth);
+// CREATE A USER EXTERNAL
+router.post("/externalsignup", SignupExternalAuth);
+
+// CHECK NAME
+router.post("/checkname", checkName);
+
+// CHECK EMAIL
+router.post("/checkemail", checkEmail);
 
 export default router;
