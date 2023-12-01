@@ -6,8 +6,7 @@ import styled, { keyframes, css } from "styled-components";
 import SigninBackground from "../assets/SigninBackground.jpg";
 import FacebookSignin from "../assets/FacebookSignin.png";
 import GoogleSignin from "../assets/GoogleSignin.png";
-import AppleIcono from "../assets/AppleIcono.png";
-import MicrosoftIcono from "../assets/MicrosoftIcono.png";
+import E1ColorNoBG from "../assets/E1WhiteNoBG.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
 import { useDispatch } from 'react-redux';
@@ -20,6 +19,19 @@ const MainContainer = styled.div`
   position: relative;
   height: 100%;
   width: 100%;
+`;
+
+const Logo = styled.div`
+  position: absolute;
+  margin: 60px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+`;
+
+const ImgLogo = styled.img`
+  height: 45px;
+  width: 190px;
 `;
 
 const Container = styled.div`
@@ -74,7 +86,7 @@ const Input = styled.input`
   border-radius: 3px;
   padding: 10px 10px;
   background-color: #303030;
-  width: 410px;
+  width: 350px;
   color: ${({ theme }) => theme.text};
   transition: border-color 0.3s ease-in-out;
   &:focus {
@@ -179,41 +191,6 @@ const GoogleImg = styled.img`
   height: 24px;
 `;
 
-const ButtonApple = styled.button`
-  border-radius: 9px;
-  width: 100px;
-  height: 32px;
-  border: none;
-  cursor: pointer;
-  background: rgb(36, 35, 35);
-  &:hover {
-    background-color: rgb(0,0,0);
-  }
-`;
-
-const AppleImg = styled.img`
-  width: 24px;
-  height: 24px;
-`;
-
-const ButtonMicrosoft = styled.button`
-  border-radius: 9px;
-  width: 100px;
-  height: 32px;
-  border: none;
-  cursor: pointer;
-  background: rgb(17,125,16);
-  &:hover {
-    background-color: rgb(17,125,16, 0.7);
-  }
-`;
-
-const MicrosoftImg = styled.img`
-  width: 24px;
-  height: 24px;
-`;
-
-
 const DivSignin = styled.div`
   margin-top: 60px;
   margin-bottom: 10px;
@@ -259,7 +236,6 @@ const CreateAcc = styled.label`
   &:hover {
     color: #9A9A9A;
   }
-
 `;
 
 
@@ -274,7 +250,7 @@ const More = styled.div`
   font-size: 11px;
   color: ${({ theme }) => theme.textSoft};
   z-index: 2;
-  gap: 5px;
+  gap: 15px;
 `;
 
 const Links = styled.span`
@@ -313,7 +289,7 @@ const LanguageSwitch = styled.div`
   align-items: center;
   gap: 0px;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: -2px;
   margin-bottom:-8px;
 `;
 
@@ -325,6 +301,16 @@ const LanguageSquare = styled.div`
   transition: background-color 0.8s;
 `;
 
+const SignButtonsTxt = styled.h1`
+font-size: 14px;
+padding: 0px 15px;
+font-family: "Roboto Condensed", Helvetica;
+font-weight: 400;
+`;
+
+const ErrorMessage = ({ children }) => (
+  <div style={{ color: 'red', marginTop: '5px', marginRight: 'auto', fontFamily: '"Roboto Condensed", Helvetica' }}>{children}</div>
+);
 
 const Signin = () => {
 
@@ -336,6 +322,8 @@ const Signin = () => {
   const captchaRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [signinError, setSigninError] = useState(false);
+  const [externalautherror, setExternalAuthError] = useState(false);
 
   const handleHCaptchaVerify = () => {
     captchaRef.current.execute();
@@ -357,25 +345,38 @@ const Signin = () => {
     dispatch(loginStart());
 
     signInWithPopup(auth, GoogleProvider)
-      .then((result) => {
-        axios
-          .post("/auth/externalsignin", {
+      .then(async (result) => {
+        try {
+          // Verificar si el correo electrónico ya está registrado
+          const emailCheckResponse = await axios.post("/auth/checkemail", {
+            email: result.user.email,
+          });
+
+          if (!emailCheckResponse.data.exists) {
+            // El usuario no está registrado, puedes manejar esto según tus necesidades
+            console.error("Este correo electrónico no está registrado");
+            setExternalAuthError(true);
+            dispatch(loginFailure());
+            return;
+          }
+
+          // El usuario está registrado, continuar con el inicio de sesión
+          const signInResponse = await axios.post("/auth/externalsignin", {
             name: result.user.displayName,
             email: result.user.email,
             img: result.user.photoURL,
-          })
-          .then((res) => {
-            console.log(res);
-            dispatch(loginSuccess(res.data));
-            navigate("/");
-          })
-          .catch((error) => {
-            console.error("Error in axios.post:", error);
-            dispatch(loginFailure());
           });
+
+          console.log(signInResponse);
+          dispatch(loginSuccess(signInResponse.data));
+          navigate("/");
+        } catch (error) {
+          console.error("Error en axios.post:", error);
+          dispatch(loginFailure());
+        }
       })
       .catch((error) => {
-        console.error("Error in signInWithPopup:", error);
+        console.error("Error en signInWithPopup:", error);
         dispatch(loginFailure());
       });
   };
@@ -418,17 +419,39 @@ const Signin = () => {
     }
   };
 
-
   const handleDivSigninClick = async (e) => {
     e.preventDefault();
     dispatch(loginStart());
+
     if (name !== "" && password !== "") {
-      // Inicia el proceso de verificación del hCaptcha
-      handleHCaptchaVerify();
+      try {
+        const nameCheckResponse = await axios.post("/auth/checkname", { name });
+
+        if (!nameCheckResponse.data.exists) {
+          // Mostrar un mensaje de error para el nombre de usuario
+          console.error("Username or password incorrect");
+          setSigninError(true);
+        } else {
+          const passwordCheckResponse = await axios.post("/auth/checkpassword", { name, password });
+
+          if (passwordCheckResponse.data.isCorrect) {
+            // La contraseña es correcta, proceder con el inicio de sesión
+            handleHCaptchaVerify();
+          } else {
+            // Mostrar un mensaje de error para la contraseña incorrecta
+            console.error("Username or password incorrect");
+            setSigninError(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        dispatch(loginFailure());
+      }
     } else {
-      console.error("Username and password are required");
+      console.error("Se requieren nombre de usuario y contraseña");
     }
   };
+
 
   const onHCaptchaVerify = async (token) => {
     // Verifica si el token hCaptcha se recibió con éxito
@@ -456,7 +479,7 @@ const Signin = () => {
       cantsignin: "CAN'T SIGN IN?",
       createaccount: "CREATE ACCOUNT",
       support: "SUPPORT",
-      privacenotice: "PRIVACE NOTICE",
+      privacenotice: "PRIVACY NOTICE",
       termsofservice: "TERMS OF SERVICE",
       cookiepreferences: "COOKIE PREFERENCES",
       subtextlink1: "THIS SITE IS PROTECTED BY HCAPTCHA AND ITS ",
@@ -464,6 +487,9 @@ const Signin = () => {
       subtextlink3: " APPLY.",
       privacypolicyclick: "PRIVACY POLICY",
       termsofserviceclick: "TERMS OF SERVICE",
+      orauth: "OR",
+      signinErrormsg: "Username or password incorrect.",
+      externalautherrormsg: "This email is not registered.",
     },
     es: {
       title: "Inicio de Sesión",
@@ -481,11 +507,21 @@ const Signin = () => {
       subtextlink3: " APLICAN.",
       privacypolicyclick: "AVISO DE PRIVACIDAD",
       termsofserviceclick: "TÉRMINOS DE SERVICIO",
+      orauth: "O",
+      signinErrormsg: "Usuario o contraseña incorrecta.",
+      externalautherrormsg: "Este correo no está registrado.",
     },
   };
 
   return (
     <MainContainer>
+
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <Logo>
+          <ImgLogo src={E1ColorNoBG} />
+        </Logo>
+      </Link>
+
       <Container>
         <Wrapper>
           <Title>{translations[language].title}</Title>
@@ -493,7 +529,10 @@ const Signin = () => {
 
           <InputContainer>
             <Input
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value)
+                setSigninError(false);
+              }}
               onFocus={() => setNameFocused(true)}
               onBlur={() => setNameFocused(false)}
               required
@@ -507,7 +546,10 @@ const Signin = () => {
             <Input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setSigninError(false);
+              }}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
               required
@@ -515,27 +557,23 @@ const Signin = () => {
             <Placeholder hasFocus={passwordFocused || password !== ""} hasValue={password !== ""}>
               {translations[language].placeholderpassword}
             </Placeholder>
+
+            {signinError && <ErrorMessage>{translations[language].signinErrormsg}</ErrorMessage>}
+
           </InputContainer>
 
           <SignButtons>
             <ButtonFacebook onClick={signInWithFacebook}>
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
-
+            <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
             <ButtonGoogle onClick={signInWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>
-
-
-            <ButtonApple>
-              <AppleImg src={AppleIcono} />
-            </ButtonApple>
-
-
-            <ButtonMicrosoft>
-              <MicrosoftImg src={MicrosoftIcono} />
-            </ButtonMicrosoft>
           </SignButtons>
+
+          {externalautherror && <ErrorMessage>{translations[language].externalautherrormsg}</ErrorMessage>}
+
 
           <HCaptcha
             sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"

@@ -143,3 +143,28 @@ export const checkEmail = async (req, res, next) => {
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+
+export const checkPassword = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ name: req.body.name });
+
+        if (!user) {
+            // El usuario no existe
+            res.status(404).json({ exists: false });
+        } else {
+            const isCorrect = await bcrypt.compare(req.body.password, user.password);
+
+            if (isCorrect) {
+                // La contraseña es correcta
+                res.status(200).json({ isCorrect: true });
+            } else {
+                // La contraseña no es correcta
+                res.status(200).json({ isCorrect: false });
+            }
+        }
+    } catch (error) {
+        // Manejar errores
+        console.error("Error en checkPassword:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+};

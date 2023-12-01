@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import "../utils/global.css";
-import { Link, useNavigate } from "react-router-dom";
-import GifLogo from "../assets/GifLogo.gif";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import MenuIcono from "../assets/MenuIcono.png";
-import Separador from "../assets/Separador.png";
+import E2ColorNoBG from "../assets/E2ColorNoBG.png";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import BuscarIcono from "../assets/BuscarIcono.png";
 import FacebookIcono2 from "../assets/FacebookIcono2.png";
@@ -75,17 +74,9 @@ const Logo = styled.div`
 `;
 
 const ImgLogo = styled.img`
-  height: 44px;
-  width: 48px;
-`;
-
-const AppName = styled.h1`
-  font-size: 30px;
-  margin-top: 1.5px;
-  font-weight: 700;
-
-  color: #ffffff;
-  white-space: nowrap;
+  height: 20px;
+  width: 135px;
+  margin-top: 2px;
 `;
 
 const ItemLogin = styled.div`
@@ -366,6 +357,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const translations = {
     en: {
@@ -438,6 +430,12 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     setDropdownVisible(!dropdownVisible);
   };
 
+  const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
+
+  // Si la ruta actual es Signin o Signup, no se muestra el Navbar
+  if (isSigninOrSignup) {
+    return null;
+  }
   return (
     <Container scrolled={scrolled}>
       <Wrapper>
@@ -446,8 +444,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
         </ItemMenu>
         <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
           <Logo>
-            <ImgLogo src={GifLogo} />
-            <AppName> Flashy </AppName>
+            <ImgLogo src={E2ColorNoBG} />
           </Logo>
         </Link>
         <Search scrolled={scrolled}>

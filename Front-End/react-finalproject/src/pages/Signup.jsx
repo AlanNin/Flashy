@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from '../utils/LanguageContext';
 import styled, { keyframes, css } from "styled-components";
 import SigninBackground from "../assets/SigninBackground.jpg";
+import E1ColorNoBG from "../assets/E1WhiteNoBG.png";
 import FacebookSignin from "../assets/FacebookSignin.png";
 import GoogleSignin from "../assets/GoogleSignin.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
@@ -20,6 +21,20 @@ const MainContainer = styled.div`
   width: 100%;
 `;
 
+const Logo = styled.div`
+  position: absolute;
+  margin: 60px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+`;
+
+const ImgLogo = styled.img`
+  height: 45px;
+  width: 190px;
+`;
+
+
 const Container = styled.div`
   position: relative;
   display: flex;
@@ -34,14 +49,13 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   border-radius: 15px; 
-  margin-top: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   background: #1D1D1D;
   background: linear-gradient(#1D1D1D, #1A191B,#191819, #141214, #201D21   99% );
-  padding: 25px 48px 25px 48px;
+  padding: 40px 48px 25px 48px;
   gap: 10px;
 `;
 
@@ -283,7 +297,6 @@ const LanguageSquare = styled.div`
   border-radius: 4px;
   transition: background-color 0.8s;
 `;
-
 
 
 const Checkbox1 = styled.div`
@@ -545,7 +558,7 @@ const Signup = () => {
       privacynotice: "PRIVACY NOTICE",
       termsofservice: "TERMS OF SERVICE",
       cookiepreferences: "COOKIE PREFERENCES",
-      subtextlink1: "THIS SITE IS PROTECTED BY RECAPTCHA AND ITS ",
+      subtextlink1: "THIS SITE IS PROTECTED BY HCAPTCHA AND ITS ",
       subtextlink2: " AND ",
       subtextlink3: " APPLY.",
       privacypolicyclick: "PRIVACY POLICY",
@@ -555,6 +568,7 @@ const Signup = () => {
       checkboxtermsofservice: "I agree to the Terms of Service",
       checkboxtemails: "I agree to recive emails",
       checkboxmissing: "Please check the requeriments in order to continue.",
+      orauth: "OR",
     },
     es: {
       title: "Inicio de Sesión",
@@ -571,7 +585,7 @@ const Signup = () => {
       privacynotice: "AVISO DE PRIVACIDAD",
       termsofservice: "TÉRMINOS DE USO",
       cookiepreferences: "PREFERENCIAS DE COOKIES",
-      subtextlink1: "ESTA PÁGINA ESTÁ PROTEGIDA POR RECAPTCHA Y SU ",
+      subtextlink1: "ESTA PÁGINA ESTÁ PROTEGIDA POR HCAPTCHA Y SU ",
       subtextlink2: " Y LOS ",
       subtextlink3: " APLICAN.",
       privacypolicyclick: "AVISO DE PRIVACIDAD",
@@ -581,11 +595,19 @@ const Signup = () => {
       checkboxtermsofservice: "Acepto los Términos de Servicio",
       checkboxtemails: "Acepto recibir correos electrónicos",
       checkboxmissing: "Por favor acepta los requerimientos para continuar.",
+      orauth: "O",
     },
   };
 
   return (
     <MainContainer>
+
+      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <Logo>
+          <ImgLogo src={E1ColorNoBG} />
+        </Logo>
+      </Link>
+
       <Container>
         <Wrapper>
           <Title>{translations[language].title}</Title>
@@ -671,7 +693,7 @@ const Signup = () => {
             <ButtonFacebook onClick={signUpWithFacebook}>
               <FacebookImg src={FacebookSignin} />
             </ButtonFacebook>
-            <SignButtonsTxt>OR</SignButtonsTxt>
+            <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
             <ButtonGoogle onClick={signUpWithGoogle}>
               <GoogleImg src={GoogleSignin} />
             </ButtonGoogle>

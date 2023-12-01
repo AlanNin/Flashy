@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { signin, signup, SigninExternalAuth, SignupExternalAuth, checkName, checkEmail } from "../controllers/auth.js";
+import { signin, signup, SigninExternalAuth, SignupExternalAuth, checkName, checkEmail, checkPassword } from "../controllers/auth.js";
 
 const router = express.Router();
 router.use(cors());
@@ -22,5 +22,8 @@ router.post("/checkname", checkName);
 
 // CHECK EMAIL
 router.post("/checkemail", checkEmail);
+
+// CHECK PASSWORD
+router.post("/checkpassword", checkPassword);
 
 export default router;
