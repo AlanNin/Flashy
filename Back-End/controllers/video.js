@@ -172,3 +172,40 @@ export const search = async (req, res, next) => {
     }
 };
 
+export const getSubscribedChannels = async (req, res, next) => {
+    try {
+      const user = await User.findById(req.user.id);
+      const subscribedChannels = user.subscribedUsers;
+  
+     
+      const channels = await Promise.all(
+        subscribedChannels.map(async (channelId) => {
+          const channel = await Channel.findById(channelId);
+          return { channelId, channelName: channel.name };
+        })
+      );
+  
+      res.status(200).json(channels);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  export const getVideosByChannel = async (req, res, next) => {
+    try {
+        const channelId = req.params.channelId; 
+        const user = await User.findById(req.user.id);
+
+        // Verificar si el usuario está suscrito al canal
+        if (!user.subscribedUsers.includes(channelId)) {
+            return next(createError(403, "¡No estás suscrito a este canal!"));
+        }
+
+        // Obtener videos del canal
+        const videos = await Video.find({ userId: channelId }).sort({ createdAt: -1 });
+
+        res.status(200).json(videos);
+    } catch (error) {
+        next(error);
+    }
+};
