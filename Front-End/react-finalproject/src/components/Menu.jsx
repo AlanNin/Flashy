@@ -311,7 +311,7 @@ const ItemLogin = styled.div`
   width: max-content;
   margin-top: 15px;
   padding: 8px 15px;
-  border-radius: 30px;
+  border-radius: 10px;
   transition: background-color 0.5s;
   background-color: ${({ theme }) => theme.loginbg};
   &:hover {
@@ -354,7 +354,7 @@ const ButtonLoginText = styled.h3`
   font-size: 26px;
   font-weight: 700px;
   letter-spacing: 0;
-  margin-right: 5px;
+  margin-right: 6px;
   line-height: normal;
   color: ${({ theme }) => theme.text};
   @media only screen and (max-width: 980px),

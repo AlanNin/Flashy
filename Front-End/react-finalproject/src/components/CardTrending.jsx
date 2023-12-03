@@ -164,7 +164,7 @@ const CardTrending = ({ type, video, index }) => {
     <Container>
       <InfoContainer>
         <ChannelName>
-          <LinkToChannel href="/channel"> {channel.name} </LinkToChannel>
+          <LinkToChannel href="/channel"> {channel.displayname} </LinkToChannel>
         </ChannelName>
         <Link to="/channel" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
           <ChannelIcon src={CanalTendenciaIcono} />

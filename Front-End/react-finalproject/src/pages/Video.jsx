@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
-import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
-import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
-import ReplyOutlinedIcon from "@mui/icons-material/ReplyOutlined";
-import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
 import Card from "../components/Card";
 import CardRecommendation from "../components/CardRecommendation";
+import Recommendation from "../components/Recommendation";
 import CardRelatedVideos from "../components/CardRelated";
 import VideoLikeIcono from "../assets/VideoLikeIcono.png";
 import VideoLikedIcono from "../assets/VideoLikedIcono.png";
 import VideoDislikeIcono from "../assets/VideoDislikeIcono.png";
-import VideoDislikedIcono from "../assets/VideoDislikeIcono.png";
+import VideoDislikedIcono from "../assets/VideoDislikedIcono.png";
 import VideoShareIcono from "../assets/VideoShareIcono.png";
 import VideoSaveIcono from "../assets/VideoSaveIcono.png";
 import VideoSavedIcono from "../assets/VideoSavedIcono.png";
@@ -21,7 +19,15 @@ import Miniaturahxh1 from "../assets/Miniaturahxh1.jpg"
 import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
+import ViewsIcon from '../assets/ViewsIcono2.png';
 import MadHouseLogo from "../assets/MadHouseLogo.jpg"
+import { useLanguage } from '../utils/LanguageContext';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from "axios";
+import { dislike, fetchSuccess, like } from "../redux/videoSlice";
+import { subscription } from "../redux/userSlice";
+import moment from "moment";
+import "moment/locale/es";
 
 const Container = styled.div`
   display: flex;
@@ -135,8 +141,8 @@ const Description = styled.p`
 `;
 
 const Subscribe = styled.button`
-  background-color: rgb(196, 90, 172, 0.5);
-  font-weight: 700;
+background-color: ${({ isSubscribed }) => (isSubscribed ? 'rgb(196, 90, 148, 0.8)' : 'rgb(196, 90, 172, 0.5)')};
+font-weight: 700;
   font-size: 14px;
   font-family: "Roboto", Helvetica;
   color: white;
@@ -194,38 +200,130 @@ const TitleHeader = styled.h1`
   margin-bottom: 20px;
 `;
 
-const Recommendation = styled.div`
-  flex: 2;
+const VideoFrame = styled.video`
+  max-height: 560px;
+  width: 1000px;
+  object-fit: cover;
 `;
 
+const RecommendationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: auto;
+`;
+
+
 const Video = () => {
+
+  const { language, setLanguage } = useLanguage();
+
+  const translations = {
+    en: {
+    },
+    es: {
+    },
+  };
+
+  const formatViews = (views) => {
+    if (views >= 1000000000) {
+      return `${(views / 1000000000).toFixed(1)}B`;
+    } else if (views >= 1000000) {
+      return `${(views / 1000000).toFixed(1)}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}K`;
+    } else {
+      return views.toString();
+    }
+  };
+
+  const formatDuration = (durationInSeconds) => {
+    if (durationInSeconds < 60) {
+      return `${durationInSeconds}s`;
+    } else if (durationInSeconds < 3600) {
+      const minutes = Math.floor(durationInSeconds / 60);
+      return `${minutes}m`;
+    } else {
+      const hours = Math.floor(durationInSeconds / 3600);
+      return `${hours}h`;
+    }
+  };
+
+  const formatDate = (createdAt) => {
+    const date = new Date(createdAt);
+    const options = { month: 'short', day: '2-digit', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  const { currentUser } = useSelector((state) => state.user);
+  const [channel, setChannel] = useState({});
+  const { currentVideo } = useSelector((state) => state.video);
+  const dispatch = useDispatch();
+
+  const path = useLocation().pathname.split("/")[2];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const videoRes = await axios.get(`/videos/find/${path}`);
+        const channelRes = await axios.get(
+          `/users/find/${videoRes.data.userId}`
+        );
+        setChannel(channelRes.data);
+        dispatch(fetchSuccess(videoRes.data));
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+    fetchData();
+  }, [path, dispatch]);
+
+  const handleLike = async () => {
+    await axios.put(`/users/like/${currentVideo._id}`);
+    dispatch(like(currentUser._id));
+  };
+
+  const handleDislike = async () => {
+    await axios.put(`/users/dislike/${currentVideo._id}`);
+    dispatch(dislike(currentUser._id));
+  };
+
+  const handleSub = async () => {
+    currentUser.subscribedUsers.includes(channel._id)
+      ? await axios.put(`/users/unsub/${channel._id}`)
+      : await axios.put(`/users/sub/${channel._id}`);
+    dispatch(subscription(channel._id));
+  };
+
   return (
     <Container>
       <Content>
         <VideoWrapper>
-          <iframe
-            width="1000px"
-            height="560px"
-            src="https://www.youtube.com/embed/d6kBeJjTGnY?si=vAnHaps-QdAlMb-O"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
+          <VideoFrame src={currentVideo.videoUrl} controls autoPlay />
         </VideoWrapper>
 
 
         <Buttons>
-          <Button>
-            <ButtonsImg src={VideoLikeIcono} /> 123
+          <Button onClick={handleLike}>
+
+            {currentVideo.likes?.includes(currentUser?._id) ?
+              (<ButtonsImg src={VideoLikedIcono} />) :
+              (<ButtonsImg src={VideoLikeIcono} />)} {" "}
+            {currentVideo.likes?.length}
+
           </Button>
-          <Button>
-            <ButtonsImg src={VideoDislikeIcono} /> 25
+
+          <Button onClick={handleDislike}>
+
+            {currentVideo.dislikes?.includes(currentUser?._id) ?
+              (<ButtonsImg src={VideoDislikedIcono} />) :
+              (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
+            {currentVideo.dislikes?.length}
+
           </Button>
           <Button>
             <ButtonsImg src={VideoSaveIcono} /> Watch Later
@@ -237,38 +335,43 @@ const Video = () => {
 
         <VideoInfo>
 
-          <VideoImg src={Miniaturahxh1} />
+          <VideoImg src={currentVideo.imgUrlVertical} />
 
           <VideoOtherInfo>
 
-            <Title> HunterxHunter EP01:S01</Title>
+            <Title> {currentVideo.title}</Title>
 
             <ContenedorIconosTextos>
 
               <ChannelIcon src={CanalIcono} />
-              <EstiloTextos> Madhouse Studios </EstiloTextos>
+              <EstiloTextos> {channel.displayname} </EstiloTextos>
               <EstiloIconos src={DuracionIcono} />
-              <EstiloTextos> 20m </EstiloTextos>
+              <EstiloTextos> {formatDuration(currentVideo.duration)} </EstiloTextos>
               <EstiloIconos src={FechaIcono} />
-              <EstiloTextos> Sept 18, 2011 </EstiloTextos>
+              <EstiloTextos> {formatDate(currentVideo.createdAt)} </EstiloTextos>
+              <EstiloIconos src={ViewsIcon} />
+              <EstiloTextos> {formatViews(currentVideo.views)} </EstiloTextos>
 
             </ContenedorIconosTextos>
 
             <Description>
 
-              In the first episode of Hunter x Hunter (2011), we are introduced to our main protagonist, Gon Freecss.
-              Gon is a young boy who lives on Whale Island and has always been curious about his absent father, who is a renowned Hunter.
-              Hunters are individuals with exceptional skills who undertake dangerous and adventurous tasks.
+              {currentVideo.desc}
 
             </Description>
 
             <ChannelInfo>
-              <ChannelImage src={MadHouseLogo} />
+              <ChannelImage src={channel.img} />
               <ChannelInfoTx>
-                <ChannelName> MadHouse </ChannelName>
-                <ChannelCounter> 103 K Subscribers </ChannelCounter>
+                <ChannelName> {channel.displayname} </ChannelName>
+                <ChannelCounter> {channel.subscribers} </ChannelCounter>
               </ChannelInfoTx>
-              <Subscribe>SUBSCRIBE</Subscribe>
+              <Subscribe
+                onClick={handleSub}
+                isSubscribed={currentUser.subscribedUsers?.includes(channel._id)}
+              >
+                {currentUser.subscribedUsers?.includes(channel._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+              </Subscribe>
             </ChannelInfo>
 
           </VideoOtherInfo>
@@ -281,24 +384,15 @@ const Video = () => {
 
         </RelatedVideos>
 
-        <Comments />
+        <Comments videoId={currentVideo._id} />
+
       </Content>
-      <Recommendation>
+      <RecommendationContainer>
         <TitleHeader> RECOMMENDED </TitleHeader>
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-        <CardRecommendation type="sm" />
-      </Recommendation>
+        <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
+
+      </RecommendationContainer>
+
     </Container>
   );
 };

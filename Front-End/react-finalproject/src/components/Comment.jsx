@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import LikeIcono from "../assets/VideoLikeIcono.png";
 import LikedIcono from "../assets/VideoLikedIcono.png";
 import DislikeIcono from "../assets/VideoDislikeIcono.png";
 import DislikedIcono from "../assets/VideoDislikeIcono.png";
+import { useLanguage } from '../utils/LanguageContext';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from "axios";
+import moment from "moment";
+import "moment/locale/es";
 
 const Container = styled.div`
   display: flex;
@@ -114,19 +119,59 @@ const ViewReplies = styled.h1`
 
 
 
-const Comment = () => {
+const Comment = ({ comment }) => {
+
+  const { language, setLanguage } = useLanguage();
+
+  const translations = {
+    en: {
+      views: "views",
+    },
+    es: {
+      views: "visitas",
+    },
+  };
+
+  if (language === "es") {
+    moment.locale("es");
+  } else {
+    moment.locale("en");
+  }
+
+  const formatViews = (views) => {
+    if (views >= 1000000000) {
+      return `${(views / 1000000000).toFixed(1)}B`;
+    } else if (views >= 1000000) {
+      return `${(views / 1000000).toFixed(1)}M`;
+    } else if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}K`;
+    } else {
+      return views.toString();
+    }
+  };
+
+  const timeago = timestamp => moment(timestamp).fromNow();
+
+  const [channel, setChannel] = useState({});
+
+  useEffect(() => {
+    const fetchComment = async () => {
+      const res = await axios.get(`/users/find/${comment.userId}`);
+      setChannel(res.data)
+    };
+    fetchComment();
+  }, [comment.userId]);
+
+
   return (
     <Container>
-      <Avatar src="https://yt3.ggpht.com/yti/APfAmoE-Q0ZLJ4vk3vqmV4Kwp0sbrjxLyB8Q4ZgNsiRH=s88-c-k-c0x00ffffff-no-rj-mo" />
+      <Avatar src={channel.img} />
       <Details>
         <Name>
-          John Doe <Date>1 day ago</Date>
+          {channel.name} <Date> • {timeago(comment.createdAt)} </Date>
         </Name>
         <Text>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vel, ex
-          laboriosam ipsam aliquam voluptatem perferendis provident modi, sequi
-          tempore reiciendis quod, optio ullam cumque? Quidem numquam sint
-          mollitia totam reiciendis?
+          {comment.desc}
         </Text>
         <CommentOptions>
 

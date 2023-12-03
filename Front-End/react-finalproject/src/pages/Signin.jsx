@@ -30,7 +30,7 @@ const Logo = styled.div`
 `;
 
 const ImgLogo = styled.img`
-  height: 45px;
+  height: 65px;
   width: 190px;
 `;
 

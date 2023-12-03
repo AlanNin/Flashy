@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import MiniaturaJJK from "../assets/MiniaturaJJK.jpg";
 import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
@@ -76,7 +75,7 @@ const InfoTime = styled.div`
   color: ${({ theme }) => theme.textSoft};
 `;
 
-const Card = ({ type, video }) => {
+const Card = ({ video }) => {
 
   const { language, setLanguage } = useLanguage();
 
@@ -107,43 +106,41 @@ const Card = ({ type, video }) => {
     }
   };
 
+  const timeago = timestamp => {
+    const relativeTime = moment(timestamp).fromNow();
+    return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
+  };
 
-  const timeago = timestamp => moment(timestamp).fromNow();
 
-  const [channel, setChannel] = useState({})
+  const [channel, setChannel] = useState({});
+
   useEffect(() => {
     const fetchChannel = async () => {
-      try {
-        const res = await axios.get(`/users/find/${video.userId}`);
-        setChannel(res.data);
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      }
+      const res = await axios.get(`/users/find/${video.userId}`);
+      setChannel(res.data);
     };
-    fetchChannel()
+    fetchChannel();
   }, [video.userId]);
 
   return (
-    <Container type={type}>
-      <Link to="/video/test" style={{ textDecoration: "none" }}>
+    <Container>
+      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
         <Image
-          type={type}
           src={video.imgUrl}
         />
       </Link>
-      <Details type={type}>
+      <Details>
         <Link to="/channel" style={{ textDecoration: "none" }}>
           <ChannelImage
-            type={type}
             src={channel.img}
           />
         </Link>
         <Texts>
-          <Link to="/video/test" style={{ textDecoration: "none" }}>
-            <Title>{video.title}</Title>
+          <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+            <Title> {video.title} </Title>
           </Link>
           <Link to="/channel" style={{ textDecoration: "none" }}>
-            <ChannelName>{channel.name}</ChannelName>
+            <ChannelName> {channel.displayname} </ChannelName>
           </Link>
           <InfoWrapper>
             <InfoViews> {formatViews(video.views)} {translations[language].views}</InfoViews>

@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import Comment from "./Comment";
+import { useLanguage } from '../utils/LanguageContext';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from "axios";
 
 const Container = styled.div``;
 
@@ -104,20 +107,34 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
-const Comments = () => {
+const Comments = ({ videoId }) => {
   const [isTextareaFocused, setTextareaFocused] = useState(false);
+
+  const { currentUser } = useSelector((state) => state.user);
+
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`/comments/${videoId}`);
+        setComments(res.data);
+      } catch (err) { }
+    };
+    fetchComments();
+  }, [videoId]);
 
   return (
     <Container>
       <TitleHeader> COMMENTS </TitleHeader>
       <NewComment>
         <Avatar
-          src="https://yt3.ggpht.com/yti/APfAmoE-Q0ZLJ4vk3vqmV4Kwp0sbrjxLyB8Q4ZgNsiRH=s88-c-k-c0x00ffffff-no-rj-mo"
+          src={currentUser.img}
           alt="avatar"
         />
         <PostComment>
           <UserComment>
-            Comment as <UserCommentName> Alan Nin </UserCommentName>{" "}
+            Comment as <UserCommentName> {currentUser.displayname} </UserCommentName>{" "}
           </UserComment>
           <Textarea
             placeholder="Leave a comment..."
@@ -130,13 +147,9 @@ const Comments = () => {
           </ButtonsDiv>
         </PostComment>
       </NewComment>
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
+      {comments.map(comment => (
+        <Comment key={comment._id} comment={comment} />
+      ))}
     </Container>
   );
 };
