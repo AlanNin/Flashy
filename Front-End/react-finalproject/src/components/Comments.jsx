@@ -129,12 +129,12 @@ const Comments = ({ videoId }) => {
       <TitleHeader> COMMENTS </TitleHeader>
       <NewComment>
         <Avatar
-          src={currentUser.img}
+          src={currentUser?.img}
           alt="avatar"
         />
         <PostComment>
           <UserComment>
-            Comment as <UserCommentName> {currentUser.displayname} </UserCommentName>{" "}
+            Comment as <UserCommentName> {currentUser?.displayname} </UserCommentName>{" "}
           </UserComment>
           <Textarea
             placeholder="Leave a comment..."

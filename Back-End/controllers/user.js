@@ -72,15 +72,28 @@ export const unsubscribe = async (req, res, next) => {
         next(err);
     }
 };
+
 export const like = async (req, res, next) => {
     const id = req.user.id;
     const videoId = req.params.videoId;
     try {
-        await Video.findByIdAndUpdate(videoId, {
-            $addToSet: { likes: id },
-            $pull: { dislikes: id }
-        })
-        res.status(200).json("Te ha gustado este video.")
+        const video = await Video.findById(videoId);
+
+        // Verifica si el usuario ya había dado like al video
+        const alreadyLiked = video.likes.includes(id);
+
+        // Si ya había dado like, remuévelo, de lo contrario, agrégalo
+        const updateObject = alreadyLiked
+            ? { $pull: { likes: id } }
+            : { $addToSet: { likes: id }, $pull: { dislikes: id } };
+
+        await Video.findByIdAndUpdate(videoId, updateObject, { new: true });
+
+        const message = alreadyLiked
+            ? "Has quitado tu like a este video."
+            : "Te ha gustado este video.";
+
+        res.status(200).json(message);
     } catch (err) {
         next(err);
     }
@@ -90,12 +103,25 @@ export const dislike = async (req, res, next) => {
     const id = req.user.id;
     const videoId = req.params.videoId;
     try {
-        await Video.findByIdAndUpdate(videoId, {
-            $addToSet: { dislikes: id },
-            $pull: { likes: id }
-        })
-        res.status(200).json("No te ha gustado este video.")
+        const video = await Video.findById(videoId);
+
+        // Verifica si el usuario ya había dado dislike al video
+        const alreadyDisliked = video.dislikes.includes(id);
+
+        // Si ya había dado dislike, remuévelo, de lo contrario, agrégalo
+        const updateObject = alreadyDisliked
+            ? { $pull: { dislikes: id } }
+            : { $addToSet: { dislikes: id }, $pull: { likes: id } };
+
+        await Video.findByIdAndUpdate(videoId, updateObject, { new: true });
+
+        const message = alreadyDisliked
+            ? "Has quitado tu dislike a este video."
+            : "No te ha gustado este video.";
+
+        res.status(200).json(message);
     } catch (err) {
         next(err);
     }
 };
+

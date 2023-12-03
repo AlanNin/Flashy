@@ -226,6 +226,10 @@ const Video = () => {
   };
 
   const formatViews = (views) => {
+    if (typeof views !== 'number') {
+      return 'N/A'; // or any default value if views is not a number
+    }
+
     if (views >= 1000000000) {
       return `${(views / 1000000000).toFixed(1)}B`;
     } else if (views >= 1000000) {
@@ -236,6 +240,7 @@ const Video = () => {
       return views.toString();
     }
   };
+
 
   const formatDuration = (durationInSeconds) => {
     if (durationInSeconds < 60) {
@@ -299,30 +304,64 @@ const Video = () => {
     dispatch(subscription(channel._id));
   };
 
+  const isCurrentUserUploader = currentUser?._id === channel?._id;
+
+  const [isViewIncreased, setIsViewIncreased] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const handleTimeUpdate = () => {
+      const video = videoRef.current;
+      const percentageWatched = (video.currentTime / video.duration) * 100;
+
+      // Check if the user has watched at least 10% and the view count hasn't been increased yet
+      if (percentageWatched >= 50 && !isViewIncreased) {
+        // Make a request to increase the view count
+        axios.put(`/videos/view/${currentVideo._id}`)
+          .then(() => {
+            setIsViewIncreased(true);
+          })
+          .catch((error) => {
+            console.error("Error updating view count:", error);
+          });
+      }
+    };
+
+    const video = videoRef.current;
+
+    if (video) {
+      video.addEventListener("timeupdate", handleTimeUpdate);
+
+      return () => {
+        video.removeEventListener("timeupdate", handleTimeUpdate);
+      };
+    }
+  }, [currentVideo._id, isViewIncreased]);
+
   return (
     <Container>
       <Content>
         <VideoWrapper>
-          <VideoFrame src={currentVideo.videoUrl} controls autoPlay />
+          <VideoFrame ref={videoRef} src={currentVideo?.videoUrl} controls autoPlay />
         </VideoWrapper>
 
 
         <Buttons>
           <Button onClick={handleLike}>
 
-            {currentVideo.likes?.includes(currentUser?._id) ?
+            {currentVideo?.likes?.includes(currentUser?._id) ?
               (<ButtonsImg src={VideoLikedIcono} />) :
               (<ButtonsImg src={VideoLikeIcono} />)} {" "}
-            {currentVideo.likes?.length}
+            {currentVideo?.likes?.length}
 
           </Button>
 
           <Button onClick={handleDislike}>
 
-            {currentVideo.dislikes?.includes(currentUser?._id) ?
+            {currentVideo?.dislikes?.includes(currentUser?._id) ?
               (<ButtonsImg src={VideoDislikedIcono} />) :
               (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
-            {currentVideo.dislikes?.length}
+            {currentVideo?.dislikes?.length}
 
           </Button>
           <Button>
@@ -335,43 +374,47 @@ const Video = () => {
 
         <VideoInfo>
 
-          <VideoImg src={currentVideo.imgUrlVertical} />
+          <VideoImg src={currentVideo?.imgUrlVertical} />
 
           <VideoOtherInfo>
 
-            <Title> {currentVideo.title}</Title>
+            <Title> {currentVideo?.title}</Title>
 
             <ContenedorIconosTextos>
 
               <ChannelIcon src={CanalIcono} />
-              <EstiloTextos> {channel.displayname} </EstiloTextos>
+              <EstiloTextos> {channel?.displayname} </EstiloTextos>
               <EstiloIconos src={DuracionIcono} />
-              <EstiloTextos> {formatDuration(currentVideo.duration)} </EstiloTextos>
+              <EstiloTextos> {formatDuration(currentVideo?.duration)} </EstiloTextos>
               <EstiloIconos src={FechaIcono} />
-              <EstiloTextos> {formatDate(currentVideo.createdAt)} </EstiloTextos>
+              <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
               <EstiloIconos src={ViewsIcon} />
-              <EstiloTextos> {formatViews(currentVideo.views)} </EstiloTextos>
+              <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
 
             </ContenedorIconosTextos>
 
             <Description>
 
-              {currentVideo.desc}
+              {currentVideo?.desc}
 
             </Description>
 
             <ChannelInfo>
-              <ChannelImage src={channel.img} />
+              <ChannelImage src={channel?.img} />
               <ChannelInfoTx>
-                <ChannelName> {channel.displayname} </ChannelName>
-                <ChannelCounter> {channel.subscribers} </ChannelCounter>
+                <ChannelName> {channel?.displayname} </ChannelName>
+                <ChannelCounter> {channel?.subscribers} </ChannelCounter>
               </ChannelInfoTx>
-              <Subscribe
-                onClick={handleSub}
-                isSubscribed={currentUser.subscribedUsers?.includes(channel._id)}
-              >
-                {currentUser.subscribedUsers?.includes(channel._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
-              </Subscribe>
+
+              {currentUser && !isCurrentUserUploader && (
+                <Subscribe
+                  onClick={handleSub}
+                  isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                >
+                  {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+                </Subscribe>
+              )}
+
             </ChannelInfo>
 
           </VideoOtherInfo>

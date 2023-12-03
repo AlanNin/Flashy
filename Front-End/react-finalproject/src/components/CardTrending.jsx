@@ -171,7 +171,7 @@ const CardTrending = ({ type, video, index }) => {
         </Link>
         <RankNumber>{(index + 1).toString().padStart(2, '0')}</RankNumber>
       </InfoContainer>
-      <Link to="/video/test" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
         <SlideContainer>
           <InsideContainer>
             <Title> {video.title} </Title>

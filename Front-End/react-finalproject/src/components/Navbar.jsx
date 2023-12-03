@@ -458,6 +458,16 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     return null;
   }
 
+  useEffect(() => {
+    // Add or remove the "overflow: hidden" style on the body based on the "open" state
+    document.body.style.overflow = open ? 'hidden' : 'auto';
+
+    return () => {
+      // Clean up the style when the component is unmounted
+      document.body.style.overflow = 'auto';
+    };
+  }, [open]);
+
 
   return (
     <>

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import Menu from "./components/Menu";
 import Navbar from "./components/Navbar";
-import HomeSlideShow from './components/HomeSlideShow/SlideShow';
 import { darkTheme, lightTheme } from "./utils/Theme";
 import { LanguageProvider } from './utils/LanguageContext';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
