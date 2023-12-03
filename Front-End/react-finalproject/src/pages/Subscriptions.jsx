@@ -9,6 +9,7 @@ import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 
+
 const MainContainer = styled.div`
   display: relative;
   width: 100%;

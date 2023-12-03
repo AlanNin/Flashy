@@ -449,14 +449,8 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     setDropdownVisible(!dropdownVisible);
   };
 
-
   const [open, setOpen] = useState(false);
-
-  const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
-
-  if (isSigninOrSignup) {
-    return null;
-  }
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     // Add or remove the "overflow: hidden" style on the body based on the "open" state
@@ -468,6 +462,19 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     };
   }, [open]);
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      // Navegar al resultado de búsqueda al presionar Enter
+      navigate(`/search?q=${q}`);
+    }
+  };
+
+  // MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
+  const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
+
+  if (isSigninOrSignup) {
+    return null;
+  }
 
   return (
     <>
@@ -483,8 +490,11 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
             </Logo>
           </Link>
           <Search scrolled={scrolled}>
-            <Input placeholder={translations[language].search} />
-            <ImgBuscar src={BuscarIcono} />
+            <Input
+              placeholder={translations[language].search}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyPress={handleKeyPress} />
+            <ImgBuscar src={BuscarIcono} onClick={() => navigate(`/search?q=${q}`)} />
           </Search>
           <FollowDiv>
             <Follow>{translations[language].join}</Follow>

@@ -311,7 +311,7 @@ const ItemLogin = styled.div`
   width: max-content;
   margin-top: 15px;
   padding: 8px 15px;
-  border-radius: 10px;
+  border-radius: 30px;
   transition: background-color 0.5s;
   background-color: ${({ theme }) => theme.loginbg};
   &:hover {
