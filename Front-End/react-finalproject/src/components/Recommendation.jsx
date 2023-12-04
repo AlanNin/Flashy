@@ -13,7 +13,6 @@ const Recommendation = ({ tags, currentVideoId }) => {
     useEffect(() => {
         const fetchVideos = async () => {
             const res = await axios.get(`/videos/tags?tags=${tags}`);
-            console.log(res.data); // Agrega esta línea para depuración
             setVideos(res.data);
         };
         fetchVideos();

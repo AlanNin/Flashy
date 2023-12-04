@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
-import Card from "../components/Card";
-import CardRecommendation from "../components/CardRecommendation";
 import Recommendation from "../components/Recommendation";
 import CardRelatedVideos from "../components/CardRelated";
+import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import VideoLikeIcono from "../assets/VideoLikeIcono.png";
 import VideoLikedIcono from "../assets/VideoLikedIcono.png";
 import VideoDislikeIcono from "../assets/VideoDislikeIcono.png";
@@ -14,20 +13,15 @@ import VideoShareIcono from "../assets/VideoShareIcono.png";
 import VideoSaveIcono from "../assets/VideoSaveIcono.png";
 import VideoSavedIcono from "../assets/VideoSavedIcono.png";
 import RelatedSlider from "../components/RelatedSlider";
-import MiniaturaTheBoys from "../assets/MiniaturaTheBoys.jpg"
-import Miniaturahxh1 from "../assets/Miniaturahxh1.jpg"
 import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
 import ViewsIcon from '../assets/ViewsIcono2.png';
-import MadHouseLogo from "../assets/MadHouseLogo.jpg"
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
-import moment from "moment";
-import "moment/locale/es";
 
 const Container = styled.div`
   display: flex;
@@ -141,15 +135,15 @@ const Description = styled.p`
 `;
 
 const Subscribe = styled.button`
-background-color: ${({ isSubscribed }) => (isSubscribed ? 'rgb(196, 90, 148, 0.8)' : 'rgb(196, 90, 172, 0.5)')};
-font-weight: 700;
+  background-color: ${({ isSubscribed }) => (isSubscribed ? 'rgb(196, 90, 148, 0.8)' : 'rgb(196, 90, 172, 0.5)')};
+  font-weight: 700;
   font-size: 14px;
   font-family: "Roboto", Helvetica;
   color: white;
   border: none;
   border-radius: 3px;
   height: max-content;
-  padding: 13px 20px;
+  padding: 10px 20px;
   cursor: pointer;
   margin-left: 20px;
   margin-top: 10px;
@@ -170,13 +164,14 @@ const ChannelImage = styled.img`
 
 const ChannelInfoTx = styled.div`
   display: flex;
+  margin-left: 2px;
   flex-direction: column;
   height: auto;
   width: auto;
 `;
 
 const ChannelName = styled.span`
-  font-size: 24px;
+  font-size: 20px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
   color: ${({ theme }) => theme.text};
@@ -213,6 +208,113 @@ const RecommendationContainer = styled.div`
   width: auto;
 `;
 
+const SuscbribeContainer = styled.div`
+  align-items: center;
+  height: max-content;
+  width: max-content;
+`;
+
+const SuscbribeNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.5);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-left: 20px;
+`;
+
+const SuscbribeNotLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const LikeNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 125px;
+  z-index: 2;
+`;
+
+const LikeNotLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const DislikeNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 125px;
+  z-index: 2;
+`;
+
+const DislikeLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+
+const ItemLogin = styled.div`
+  display: flex;
+  width: max-content;
+  padding: 5px 12px;
+  align-items: center;
+  gap: 8px;
+  height: max-content;
+  transition: background-color 0.5s;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.loginbg};
+  &:hover {
+    background-color: ${({ theme }) => theme.softloginbg};
+  }
+`;
+
+const ImgLogin = styled.img`
+  height: 20px;
+  width: 20px;
+`;
+
+const ButtonLoginText = styled.h3`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  margin-right: 2px;
+  font-weight: normal;
+  margin-bottom: 3px;
+  color: ${({ theme }) => theme.text};
+
+`;
 
 const Video = () => {
 
@@ -220,8 +322,10 @@ const Video = () => {
 
   const translations = {
     en: {
+      signin: "Sign in",
     },
     es: {
+      signin: "Iniciar Sesión",
     },
   };
 
@@ -287,25 +391,46 @@ const Video = () => {
     fetchData();
   }, [path, dispatch]);
 
+  // LIKE VIDEO
   const handleLike = async () => {
-    await axios.put(`/users/like/${currentVideo._id}`);
+
+    if (!currentUser) {
+      setLikePopupVisible(true);
+      return;
+    }
+
+    await axios.put(`/users/like/${currentVideo?._id}`);
     dispatch(like(currentUser._id));
   };
 
+  // DISLIKE VIDEO
   const handleDislike = async () => {
-    await axios.put(`/users/dislike/${currentVideo._id}`);
+
+    if (!currentUser) {
+      setDislikePopupVisible(true);
+      return;
+    }
+
+    await axios.put(`/users/dislike/${currentVideo?._id}`);
     dispatch(dislike(currentUser._id));
   };
 
+  // SUBSCRIBE CHANNEL
   const handleSub = async () => {
-    currentUser.subscribedUsers.includes(channel._id)
-      ? await axios.put(`/users/unsub/${channel._id}`)
-      : await axios.put(`/users/sub/${channel._id}`);
-    dispatch(subscription(channel._id));
+    if (!currentUser) {
+      setSubscribePopupVisible(true);
+      return;
+    }
+
+    currentUser.subscribedUsers.includes(channel?._id)
+      ? await axios.put(`/users/unsub/${channel?._id}`)
+      : await axios.put(`/users/sub/${channel?._id}`);
+    dispatch(subscription(channel?._id));
   };
 
   const isCurrentUserUploader = currentUser?._id === channel?._id;
 
+  // ADD VIEWS TO VIDEO
   const [isViewIncreased, setIsViewIncreased] = useState(false);
   const videoRef = useRef(null);
 
@@ -314,10 +439,8 @@ const Video = () => {
       const video = videoRef.current;
       const percentageWatched = (video.currentTime / video.duration) * 100;
 
-      // Check if the user has watched at least 10% and the view count hasn't been increased yet
-      if (percentageWatched >= 50 && !isViewIncreased) {
-        // Make a request to increase the view count
-        axios.put(`/videos/view/${currentVideo._id}`)
+      if (percentageWatched >= 35 && !isViewIncreased) {
+        axios.put(`/videos/view/${currentVideo?._id}`)
           .then(() => {
             setIsViewIncreased(true);
           })
@@ -336,7 +459,64 @@ const Video = () => {
         video.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
-  }, [currentVideo._id, isViewIncreased]);
+  }, [currentVideo?._id, isViewIncreased]);
+
+
+  // POP UP SUSCRIBE NOT LOGGED
+  const [isSubscribePopupVisible, setSubscribePopupVisible] = useState(false);
+  const subscribeRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideSuscribeNotLogged = (event) => {
+      if (subscribeRef.current && !subscribeRef.current.contains(event.target)) {
+        setSubscribePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideSuscribeNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSuscribeNotLogged);
+    };
+  }, []);
+
+  // POP UP LIKE NOT LOGGED
+  const [isLikePopupVisible, setLikePopupVisible] = useState(false);
+  const likeRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideLikeNotLogged = (event) => {
+      if (likeRef.current && !likeRef.current.contains(event.target)) {
+        setLikePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideLikeNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideLikeNotLogged);
+    };
+  }, []);
+
+  // POP UP DISLIKE NOT LOGGED
+  const [isDislikePopupVisible, setDislikePopupVisible] = useState(false);
+  const dislikeRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideDislikeNotLogged = (event) => {
+      if (dislikeRef.current && !dislikeRef.current.contains(event.target)) {
+        // Clic fuera del componente, ocultar el popup
+        setDislikePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideDislikeNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideDislikeNotLogged);
+    };
+  }, []);
+
 
   return (
     <Container>
@@ -354,6 +534,27 @@ const Video = () => {
               (<ButtonsImg src={VideoLikeIcono} />)} {" "}
             {currentVideo?.likes?.length}
 
+            {!currentUser && isLikePopupVisible && (
+              <LikeNotLogged ref={likeRef}>
+
+                <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
+
+                <Link
+                  to="../../signin"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <ItemLogin>
+                    <ImgLogin src={InicioSesionIcono2} />
+                    <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                  </ItemLogin>
+                </Link>
+
+              </LikeNotLogged>
+            )}
+
           </Button>
 
           <Button onClick={handleDislike}>
@@ -363,7 +564,29 @@ const Video = () => {
               (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
             {currentVideo?.dislikes?.length}
 
+            {!currentUser && isDislikePopupVisible && (
+              <DislikeNotLogged ref={dislikeRef}>
+
+                <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
+
+                <Link
+                  to="../../signin"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <ItemLogin>
+                    <ImgLogin src={InicioSesionIcono2} />
+                    <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                  </ItemLogin>
+                </Link>
+
+              </DislikeNotLogged>
+            )}
+
           </Button>
+
           <Button>
             <ButtonsImg src={VideoSaveIcono} /> Watch Later
           </Button>
@@ -405,16 +628,37 @@ const Video = () => {
                 <ChannelName> {channel?.displayname} </ChannelName>
                 <ChannelCounter> {channel?.subscribers} </ChannelCounter>
               </ChannelInfoTx>
+              <SuscbribeContainer>
+                {!isCurrentUserUploader && (
+                  <Subscribe
+                    onClick={handleSub}
+                    isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                  >
+                    {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+                  </Subscribe>
 
-              {currentUser && !isCurrentUserUploader && (
-                <Subscribe
-                  onClick={handleSub}
-                  isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
-                >
-                  {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
-                </Subscribe>
-              )}
+                )}
+                {!currentUser && isSubscribePopupVisible && (
+                  <SuscbribeNotLogged ref={subscribeRef}>
 
+                    <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
+
+                    <Link
+                      to="../../signin"
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
+                    >
+                      <ItemLogin>
+                        <ImgLogin src={InicioSesionIcono2} />
+                        <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                      </ItemLogin>
+                    </Link>
+
+                  </SuscbribeNotLogged>
+                )}
+              </SuscbribeContainer>
             </ChannelInfo>
 
           </VideoOtherInfo>
@@ -427,7 +671,7 @@ const Video = () => {
 
         </RelatedVideos>
 
-        <Comments videoId={currentVideo._id} />
+        <Comments videoId={currentVideo?._id} UserUploader={channel?._id} />
 
       </Content>
       <RecommendationContainer>
