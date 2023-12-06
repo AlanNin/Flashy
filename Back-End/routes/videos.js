@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { addVideo, addView, deleteVideo, getByTag, getVideo, random, getByLikes, search, sub, trend, updateVideo, TrendingSub } from "../controllers/video.js";
+import { addVideo, addView, deleteVideo, getByTag, getVideo, random, getByLikes, search, sub, trend, updateVideo, TrendingSub, getSubscribedChannels, getVideosByChannel} from "../controllers/video.js";
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router()
@@ -37,9 +37,15 @@ router.get("/random", random)
 router.get("/sub", verifyToken, sub)
 
 // GET VIDEO BY TAG
-router.get("/tags", getByTag)
+router.get("/tags/:tags", getByTag)
 
 // GET VIDEO BY TITLE
 router.get("/search", search)
+
+// GET VIDEO FROM SUBSCRIBED CHANNELS
+router.get("/sub/channel", verifyToken, getSubscribedChannels)
+
+//GET VIDEO FROM A CHANNEL
+router.get("/channel/:channelId", getVideosByChannel)
 
 export default router;

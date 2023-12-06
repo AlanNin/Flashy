@@ -528,7 +528,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         <Title> {translations[language].flashycontent} </Title>
 
         <Link
-          to="Music"
+          to="Content/Music"
           style={{
             width: "100%",
             textDecoration: "none",
@@ -542,7 +542,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         </Link>
 
         <Link
-          to="News"
+          to="Content/News"
           style={{
             width: "100%",
             textDecoration: "none",
@@ -556,7 +556,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         </Link>
 
         <Link
-          to="Sports"
+          to="Content/Sports"
           style={{
             width: "100%",
             textDecoration: "none",
@@ -570,7 +570,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         </Link>
 
         <Link
-          to="Movies"
+          to="Content/Movie"
           style={{
             width: "100%",
             textDecoration: "none",
@@ -584,7 +584,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         </Link>
 
         <Link
-          to="Videogames"
+          to="Content/Videogames"
           style={{
             width: "100%",
             textDecoration: "none",

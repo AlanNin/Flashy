@@ -104,7 +104,7 @@ export const sub = async (req, res, next) => {
 };
 
 export const getByTag = async (req, res, next) => {
-    const tags = req.query.tags.split(",");
+    const tags = req.params.tags.split(",");
     try {
         const videos = await Video.find({ tags: { $in: tags } }).limit(20);
         res.status(200).json(videos);
@@ -164,4 +164,34 @@ export const getByLikes = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+export const getSubscribedChannels = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const subscribedChannels = user.subscribedUsers;
+
+        const channels = await Promise.all(
+            subscribedChannels.map(async (id) => {
+                const channel = await User.findById(id);
+                return { id, name: channel.name };
+            })
+        );
+        res.status(200).json(channels);
+    } catch (error) {
+        next(error);
+    }
+};
+
+  export const getVideosByChannel = async (req, res, next) => {
+    try {
+        const channelId = req.params.channelId; 
+
+        const videos = await Video.find({ userId: channelId }).sort({ createdAt: -1 });
+
+        res.status(200).json(videos);
+    } catch (error) {
+        next(error);
+    }
+
+
 };

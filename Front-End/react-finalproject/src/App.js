@@ -12,6 +12,7 @@ import Subscriptions from "./pages/Subscriptions";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Video from "./pages/Video";
+import Content from "./pages/Content";
 
 const Container = styled.div`
   display: block;
@@ -105,6 +106,7 @@ function App() {
                     <Route path="video">
                       <Route path=":id" element={<Video />} />
                     </Route>
+                    <Route path="content/*" element={<Content type="tags" />} />
                   </Route>
                 </Routes>
               </Main>
