@@ -22,26 +22,39 @@ export const videoSlice = createSlice({
             state.error = true;
         },
         like: (state, action) => {
-            if (!state.currentVideo.likes.includes(action.payload)) {
-                state.currentVideo.likes.push(action.payload);
-                state.currentVideo.dislikes.splice(
-                    state.currentVideo.dislikes.findIndex(
-                        (userId) => userId === action.payload
-                    ),
-                    1
-                );
+            const userId = action.payload;
+            const currentVideo = { ...state.currentVideo };
+
+            const likeIndex = currentVideo.likes.findIndex((id) => id === userId);
+            if (likeIndex !== -1) {
+                currentVideo.likes.splice(likeIndex, 1);
+            } else {
+                currentVideo.likes.push(userId);
+                const dislikeIndex = currentVideo.dislikes.findIndex((id) => id === userId);
+                if (dislikeIndex !== -1) {
+                    currentVideo.dislikes.splice(dislikeIndex, 1);
+                }
             }
+
+            state.currentVideo = currentVideo;
         },
+
         dislike: (state, action) => {
-            if (!state.currentVideo.dislikes.includes(action.payload)) {
-                state.currentVideo.dislikes.push(action.payload);
-                state.currentVideo.likes.splice(
-                    state.currentVideo.likes.findIndex(
-                        (userId) => userId === action.payload
-                    ),
-                    1
-                );
+            const userId = action.payload;
+            const currentVideo = { ...state.currentVideo };
+
+            const dislikeIndex = currentVideo.dislikes.findIndex((id) => id === userId);
+            if (dislikeIndex !== -1) {
+                currentVideo.dislikes.splice(dislikeIndex, 1);
+            } else {
+                currentVideo.dislikes.push(userId);
+                const likeIndex = currentVideo.likes.findIndex((id) => id === userId);
+                if (likeIndex !== -1) {
+                    currentVideo.likes.splice(likeIndex, 1);
+                }
             }
+
+            state.currentVideo = currentVideo;
         },
     },
 });

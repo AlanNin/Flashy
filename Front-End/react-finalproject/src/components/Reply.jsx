@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import RespuestaIconoHover from "../assets/RespuestaIconoHover.png";
@@ -12,12 +12,11 @@ import { toggleLike } from '../redux/commentSlice';
 import axios from "axios";
 import moment from "moment";
 import "moment/locale/es";
-import Reply from './Reply';
 
 const Container = styled.div`
   display: flex;
   gap: 17px;
-  margin: 0px 0px 30px 0px;
+  margin: 10px 0px 22px 0px;
 `;
 
 const Avatar = styled.img`
@@ -59,7 +58,7 @@ const Text = styled.span`
   font-weight: normal;
   font-family: "Roboto", Helvetica;
   color: #c4c4c4;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 `;
 
 const CommentOptions = styled.div`
@@ -133,7 +132,7 @@ const Replies = styled.div`
   border: none;
   cursor: pointer;
   width: max-content;
-  margin: ${(props) => (props.isOpen ? "-33px 0px 5px 0px" : "0px 0px 0px 0px")};
+  margin: ${(props) => (props.isOpen ? "-35px 0px 5px 0px" : "0px 0px 0px 0px")};
 `;
 
 const ArrowViewReplies = styled.h1`
@@ -233,20 +232,17 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
-
-const Comment = ({ comment, UserUploader, onCommentsReload }) => {
+const ReplyComponent = ({ reply, UserUploader, commentId }) => {
   const { language, setLanguage } = useLanguage();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
-  const [currentComment, setCurrentComment] = useState(comment);
+  const [currentReply, setCurrentReply] = useState(reply);
   const [isLikeDisabled, setIsLikeDisabled] = useState(false);
   const [isDislikeDisabled, setIsDislikeDisabled] = useState(false);
   const timeago = timestamp => moment(timestamp).fromNow();
-  const [channel, setChannel] = useState({});
-  const isUploader = comment.userId === UserUploader;
-  const [showReplies, setShowReplies] = useState(false);
   const [showReplySection, setShowReplySection] = useState(false);
-  const [newReplyText, setNewReplyText] = useState('');
+  const [channel, setChannel] = useState({});
+  const isUploader = reply.userId === UserUploader;
 
   // TRANSLATIONS
   const translations = {
@@ -266,126 +262,69 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
   }
 
 
-  // FECTH COMMENTS
-
+  // FECTH REPLY USER
   useEffect(() => {
-    const fetchComment = async () => {
-      const res = await axios.get(`/users/find/${comment.userId}`);
+    const fetchReplyUser = async () => {
+      const res = await axios.get(`/users/find/${reply.userId}`);
       setChannel(res.data)
     };
-    fetchComment();
-  }, [comment.userId]);
+    fetchReplyUser();
+  }, [reply.userId]);
 
-  // LIKE COMMENT
-
-  const handleLike = async () => {
+  // LIKE REPLY
+  const handleLikeReply = async () => {
     if (isLikeDisabled) return;
-    if (!currentUser || !currentComment || !currentComment.likes) {
-      return;
-    }
-
-    const userLiked = currentComment.likes.includes(currentUser._id);
-    const userDisliked = currentComment.dislikes.includes(currentUser._id);
 
     try {
       setIsLikeDisabled(true);
 
-      await axios.put(`/users/likecomment/${comment._id}`);
+      // Update the API route to likereply
+      await axios.put(`/users/likereply/${commentId}/${reply._id}`);
 
-      setCurrentComment((prevComment) => ({
-        ...prevComment,
-        likes: userLiked
-          ? prevComment.likes.filter((id) => id !== currentUser._id)
-          : [...prevComment.likes, currentUser._id],
-        dislikes: userDisliked
-          ? prevComment.dislikes.filter((id) => id !== currentUser._id)
-          : [...prevComment.dislikes],
+      setCurrentReply((prevReply) => ({
+        ...prevReply,
+        likes: prevReply.likes.includes(currentUser._id)
+          ? prevReply.likes.filter((id) => id !== currentUser._id)
+          : [...prevReply.likes, currentUser._id],
+        dislikes: prevReply.dislikes.filter((id) => id !== currentUser._id),
       }));
 
       setIsLikeDisabled(false);
 
-      dispatch(toggleLike({ userId: currentUser._id, commentId: currentComment._id }));
+      dispatch(toggleLike({ userId: currentUser._id, replyId: currentReply._id }));
     } catch (error) {
-      console.error('Error al manejar el like al comentario:', error);
+      console.error('Error al manejar el like a la respuesta:', error);
     }
   };
 
-
-  // DISLIKE COMMENT
-
-  const handleDislike = async () => {
+  // DISLIKE REPLY
+  const handleDislikeReply = async (replyId) => {
     if (isDislikeDisabled) return;
-    if (!currentUser || !currentComment || !currentComment.dislikes) {
-      return;
-    }
-
-    const userLiked = currentComment.likes.includes(currentUser._id);
-    const userDisliked = currentComment.dislikes.includes(currentUser._id);
 
     try {
       setIsDislikeDisabled(true);
 
-      await axios.put(`/users/dislikecomment/${comment._id}`);
+      // Update the API route to dislikereply
+      await axios.put(`/users/dislikereply/${commentId}/${reply._id}`);// Pass the correct replyId here
 
-      setCurrentComment((prevComment) => ({
-        ...prevComment,
-        dislikes: userDisliked
-          ? prevComment.dislikes.filter((id) => id !== currentUser._id)
-          : [...prevComment.dislikes, currentUser._id],
-        likes: userLiked
-          ? prevComment.likes.filter((id) => id !== currentUser._id)
-          : [...prevComment.likes],
+      setCurrentReply((prevReply) => ({
+        ...prevReply,
+        dislikes: prevReply.dislikes.includes(currentUser._id)
+          ? prevReply.dislikes.filter((id) => id !== currentUser._id)
+          : [...prevReply.dislikes, currentUser._id],
+        likes: prevReply.likes.filter((id) => id !== currentUser._id),
       }));
 
       setIsDislikeDisabled(false);
 
-      dispatch(toggleLike({ userId: currentUser._id, commentId: currentComment._id }));
     } catch (error) {
-      console.error('Error al manejar el dislike al comentario:', error);
+      console.error('Error al manejar el dislike a la respuesta:', error);
     }
   };
 
-  // REPLIES
   const handleReplyClick = () => {
     // Toggle the visibility of the reply section
     setShowReplySection(!showReplySection);
-  };
-
-  const handleAddReply = async () => {
-    try {
-      const response = await axios.post(`/comments/${comment._id}/replies`, {
-        userId: currentUser._id,
-        desc: newReplyText,
-        likes: [],
-        dislikes: [],
-      });
-
-      // Limpia el campo del nuevo comentario
-      setNewReplyText('');
-
-      // Actualiza la lista de respuestas después de agregar una nueva respuesta
-      setCurrentComment((prevComment) => ({
-        ...prevComment,
-        replies: [...prevComment.replies, response.data], // Agrega la nueva respuesta a la lista existente
-      }));
-
-      // Invoca la función de recarga de comentarios en el componente padre
-      if (onCommentsReload) {
-        onCommentsReload();
-      }
-    } catch (error) {
-      console.error('Error al agregar la respuesta:', error);
-    }
-  };
-
-
-  const handleDeleteReply = async (replyId) => {
-    try {
-      await axios.delete(`/api/comments/${comment._id}/replies/${replyId}`);
-
-    } catch (error) {
-      console.error('Error al eliminar la respuesta:', error);
-    }
   };
 
   return (
@@ -396,77 +335,35 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
           <Name isUploader={isUploader}>
             {channel.displayname}
           </Name>
-          <Date> • {timeago(currentComment.createdAt)} </Date>
+          <Date> • {timeago(currentReply.createdAt)} </Date>
         </NameDate>
         <Text>
-          {currentComment.desc}
+          {currentReply.desc}
         </Text>
         <CommentOptions>
-
           <Replyy onClick={handleReplyClick}>
             <ReplyImg src={RespuestaIcono} />
             <ReplyText> Reply </ReplyText>
           </Replyy>
 
-          <EstiloLike onClick={handleLike} >
-            {currentComment?.likes?.includes(currentUser?._id) ?
+          <EstiloLike onClick={handleLikeReply} >
+            {currentReply?.likes?.includes(currentUser?._id) ?
               (<LikeImg src={LikedIcono} />) :
               (<LikeImg src={LikeIcono} />)} {" "}
-            <LikeDislikeCounter> {currentComment?.likes?.length}</LikeDislikeCounter>
+            <LikeDislikeCounter> {currentReply?.likes?.length}</LikeDislikeCounter>
           </EstiloLike>
 
-          <EstiloDislike onClick={handleDislike}>
-            {currentComment?.dislikes?.includes(currentUser?._id) ?
+          <EstiloDislike onClick={handleDislikeReply}>
+            {currentReply?.dislikes?.includes(currentUser?._id) ?
               (<DislikeImg src={DislikedIcono} />) :
               (<DislikeImg src={DislikeIcono} />)} {" "}
-            <LikeDislikeCounter> {currentComment?.dislikes?.length} </LikeDislikeCounter>
+            <LikeDislikeCounter> {currentReply?.dislikes?.length} </LikeDislikeCounter>
           </EstiloDislike>
         </CommentOptions>
-
-        {currentUser && showReplySection && (
-          <ReplyDiv isOpen={showReplySection}>
-            <AvatarForReply
-              src={currentUser?.img}
-              alt="avatar"
-            />
-            <PostReply>
-              <ReplyTextArea
-                placeholder="Add a reply..."
-                value={newReplyText}
-                onChange={(e) => setNewReplyText(e.target.value)}
-              />
-              <ButtonsDiv>
-                <CloseButton onClick={handleReplyClick}> Close </CloseButton>
-                <ReplyButton onClick={handleAddReply}> Reply </ReplyButton>
-              </ButtonsDiv>
-            </PostReply>
-          </ReplyDiv>
-        )}
-
-        {comment.replies.length > 0 && (
-          <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)}>
-            <ArrowViewReplies> {showReplies ? '▲' : '▼'} </ArrowViewReplies>
-            <ViewReplies>View {comment.replies.length} replies</ViewReplies>
-          </Replies>
-        )}
-
-
-        {showReplies && comment.replies.length > 0 && (
-          <div>
-            {comment.replies.map((reply) => (
-              <Reply
-                key={reply._id}
-                reply={reply}
-                UserUploader={UserUploader}
-                commentId={comment._id}
-              />
-            ))}
-          </div>
-        )}
-
       </Details>
     </Container>
   );
 };
 
-export default Comment;
+export default ReplyComponent;
+

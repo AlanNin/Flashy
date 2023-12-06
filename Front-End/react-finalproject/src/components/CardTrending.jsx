@@ -164,14 +164,14 @@ const CardTrending = ({ type, video, index }) => {
     <Container>
       <InfoContainer>
         <ChannelName>
-          <LinkToChannel href="/channel"> {channel.name} </LinkToChannel>
+          <LinkToChannel href="/channel"> {channel.displayname} </LinkToChannel>
         </ChannelName>
         <Link to="/channel" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
           <ChannelIcon src={CanalTendenciaIcono} />
         </Link>
         <RankNumber>{(index + 1).toString().padStart(2, '0')}</RankNumber>
       </InfoContainer>
-      <Link to="/video/test" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
         <SlideContainer>
           <InsideContainer>
             <Title> {video.title} </Title>

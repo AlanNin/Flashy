@@ -354,7 +354,7 @@ const ButtonLoginText = styled.h3`
   font-size: 26px;
   font-weight: 700px;
   letter-spacing: 0;
-  margin-right: 5px;
+  margin-right: 6px;
   line-height: normal;
   color: ${({ theme }) => theme.text};
   @media only screen and (max-width: 980px),
