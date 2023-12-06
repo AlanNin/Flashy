@@ -35,6 +35,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   padding: 32px 55px;
+  color: white;
 `;
 
 const NotAuthWrapper = styled.div`
@@ -122,47 +123,105 @@ const NotSubbedImg = styled.img`
   padding: 20 px;
 `;
 
+const ChannelName = styled.span`
+color: rgba(224, 175, 208, 0.8);
+margin-right: 10px;
+`;
+
+const EstiloBotones = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 5.5px;
+  cursor: pointer;
+  border-radius: 30px;
+  height: 45px;
+  padding: 0px 14px;
+  margin-top: 20px;
+  `;
+
+const BotonVer = styled(EstiloBotones)`
+  left: 45px;
+  background-color: #8a517d;
+  transition: background-color 0.5s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.soft};
+  }
+`;
 
 const Home = ({ type = "sub" }) => {
   const { language, setLanguage } = useLanguage();
   const { currentUser } = useSelector(state => state.user);
 
-
-
   const translations = {
     en: {
       explore: "Subscriptions",
+      explore2: "Subscribed Channels",
+      channel: "Latest updates from",
       notauth: "Sign in now, don't miss our special Flashy content!",
       signin: "Sign in",
       notsubbed1: "Seems like you are not subbed to any channel :(",
       notsubbed2: "Sub now to stay updated with your favorites channels!",
+      button: "See more",
     },
     es: {
       explore: "Suscripciones",
+      explore2: "Canales suscritos",
+      channel: "Ultimas actualizaciones de",
       notauth: "¡Inicia sesión ahora, no te pierdas nuestro contenido Flashy!",
       signin: "Iniciar Sesión",
       notsubbed1: "Parece que no estás suscrito a ningún canal :(",
       notsubbed2: "¡Suscribete ahora para estar al día con tus canales favoritos!",
+      button: "Ver más",
     },
   };
 
+  //const [channels, setChannels] = useState([])
   const [videos, setVideos] = useState([])
+  const [videosByChannels, setVideosByChannels] = useState([]);
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const res = await axios.get(`/videos/${type}`);
+       
         setVideos(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);
       }
     };
+
+    const fetchVideosByChannels = async () => {
+      try {
+        // Get the channels the user is subscribed to
+        const response = await axios.get(`/videos/sub/channel`);
+        const subscribedChannels = response.data;
+     
+        // Get the videos from each channel
+        const videosPromises = subscribedChannels.map(async (channel) => {
+          const videosResponse = await axios.get(`/videos/channel/${channel.id}`); 
+          return {
+            channelId: channel.id,
+            channelName: channel.name,
+            videos: videosResponse.data,
+          };
+        });
+
+        const videosData = await Promise.all(videosPromises);
+        console.log(videosData);
+        setVideosByChannels(videosData);
+      } catch (error) {
+        console.error("Error fetching videos by channels:", error);
+      }
+    };
+
     if (currentUser) {
       fetchVideos();
+      fetchVideosByChannels();
     } else {
-      // Handle the case where no user is logged in, maybe clear videos state
       setVideos([]);
+      setVideosByChannels([]);
     }
-  }, [type, currentUser]);
+  }, [type, currentUser]);  
 
 
   return (
@@ -181,6 +240,26 @@ const Home = ({ type = "sub" }) => {
         </Container>
 
       </Wrapper>
+
+      {currentUser &&
+       <Header>{translations[language].explore2}</Header>}
+       {currentUser &&
+       <Wrapper>
+        <Container>
+          {videosByChannels.map((channel) => (
+          <div key={channel.channelId}>
+            <h3>{translations[language].channel} -  <ChannelName>{channel.channelName}</ChannelName></h3> <br />
+            {channel.videos.slice(0, 3).map((video) => (
+            <Card key={video._id} video={video} />
+            ))}
+            <Link to="/" style={{ width: "100%", textDecoration: "none", color: "inherit"}}>
+              <BotonVer>{translations[language].button}</BotonVer>
+               </Link>
+               </div>
+               ))}
+            </Container>
+            </Wrapper>
+      }
 
       {!currentUser &&
         <NotAuthWrapper>

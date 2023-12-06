@@ -42,7 +42,7 @@ const Content = () => {
       content: tags,
     },
     es: {
-      content: tags === 'Music' ? 'Musica' : tags === 'Movies' ? 'Peliculas' : tags === 'News' ? 'Noticias' : tags === 'Sports' ? 'Deportes' : tags === 'Videogames' ? 'Videojuegos' : tags,
+      content: tags === 'Music' ? 'Musica' : tags === 'Movie' ? 'Peliculas' : tags === 'News' ? 'Noticias' : tags === 'Sports' ? 'Deportes' : tags === 'Videogames' ? 'Videojuegos' : tags,
     },
   };
 
@@ -50,10 +50,9 @@ const Content = () => {
   
   useEffect(() => {
     const fetchVideos = async () => {
-      try {
-        const tagsArray = tags.split(',');
-
-        const res = await axios.get(`/videos/byTag?tags=${tagsArray.join(',')}`);
+      try {        
+        const lowercaseTags = tags.toLowerCase();
+        const res = await axios.get(`/videos/tags/${lowercaseTags}`);
         setVideos(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);

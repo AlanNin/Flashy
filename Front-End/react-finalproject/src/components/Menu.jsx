@@ -570,7 +570,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
         </Link>
 
         <Link
-          to="Content/Movies"
+          to="Content/Movie"
           style={{
             width: "100%",
             textDecoration: "none",
