@@ -5,7 +5,8 @@ import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 
-const Container = styled.div``;
+const Container = styled.div`
+`;
 
 const TitleHeader = styled.h1`
   font-size: 24px;
@@ -27,7 +28,7 @@ const NotLoggedText = styled.h1`
 const NewComment = styled.div`
   display: flex;
   gap: 10px;
-  padding: 0px 0px 30px 0px;
+  padding: 0px 0px 15px 0px;
 `;
 
 const PostComment = styled.div`
@@ -119,6 +120,10 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
+const CommentContainer = styled.div`
+  width: 905px;
+`;
+
 const Comments = ({ videoId, UserUploader }) => {
   const [isTextareaFocused, setTextareaFocused] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
@@ -203,11 +208,13 @@ const Comments = ({ videoId, UserUploader }) => {
         </NewComment>
       )}
 
-      {comments.map(comment => {
-        return (
-          <Comment key={comment._id} comment={comment} UserUploader={UserUploader} onCommentsReload={handleCommentsReload} />
-        );
-      })}
+      <CommentContainer>
+        {comments.map(comment => {
+          return (
+            <Comment key={comment._id} comment={comment} UserUploader={UserUploader} onCommentsReload={handleCommentsReload} />
+          );
+        })}
+      </CommentContainer>
     </Container>
   );
 };

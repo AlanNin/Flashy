@@ -1,22 +1,48 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from 'styled-components';
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import RespuestaIconoHover from "../assets/RespuestaIconoHover.png";
 import LikeIcono from "../assets/VideoLikeIcono.png";
 import LikedIcono from "../assets/VideoLikedIcono.png";
 import DislikeIcono from "../assets/VideoDislikeIcono.png";
 import DislikedIcono from "../assets/VideoDislikedIcono.png";
+import PuntosSuspensivosIcono from "../assets/PuntosSuspensivosIcono.png";
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { toggleLike } from '../redux/commentSlice';
 import axios from "axios";
 import moment from "moment";
 import "moment/locale/es";
 
+const CommentMenu = styled.img`
+  position: absolute;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transform: rotate(90deg);
+  border-radius: 7px;
+  padding: 5px;
+  width: 17px;
+  height: 17px;
+  right: 10px;
+  top: 0px;
+  display: none;
+`;
+
 const Container = styled.div`
   display: flex;
   gap: 17px;
-  margin: 10px 0px 22px 0px;
+  margin: 0px 0px 15px 0px;
+  border-radius: 10px;
+  padding: 10px 10px;
+
+  &:hover {
+    background: rgba(24, 19, 28);
+    & ${CommentMenu} {
+      display: block;
+    }
+  }
 `;
 
 const Avatar = styled.img`
@@ -34,10 +60,13 @@ const Details = styled.div`
 
 const NameDate = styled.div`
   display: flex;
+  position: relative;
   align-items: center;
+  width: 850px;
 `;
 
-const Name = styled.span`
+const Name = styled.h1`
+  cursor: pointer;
   font-size: 13px;
   background-color: ${({ isUploader }) => (isUploader ? 'rgba(105, 86, 105)' : 'transparent')};
   padding: ${({ isUploader }) => (isUploader ? '5px 10px' : '0px')};;
@@ -127,54 +156,6 @@ const LikeDislikeCounter = styled.h1`
   margin-left: 3px;
 `;
 
-const Replies = styled.div`
-  display: flex;
-  border: none;
-  cursor: pointer;
-  width: max-content;
-  margin: ${(props) => (props.isOpen ? "-35px 0px 5px 0px" : "0px 0px 0px 0px")};
-`;
-
-const ArrowViewReplies = styled.h1`
-  font-size: 10px;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: normal;
-  margin-top: 7px;
-`;
-
-const ViewReplies = styled.h1`
-  font-size: 14px;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: normal;
-  margin-top: 5px;
-  margin-left: 6px;
-`;
-
-const ReplyDiv = styled.div`
-  display: flex;
-  gap: 10px;
-  height: ${(props) => (props.isOpen ? "max-content" : "0px")};
-  opacity: ${(props) => (props.isOpen ? 1 : 0)};
-  transition: all 0.3s ease-in-out;
-  transition: max-height 0.3s ease-in-out;
-`;
-
-
-const AvatarForReply = styled.img`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-`;
-
-const PostReply = styled.div`
-  display: flex;
-  width: 851px ;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 0px;
-  margin-left: 5px;
-`;
-
 const ReplyTextArea = styled.textarea`
   border: none;
   border-radius: 5px;
@@ -191,7 +172,6 @@ const ReplyTextArea = styled.textarea`
 
 const ButtonsDiv = styled.div`
   position: relative;
-  margin-left: auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -232,7 +212,46 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
-const ReplyComponent = ({ reply, UserUploader, commentId }) => {
+const UserMention = styled.span`
+  color: rgb(205, 125, 227);
+`;
+
+const ReplyToReply = styled.div`
+  display: flex;
+  gap: 10px;
+  border: none;
+  margin-bottom: 5px;
+  width: 819px;
+`;
+const PostReply = styled.div`
+  display: flex;
+  width: 826px;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 0px;
+  margin-left: 5px;
+`;
+
+const AvatarForReply = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+`;
+
+const CommentMenuOptions = styled.div`
+  position: absolute;
+  top: 30px;
+  right: -150px;
+  width: 200px;
+  height: 100px;
+  background: black;
+  cursor: pointer;
+  border-radius: 10px;
+  z-index: 2;
+`;
+
+
+const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) => {
   const { language, setLanguage } = useLanguage();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -304,8 +323,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId }) => {
     try {
       setIsDislikeDisabled(true);
 
-      // Update the API route to dislikereply
-      await axios.put(`/users/dislikereply/${commentId}/${reply._id}`);// Pass the correct replyId here
+      await axios.put(`/users/dislikereply/${commentId}/${reply._id}`);
 
       setCurrentReply((prevReply) => ({
         ...prevReply,
@@ -323,9 +341,74 @@ const ReplyComponent = ({ reply, UserUploader, commentId }) => {
   };
 
   const handleReplyClick = () => {
-    // Toggle the visibility of the reply section
     setShowReplySection(!showReplySection);
   };
+
+  // REPLY TO A REPLY
+  const [replyText, setReplyText] = useState('');
+  const replyPlaceholder = `@${channel.displayname} `;
+  const [user, setUser] = useState(null);
+
+  const handleReplySubmit = async () => {
+    try {
+      const channelMention = channel._id;
+      const replyContent = replyText.trim();
+
+      const response = await axios.post(`/comments/${commentId}/replies`, {
+        userId: currentUser._id,
+        replyTo: channelMention,
+        desc: replyContent,
+        likes: [],
+        dislikes: [],
+      });
+
+      setReplyText('');
+      setShowReplySection(false);
+
+      setCurrentReply((prevReply) => ({
+        ...prevReply,
+        replies: Array.isArray(prevReply.replies) ? [...prevReply.replies, response.data] : [response.data],
+      }));
+
+      if (onCommentsReload) {
+        onCommentsReload();
+      }
+
+    } catch (error) {
+      console.error('Error al agregar la respuesta:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(`/users/find/${currentReply.replyTo}`);
+        const fetchedUser = response.data;
+        setUser(fetchedUser);
+
+      } catch (error) {
+      }
+    };
+
+    fetchUserDetails();
+  }, [currentReply.replyTo]);
+
+  // COMMENT REPLY OPTIONS MENU
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleCommentMenuClick = (event) => {
+    // Evita que el clic se propague a los elementos superiores
+    event.stopPropagation();
+
+    // Cambia el estado de visibilidad del menú desplegable
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
 
   return (
     <Container>
@@ -336,8 +419,27 @@ const ReplyComponent = ({ reply, UserUploader, commentId }) => {
             {channel.displayname}
           </Name>
           <Date> • {timeago(currentReply.createdAt)} </Date>
+          <CommentMenu src={PuntosSuspensivosIcono} onClick={handleCommentMenuClick} />
+          {isMenuOpen && (
+            <CommentMenuOptions>
+              {/* Contenido del menú desplegable */}
+              {/* ... */}
+            </CommentMenuOptions>
+          )}
         </NameDate>
         <Text>
+          {user ? (
+            <a
+              href={`/profile/${user._id}`}
+              style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}
+            >
+              <UserMention>@{user.displayname} </UserMention>
+            </a>
+          ) : ''}
           {currentReply.desc}
         </Text>
         <CommentOptions>
@@ -345,6 +447,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId }) => {
             <ReplyImg src={RespuestaIcono} />
             <ReplyText> Reply </ReplyText>
           </Replyy>
+
 
           <EstiloLike onClick={handleLikeReply} >
             {currentReply?.likes?.includes(currentUser?._id) ?
@@ -360,6 +463,24 @@ const ReplyComponent = ({ reply, UserUploader, commentId }) => {
             <LikeDislikeCounter> {currentReply?.dislikes?.length} </LikeDislikeCounter>
           </EstiloDislike>
         </CommentOptions>
+        {showReplySection && (
+          <ReplyToReply>
+            <AvatarForReply
+              src={currentUser?.img}
+              alt="avatar"
+            />
+            <PostReply>
+              <ReplyTextArea
+                value={replyPlaceholder + replyText}
+                onChange={(e) => setReplyText(e.target.value.replace(replyPlaceholder, ''))}
+              />
+              <ButtonsDiv>
+                <CloseButton onClick={() => setShowReplySection(false)}>Close</CloseButton>
+                <ReplyButton onClick={handleReplySubmit}>Reply</ReplyButton>
+              </ButtonsDiv>
+            </PostReply>
+          </ReplyToReply>
+        )}
       </Details>
     </Container>
   );

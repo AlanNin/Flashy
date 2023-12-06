@@ -350,10 +350,12 @@ const Signup = () => {
 
   const handleAcceptTermsChange = () => {
     setAcceptTerms(!acceptTerms);
+    setCheckboxError(false);
   };
 
   const handleReceiveEmailsChange = () => {
     setReceiveEmails(!receiveEmails);
+    setCheckboxError(false);
   };
 
   const handleHCaptchaVerify = () => {

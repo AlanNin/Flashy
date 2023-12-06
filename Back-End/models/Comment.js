@@ -5,6 +5,10 @@ const ReplySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    replyTo: {
+        type: String,
+        required: false,
+    },
     desc: {
         type: String,
         required: true,

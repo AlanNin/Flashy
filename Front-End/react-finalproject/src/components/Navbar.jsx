@@ -288,7 +288,6 @@ const UserOptions = styled.div`
 const WrapperMenuUser = styled.div`
   padding: 0px 0px;
   background-color: transparent;
-
 `;
 
 const MenuUserDiv = styled.div`

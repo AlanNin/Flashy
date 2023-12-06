@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import RespuestaIconoHover from "../assets/RespuestaIconoHover.png";
+import PuntosSuspensivosIcono from "../assets/PuntosSuspensivosIcono.png";
 import LikeIcono from "../assets/VideoLikeIcono.png";
 import LikedIcono from "../assets/VideoLikedIcono.png";
 import DislikeIcono from "../assets/VideoDislikeIcono.png";
@@ -16,8 +17,41 @@ import Reply from './Reply';
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 17px;
-  margin: 0px 0px 30px 0px;
+  margin: 0px 0px 15px 0px;
+`;
+
+const CommentMenu = styled.img`
+  position: absolute;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transform: rotate(90deg);
+  border-radius: 7px;
+  padding: 5px;
+  width: 17px;
+  height: 17px;
+  margin-bottom: ${({ isUploader }) => (isUploader ? '5px' : '0px')};;
+  display: none;
+  right: 10px;
+  top: 0px;
+`;
+
+const ContainerForComment = styled.div`
+  display: flex;
+  gap: 17px;
+  width: 935px;
+  margin: 0px 0px 0px 0px;
+  padding: 10px 10px;
+  border-radius: 10px;
+
+  &:hover {
+    background: rgba(24, 19, 28);
+    & ${CommentMenu} {
+      display: block;
+    }
+  }
 `;
 
 const Avatar = styled.img`
@@ -35,7 +69,9 @@ const Details = styled.div`
 
 const NameDate = styled.div`
   display: flex;
+  position: relative;
   align-items: center;
+  width: 900px;
 `;
 
 const Name = styled.span`
@@ -169,7 +205,7 @@ const AvatarForReply = styled.img`
 
 const PostReply = styled.div`
   display: flex;
-  width: 851px ;
+  width: 826px;
   flex-direction: column;
   gap: 10px;
   margin-top: 0px;
@@ -233,6 +269,25 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
+const ReplyContainer = styled.div`
+  flex-direction: column;
+  margin-left: 50px;
+  display: flex;
+  width: 905px;
+  color: ${({ theme }) => theme.text}
+`;
+
+const CommentMenuOptions = styled.div`
+  position: absolute;
+  top: 30px;
+  right: -150px;
+  width: 200px;
+  height: 100px;
+  background: black;
+  cursor: pointer;
+  border-radius: 10px;
+  z-index: 2;
+`;
 
 const Comment = ({ comment, UserUploader, onCommentsReload }) => {
   const { language, setLanguage } = useLanguage();
@@ -373,6 +428,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
       if (onCommentsReload) {
         onCommentsReload();
       }
+
     } catch (error) {
       console.error('Error al agregar la respuesta:', error);
     }
@@ -388,84 +444,114 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
     }
   };
 
+  // COMMENT REPLY OPTIONS MENU
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleCommentMenuClick = (event) => {
+    // Evita que el clic se propague a los elementos superiores
+    event.stopPropagation();
+
+    // Cambia el estado de visibilidad del menú desplegable
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <Container>
-      <Avatar src={channel.img} />
-      <Details>
-        <NameDate>
-          <Name isUploader={isUploader}>
-            {channel.displayname}
-          </Name>
-          <Date> • {timeago(currentComment.createdAt)} </Date>
-        </NameDate>
-        <Text>
-          {currentComment.desc}
-        </Text>
-        <CommentOptions>
+      <ContainerForComment>
 
-          <Replyy onClick={handleReplyClick}>
-            <ReplyImg src={RespuestaIcono} />
-            <ReplyText> Reply </ReplyText>
-          </Replyy>
+        <Avatar src={channel.img} />
+        <Details>
+          <NameDate>
+            <Name isUploader={isUploader}>
+              {channel.displayname}
+            </Name>
+            <Date> • {timeago(currentComment.createdAt)} </Date>
+            <CommentMenu src={PuntosSuspensivosIcono} onClick={handleCommentMenuClick} />
+            {isMenuOpen && (
+              <CommentMenuOptions>
+                {/* Contenido del menú desplegable */}
+                {/* ... */}
+              </CommentMenuOptions>
+            )}
+          </NameDate>
+          <Text>
+            {currentComment.desc}
+          </Text>
+          <CommentOptions>
 
-          <EstiloLike onClick={handleLike} >
-            {currentComment?.likes?.includes(currentUser?._id) ?
-              (<LikeImg src={LikedIcono} />) :
-              (<LikeImg src={LikeIcono} />)} {" "}
-            <LikeDislikeCounter> {currentComment?.likes?.length}</LikeDislikeCounter>
-          </EstiloLike>
+            <Replyy onClick={handleReplyClick}>
+              <ReplyImg src={RespuestaIcono} />
+              <ReplyText> Reply </ReplyText>
+            </Replyy>
 
-          <EstiloDislike onClick={handleDislike}>
-            {currentComment?.dislikes?.includes(currentUser?._id) ?
-              (<DislikeImg src={DislikedIcono} />) :
-              (<DislikeImg src={DislikeIcono} />)} {" "}
-            <LikeDislikeCounter> {currentComment?.dislikes?.length} </LikeDislikeCounter>
-          </EstiloDislike>
-        </CommentOptions>
+            <EstiloLike onClick={handleLike} >
+              {currentComment?.likes?.includes(currentUser?._id) ?
+                (<LikeImg src={LikedIcono} />) :
+                (<LikeImg src={LikeIcono} />)} {" "}
+              <LikeDislikeCounter> {currentComment?.likes?.length}</LikeDislikeCounter>
+            </EstiloLike>
 
-        {currentUser && showReplySection && (
-          <ReplyDiv isOpen={showReplySection}>
-            <AvatarForReply
-              src={currentUser?.img}
-              alt="avatar"
+            <EstiloDislike onClick={handleDislike}>
+              {currentComment?.dislikes?.includes(currentUser?._id) ?
+                (<DislikeImg src={DislikedIcono} />) :
+                (<DislikeImg src={DislikeIcono} />)} {" "}
+              <LikeDislikeCounter> {currentComment?.dislikes?.length} </LikeDislikeCounter>
+            </EstiloDislike>
+          </CommentOptions>
+
+          {currentUser && showReplySection && (
+            <ReplyDiv isOpen={showReplySection}>
+              <AvatarForReply
+                src={currentUser?.img}
+                alt="avatar"
+              />
+              <PostReply>
+                <ReplyTextArea
+                  placeholder="Add a reply..."
+                  value={newReplyText}
+                  onChange={(e) => setNewReplyText(e.target.value)}
+                />
+                <ButtonsDiv>
+                  <CloseButton onClick={handleReplyClick}> Close </CloseButton>
+                  <ReplyButton onClick={handleAddReply}> Reply </ReplyButton>
+                </ButtonsDiv>
+              </PostReply>
+            </ReplyDiv>
+          )}
+
+          {comment.replies.length > 0 && (
+            <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)}>
+              <ArrowViewReplies> {showReplies ? '▲' : '▼'} </ArrowViewReplies>
+              <ViewReplies>View {comment.replies.length} replies</ViewReplies>
+            </Replies>
+          )}
+
+
+
+        </Details>
+      </ContainerForComment>
+
+      {showReplies && comment.replies.length > 0 && (
+        <ReplyContainer>
+          {comment.replies.map((reply) => (
+            <Reply
+              key={reply._id}
+              reply={reply}
+              UserUploader={UserUploader}
+              commentId={comment._id}
+              onCommentsReload={onCommentsReload}
             />
-            <PostReply>
-              <ReplyTextArea
-                placeholder="Add a reply..."
-                value={newReplyText}
-                onChange={(e) => setNewReplyText(e.target.value)}
-              />
-              <ButtonsDiv>
-                <CloseButton onClick={handleReplyClick}> Close </CloseButton>
-                <ReplyButton onClick={handleAddReply}> Reply </ReplyButton>
-              </ButtonsDiv>
-            </PostReply>
-          </ReplyDiv>
-        )}
+          ))}
+        </ReplyContainer>
+      )}
 
-        {comment.replies.length > 0 && (
-          <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)}>
-            <ArrowViewReplies> {showReplies ? '▲' : '▼'} </ArrowViewReplies>
-            <ViewReplies>View {comment.replies.length} replies</ViewReplies>
-          </Replies>
-        )}
-
-
-        {showReplies && comment.replies.length > 0 && (
-          <div>
-            {comment.replies.map((reply) => (
-              <Reply
-                key={reply._id}
-                reply={reply}
-                UserUploader={UserUploader}
-                commentId={comment._id}
-              />
-            ))}
-          </div>
-        )}
-
-      </Details>
     </Container>
+
   );
 };
 
