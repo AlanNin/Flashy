@@ -30,7 +30,7 @@ const Container = styled.div`
   background-color: rgba(15, 12, 18);
 `;
 
-const Content = styled.div`
+const Content = styled.div`wwwwwwwwwwwwwwwww
   flex: 5;
 `;
 const VideoWrapper = styled.div``;

@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import styled from "styled-components";
+import styled, { css } from 'styled-components';
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import RespuestaIconoHover from "../assets/RespuestaIconoHover.png";
 import PuntosSuspensivosIcono from "../assets/PuntosSuspensivosIcono.png";
+import BorrarComentarioIcono from "../assets/BorrarComentarioIcono.png";
+import EditarComentarioIcono from "../assets/EditarComentarioIcono.png";
+import ReportarComentarioIcono from "../assets/ReportarComentarioIcono.png";
+import ReportarComentarioInfoIcono from "../assets/ReportarComentarioInfoIcono.png";
 import LikeIcono from "../assets/VideoLikeIcono.png";
 import LikedIcono from "../assets/VideoLikedIcono.png";
 import DislikeIcono from "../assets/VideoDislikeIcono.png";
@@ -33,8 +37,8 @@ const CommentMenu = styled.img`
   width: 17px;
   height: 17px;
   margin-bottom: ${({ isUploader }) => (isUploader ? '5px' : '0px')};;
-  display: none;
-  right: 10px;
+  display: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'block' : 'none')};
+  right: 15px;
   top: 0px;
 `;
 
@@ -45,6 +49,7 @@ const ContainerForComment = styled.div`
   margin: 0px 0px 0px 0px;
   padding: 10px 10px;
   border-radius: 10px;
+  background: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'rgba(24, 19, 28)' : 'transparent')};
 
   &:hover {
     background: rgba(24, 19, 28);
@@ -252,6 +257,7 @@ const ReplyButton = styled.button`
   cursor: pointer;
   margin-top: 5px;
   margin-left: 5px;
+  margin-right: 10px;
 `;
 
 const CloseButton = styled.button`
@@ -272,6 +278,7 @@ const CloseButton = styled.button`
 const ReplyContainer = styled.div`
   flex-direction: column;
   margin-left: 50px;
+  margin-top: -10px;
   display: flex;
   width: 905px;
   color: ${({ theme }) => theme.text}
@@ -280,13 +287,312 @@ const ReplyContainer = styled.div`
 const CommentMenuOptions = styled.div`
   position: absolute;
   top: 30px;
-  right: -150px;
-  width: 200px;
-  height: 100px;
-  background: black;
+  right: -85px;
+  width: 135px;
+  height: max-content;
+  background: rgba(36, 36, 36);
   cursor: pointer;
   border-radius: 10px;
   z-index: 2;
+
+
+`;
+
+const RemoveComment = styled.button`
+  width: 100%;
+  display: flex;
+  text-align: center;
+  padding: 10px;
+  margin: 5px 0px 5px 0px;
+  background: rgba(36, 36, 36);
+  cursor: pointer;
+  border:none;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.text};
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Roboto", Helvetica;
+`;
+
+const EditComment = styled.button`
+  width: 100%;
+  display: flex;
+  text-align: center;
+  padding: 10px;
+  margin: 5px 0px 0px 0px;
+  background: rgba(36, 36, 36);
+  cursor: pointer;
+  border:none;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.text};
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Roboto", Helvetica;
+`;
+
+const ReportComment = styled.button`
+  position: relative;
+  width: 100%;
+  display: flex;
+  text-align: center;
+  padding: 10px;
+  margin: 5px 0px 5px 0px;
+  background: rgba(36, 36, 36);
+  cursor: pointer;
+  border:none;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.text};
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Roboto", Helvetica;
+`;
+
+
+const RemoveEditReportCommentImg = styled.img`
+  width: 18px;
+  height: 18px;
+  margin-right: 20px;
+  margin-left: 10px;
+`;
+
+const RemoveCommentContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #000000b9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+`;
+
+const RemoveCommentWrapper = styled.div`
+  width: max-content;
+  height: max-content;
+  background: #1D1D1D;
+  color: ${({ theme }) => theme.text};
+  padding: 30px 30px 20px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  border-radius: 12px;
+`;
+
+const RemoveDeleteCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+const RemoveCommentCancel = styled.div`
+  margin-right: 10px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  padding: 8px 10px;
+  border-radius: 15px;
+`;
+
+const RemoveCommentDelete = styled.div`
+  cursor: pointer;
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  padding: 8px 10px;
+  border-radius: 15px;
+`;
+const RemoveCommentTitle = styled.h1`
+  font-weight: bold;
+  font-size: 24px;
+`;
+
+const RemoveCommentTxt = styled.h1`
+  font-weight: normal;
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: ${({ theme }) => theme.textSoft};
+`;
+
+const Textarea = styled.textarea`
+  border: none;
+  border-radius: 5px;
+  color: ${({ theme }) => theme.text};
+  font-size: 14px;
+  font-family: "Roboto Condensed", Helvetica;
+  background-color: #3d4245;
+  outline: none;
+  padding: 10px;
+  width: 98%;
+  height: 20px;
+  resize: none;
+`;
+
+const PostEdit = styled.div`
+  display: flex;
+  width: 875px;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const EditButton = styled.button`
+  background-color: rgb(205, 125, 227, 0.3);
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Roboto", Helvetica;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  height: max-content;
+  width: 90px;
+  padding: 5px 5px;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-left: 5px;
+  margin-right: -3px;
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+    background-color: rgb(124, 74, 138, 0.3);
+    cursor: not-allowed;
+  `}
+`;
+
+
+const ReportReasonOption = styled.div`
+  padding: 8px;
+  border-radius: 5px;
+  display: flex;
+
+  input {
+    margin-right: 10px; // Espaciado entre el radio button y la etiqueta
+  }
+
+  label {
+    font-size: 16px;
+    font-weight: normal;
+    font-family: "Roboto", Helvetica;
+    cursor: pointer;
+    color: ${({ theme }) => theme.text};
+  }
+`;
+
+const ReportCommentInfo = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const InfoIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  position: absolute;
+`;
+
+const HoverInfoText = styled.span`
+  position: absolute;
+  margin-left: 38px;
+  top: -8px;
+  opacity: 0;
+  color: ${({ theme }) => theme.textSoft};
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  font-size: 14px;
+  background: rgba(43, 43, 43);
+  padding: 10px;
+  border-radius: 8px;
+  width: max-content;
+
+  ${ReportCommentInfo}:hover & {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+const ReportCommentContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #000000b9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+`;
+
+const ReportCommentWrapper = styled.div`
+  width: max-content;
+  height: max-content;
+  background: #1D1D1D;
+  color: ${({ theme }) => theme.text};
+  padding: 30px 30px 20px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  border-radius: 12px;
+`;
+
+const ReportReportCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
+`;
+
+const ReportCommentCancel = styled.div`
+  margin-right: 10px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  padding: 8px 10px;
+  border-radius: 15px;
+`;
+
+const ReportCommentReport = styled.div`
+  cursor: pointer;
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  padding: 8px 10px;
+  border-radius: 15px;
+`;
+const ReportCommentTitle = styled.h1`
+  font-weight: bold;
+  font-size: 24px;
+`;
+
+const ReportCommentTxt = styled.h1`
+  font-weight: normal;
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: ${({ theme }) => theme.textSoft};
+`;
+
+const ReportSubmitedButton = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 0px;
 `;
 
 const Comment = ({ comment, UserUploader, onCommentsReload }) => {
@@ -400,9 +706,105 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
     }
   };
 
+  // EDIT COMMENT
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCommentText, setEditedCommentText] = useState(currentComment.desc);
+
+  const handleEditComment = async () => {
+    setIsMenuOpen(false);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedCommentText(currentComment.desc);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const response = await axios.put(`/comments/${currentComment._id}`, {
+        desc: editedCommentText,
+      });
+
+      setCurrentComment(response.data);
+      setIsEditing(false);
+
+      if (onCommentsReload) {
+        onCommentsReload();
+      }
+    } catch (error) {
+      console.error('Error editing comment:', error.response.data);
+    }
+  };
+
+  // DELETE COMMENT
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+
+  const handleDeleteComment = async () => {
+    setIsMenuOpen(false);
+    setIsDeletePopupOpen(true);
+  };
+
+  const handleDeleteConfirmation = async (confirmed) => {
+    setIsDeletePopupOpen(false);
+
+    if (confirmed) {
+      try {
+        await axios.delete(`/comments/${comment._id}`);
+
+        if (onCommentsReload) {
+          onCommentsReload();
+        }
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+      }
+    }
+  };
+
+  // REPORT COMMENT
+  const [showReportReasonPopup, setShowReportReasonPopup] = useState(false);
+  const [showReportSubmittedPopup, setShowReportSubmittedPopup] = useState(false);
+  const [selectedReportReason, setSelectedReportReason] = useState(null);
+  const existingReport = currentComment?.reports.find(report => report.userId === currentUser?._id);
+
+  const handleReportComment = () => {
+    setShowReportReasonPopup(!showReportReasonPopup);
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleReportCommentSubmited = () => {
+    setShowReportSubmittedPopup(!showReportSubmittedPopup);
+  };
+
+  const handleReportCommentSubmitedClose = () => {
+    setShowReportSubmittedPopup(!showReportSubmittedPopup);
+    window.location.reload();
+  };
+
+  const handleReportCommentWithReason = async () => {
+
+    if (!selectedReportReason) {
+      return;
+    }
+    try {
+      const response = await axios.post(`/comments/${comment._id}/report`, {
+        userId: currentUser._id,
+        reason: selectedReportReason,
+      });
+
+      setShowReportReasonPopup(false);
+
+      handleReportCommentSubmited();
+
+    } catch (error) {
+      console.error('Error al reportar el comentario:', error);
+      // Manejar el error si es necesario
+    }
+  };
+
+
   // REPLIES
   const handleReplyClick = () => {
-    // Toggle the visibility of the reply section
     setShowReplySection(!showReplySection);
   };
 
@@ -415,19 +817,18 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
         dislikes: [],
       });
 
-      // Limpia el campo del nuevo comentario
       setNewReplyText('');
 
-      // Actualiza la lista de respuestas después de agregar una nueva respuesta
       setCurrentComment((prevComment) => ({
         ...prevComment,
-        replies: [...prevComment.replies, response.data], // Agrega la nueva respuesta a la lista existente
+        replies: [...prevComment.replies, response.data],
       }));
 
-      // Invoca la función de recarga de comentarios en el componente padre
       if (onCommentsReload) {
         onCommentsReload();
       }
+
+      setShowReplySection(!showReplySection);
 
     } catch (error) {
       console.error('Error al agregar la respuesta:', error);
@@ -435,34 +836,41 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
   };
 
 
-  const handleDeleteReply = async (replyId) => {
-    try {
-      await axios.delete(`/api/comments/${comment._id}/replies/${replyId}`);
-
-    } catch (error) {
-      console.error('Error al eliminar la respuesta:', error);
-    }
-  };
-
   // COMMENT REPLY OPTIONS MENU
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isCommentOwner = currentUser && currentUser._id === comment.userId;
+  const [isMenuDotsVisible, setIsMenuDotsVisible] = useState(false);
+  const menuRef = useRef(null);
 
-  const handleCommentMenuClick = (event) => {
-    // Evita que el clic se propague a los elementos superiores
-    event.stopPropagation();
 
-    // Cambia el estado de visibilidad del menú desplegable
+  const handleCommentMenuClick = () => {
+    setIsMenuDotsVisible(!isMenuDotsVisible);
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
+  const closeMenu = (event) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target) &&
+      !event.target.classList.contains("CommentMenu")
+    ) {
+      setIsMenuOpen(false);
+      setIsMenuDotsVisible(false);
+    }
   };
+
+  useEffect(() => {
+    document.addEventListener("click", closeMenu);
+
+    return () => {
+      document.removeEventListener("click", closeMenu);
+    };
+  }, []);
 
   return (
     <Container>
-      <ContainerForComment>
+      <ContainerForComment isMenuDotsVisible={isMenuDotsVisible} ref={menuRef}>
 
         <Avatar src={channel.img} />
         <Details>
@@ -471,16 +879,277 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
               {channel.displayname}
             </Name>
             <Date> • {timeago(currentComment.createdAt)} </Date>
-            <CommentMenu src={PuntosSuspensivosIcono} onClick={handleCommentMenuClick} />
+            {!isEditing && (
+              <CommentMenu
+                src={PuntosSuspensivosIcono}
+                onClick={handleCommentMenuClick}
+                isMenuDotsVisible={isMenuDotsVisible} />
+            )}
             {isMenuOpen && (
-              <CommentMenuOptions>
-                {/* Contenido del menú desplegable */}
-                {/* ... */}
+              <CommentMenuOptions className="CommentMenuOptions">
+                {isCommentOwner ? (
+                  <>
+
+                    <EditComment onClick={handleEditComment}>
+                      <RemoveEditReportCommentImg src={EditarComentarioIcono} />
+                      Edit
+                    </EditComment>
+
+                    <RemoveComment onClick={handleDeleteComment}>
+                      <RemoveEditReportCommentImg src={BorrarComentarioIcono} />
+                      Remove
+                    </RemoveComment>
+
+                  </>
+                ) : (
+                  <ReportComment onClick={handleReportComment}>
+                    <RemoveEditReportCommentImg src={ReportarComentarioIcono} />
+                    Report
+                  </ReportComment>
+                )}
               </CommentMenuOptions>
             )}
+
+            {isDeletePopupOpen && (
+              <RemoveCommentContainer
+                onDeleteConfirmed={() => handleDeleteConfirmation(true)}
+                onCancel={() => handleDeleteConfirmation(false)}
+              >
+                <RemoveCommentWrapper>
+                  <RemoveCommentTitle> Remove Comment </RemoveCommentTitle>
+                  <RemoveCommentTxt> This comment will be removed permanently. </RemoveCommentTxt>
+
+                  <RemoveDeleteCancel>
+                    <RemoveCommentCancel onClick={() => handleDeleteConfirmation(false)}>
+                      Cancel
+                    </RemoveCommentCancel>
+                    <RemoveCommentDelete onClick={() => handleDeleteConfirmation(true)}>
+                      Delete
+                    </RemoveCommentDelete>
+                  </RemoveDeleteCancel>
+
+                </RemoveCommentWrapper>
+
+              </RemoveCommentContainer>
+            )}
+
+
+            {showReportReasonPopup && !existingReport && (
+
+
+              <ReportCommentContainer
+              >
+                <ReportCommentWrapper>
+                  <ReportCommentTitle> Report Comment </ReportCommentTitle>
+                  <ReportCommentTxt> Please select the reason for this report </ReportCommentTxt>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="Spam"
+                      name="SpamReport"
+                      value="SpamReport"
+                      onChange={() => setSelectedReportReason("Spam")}
+                      checked={selectedReportReason === "Spam"}
+                    />
+                    <label htmlFor="Spam"> Spam </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Unwanted, unsolicited messages sent in bulk. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="PornographyContent"
+                      name="PornographyContentReport"
+                      value="PornographyContentReport"
+                      onChange={() => setSelectedReportReason("Pornography Content")}
+                      checked={selectedReportReason === "Pornography Content"}
+                    />
+                    <label htmlFor="PornographyContent"> Pornography content </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="ChildAbuse"
+                      name="ChildAbuseReport"
+                      value="ChildAbuseReport"
+                      onChange={() => setSelectedReportReason("Child Abuse")}
+                      checked={selectedReportReason === "Child Abuse"}
+                    />
+                    <label htmlFor="ChildAbuse"> Child Abuse </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Harm to children through abuse or neglect. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="HateSpeech"
+                      name="HateSpeechReport"
+                      value="HateSpeechReport"
+                      onChange={() => setSelectedReportReason("Hate Speech")}
+                      checked={selectedReportReason === "Hate Speech"}
+                    />
+                    <label htmlFor="HateSpeech"> Hate Speech </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Discriminatory speech promoting hostility and harm. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="PromotesTerrorism"
+                      name="PromotesTerrorismReport"
+                      value="PromotesTerrorismReport"
+                      onChange={() => setSelectedReportReason("Promotes Terrorism")}
+                      checked={selectedReportReason === "Promotes Terrorism"}
+                    />
+                    <label htmlFor="PromotesTerrorism"> Promotes Terrorism </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Encouraging or supporting acts of terrorism. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="HarrassmentorBullying"
+                      name="HarrassmentorBullyingReport"
+                      value="HarrassmentorBullyingReport"
+                      onChange={() => setSelectedReportReason("Harrassment or Bullying")}
+                      checked={selectedReportReason === "Harrassment or Bullying"}
+                    />
+                    <label htmlFor="HarrassmentorBullying"> Harrassment or Bullying </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Aggressive behavior that harms or intimidates others. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="SuicideorSelfInjury"
+                      name="SuicideorSelfInjuryReport"
+                      value="SuicideorSelfInjuryReport"
+                      onChange={() => setSelectedReportReason("Suicide or Self Injury")}
+                      checked={selectedReportReason === "Suicide or Self Injury"}
+                    />
+                    <label htmlFor="SuicideorSelfInjury"> Suicide or Self Injury </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> False or inaccurate information that spreads and can cause confusion. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReasonOption>
+                    <input
+                      type="radio"
+                      id="Missinformation"
+                      name="Missinformation"
+                      value="Missinformation"
+                      onChange={() => setSelectedReportReason("Missinformation")}
+                      checked={selectedReportReason === "Missinformation"}
+                    />
+                    <label htmlFor="Missinformation"> Missinformation </label>
+
+                    <ReportCommentInfo>
+                      <InfoIcon src={ReportarComentarioInfoIcono} />
+                      <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                    </ReportCommentInfo>
+
+                  </ReportReasonOption>
+
+                  <ReportReportCancel>
+                    <ReportCommentCancel onClick={handleReportComment}>
+                      Cancel
+                    </ReportCommentCancel>
+                    <ReportCommentReport onClick={() => handleReportCommentWithReason(selectedReportReason)}>
+                      Report
+                    </ReportCommentReport>
+                  </ReportReportCancel>
+
+                </ReportCommentWrapper>
+
+              </ReportCommentContainer>
+            )}
+
+            {showReportReasonPopup && existingReport && (
+              <ReportCommentContainer>
+                <ReportCommentWrapper>
+                  <ReportCommentTitle> Report Comment </ReportCommentTitle>
+                  <ReportCommentTxt> You have already reported this comment </ReportCommentTxt>
+                  <ReportReportCancel>
+                    <ReportCommentReport onClick={handleReportComment}>
+                      Go back
+                    </ReportCommentReport>
+                  </ReportReportCancel>
+                </ReportCommentWrapper>
+              </ReportCommentContainer>
+            )}
+
+            {showReportSubmittedPopup && (
+              <ReportCommentContainer>
+                <ReportCommentWrapper>
+                  <ReportCommentTitle> Report Submitted </ReportCommentTitle>
+                  <ReportCommentTxt> Thanks. We've received your report, if this comment goes against our guidelines we'll take actions.   </ReportCommentTxt>
+                  <ReportSubmitedButton>
+                    <ReportCommentReport onClick={handleReportCommentSubmitedClose}>
+                      Reload
+                    </ReportCommentReport>
+                  </ReportSubmitedButton>
+                </ReportCommentWrapper>
+              </ReportCommentContainer>
+            )}
+
+
           </NameDate>
           <Text>
-            {currentComment.desc}
+            {isEditing ? (
+              <PostEdit>
+                <Textarea
+                  value={editedCommentText}
+                  onChange={(e) => setEditedCommentText(e.target.value)}
+                  placeholder="Edit your comment..."
+                />
+                <ButtonsDiv>
+                  <CloseButton onClick={handleCancelEdit}> Close </CloseButton>
+                  <EditButton disabled={!editedCommentText.trim()} onClick={handleSaveEdit}>
+                    Edit
+                  </EditButton>
+                </ButtonsDiv>
+              </PostEdit>
+            ) : (
+              currentComment.desc
+            )}
           </Text>
           <CommentOptions>
 

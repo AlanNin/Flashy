@@ -130,7 +130,6 @@ const Comments = ({ videoId, UserUploader }) => {
   const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState('');
 
-
   const fetchComments = async () => {
     try {
       const res = await axios.get(`/comments/${videoId}`);

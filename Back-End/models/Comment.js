@@ -1,5 +1,15 @@
 import mongoose, { Mongoose } from "mongoose";
 
+const ReportSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
+    },
+    reason: {
+        type: String,
+        required: true,
+    },
+}, { timestamps: true });
 const ReplySchema = new mongoose.Schema({
     userId: {
         type: String,
@@ -19,6 +29,18 @@ const ReplySchema = new mongoose.Schema({
     },
     dislikes: {
         type: [String],
+        default: [],
+    },
+    edited: {
+        type: Boolean,
+        default: false,
+    },
+    editedAt: {
+        type: Date,
+        default: null,
+    },
+    reports: {
+        type: [ReportSchema],
         default: [],
     },
 }, { timestamps: true });
@@ -42,6 +64,18 @@ const CommentSchema = new mongoose.Schema({
     },
     dislikes: {
         type: [String],
+        default: [],
+    },
+    edited: {
+        type: Boolean,
+        default: false,
+    },
+    editedAt: {
+        type: Date,
+        default: null,
+    },
+    reports: {
+        type: [ReportSchema],
         default: [],
     },
     replies: [ReplySchema],
