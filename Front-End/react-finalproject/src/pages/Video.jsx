@@ -317,7 +317,6 @@ const ButtonLoginText = styled.h3`
 `;
 
 const Video = () => {
-
   const { language, setLanguage } = useLanguage();
 
   const translations = {

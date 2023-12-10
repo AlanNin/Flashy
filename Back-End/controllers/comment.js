@@ -14,16 +14,26 @@ export const addComment = async (req, res, next) => {
 
 export const deleteComment = async (req, res, next) => {
     try {
-        const comment = await Comment.findById(req.params.id)
-        const video = await Video.findById(req.params.id)
+        const comment = await Comment.findById(req.params.id);
+        const video = await Video.findById(comment.videoId); // Asumiendo que el comentario tiene una referencia al video
+
+        if (!comment) {
+            return next(createError(404, "Comentario no encontrado."));
+        }
+
+        if (!video) {
+            return next(createError(404, "Video no encontrado."));
+        }
+
         if (req.user.id === comment.userId || req.user.id === video.userId) {
-            await Comment.findByIdAndDelete(req.params.id)
-            res.status(200).json("El comentario ha sido eliminado.")
+            await Comment.findByIdAndDelete(req.params.id);
+            res.status(200).json("El comentario ha sido eliminado.");
         } else {
-            return next(createError(403, "No puedes eliminar este comentario!"));
+            return next(createError(403, "No puedes eliminar este comentario."));
         }
     } catch (error) {
-        next(error)
+        console.error(error);
+        next(error);
     }
 };
 

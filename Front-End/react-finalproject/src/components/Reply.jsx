@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import styled, { css } from 'styled-components';
 import RespuestaIcono from "../assets/RespuestaIcono.png";
 import RespuestaIconoHover from "../assets/RespuestaIconoHover.png";
@@ -13,7 +15,6 @@ import ReportarComentarioIcono from "../assets/ReportarComentarioIcono.png";
 import ReportarComentarioInfoIcono from "../assets/ReportarComentarioInfoIcono.png";
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { toggleLike } from '../redux/commentSlice';
 import axios from "axios";
 import moment from "moment";
@@ -552,6 +553,136 @@ const ReportSubmitedButton = styled.div`
   margin-top: 0px;
 `;
 
+const ItemLogin = styled.div`
+  display: flex;
+  width: max-content;
+  padding: 5px 12px;
+  align-items: center;
+  gap: 8px;
+  height: max-content;
+  transition: background-color 0.5s;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.loginbg};
+  &:hover {
+    background-color: ${({ theme }) => theme.softloginbg};
+  }
+`;
+
+const ImgLogin = styled.img`
+  height: 20px;
+  width: 20px;
+`;
+
+const ButtonLoginText = styled.h3`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  margin-right: 2px;
+  font-weight: normal;
+  margin-bottom: 3px;
+  color: ${({ theme }) => theme.text};
+`;
+
+const LikeNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 25px;
+  margin-left: 70px;
+  z-index: 2;
+`;
+
+const LikeNotLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+
+const DislikeNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 25px;
+  margin-left: 118px;
+  z-index: 2;
+`;
+
+const DislikeLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const ReplyNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 25px;
+  margin-left: 0px;
+  z-index: 2;
+`;
+
+const ReplyLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const ReportNotLogged = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(89, 86, 92, 0.9);
+  width: auto;
+  border-radius: 10px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 10px;
+  margin-left: 0px;
+  z-index: 2;
+`;
+
+const ReportLoggedTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
 const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) => {
   const { language, setLanguage } = useLanguage();
   const dispatch = useDispatch();
@@ -567,10 +698,10 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   // TRANSLATIONS
   const translations = {
     en: {
-      views: "views",
+      signin: "Sign in",
     },
     es: {
-      views: "visitas",
+      signin: "Iniciar Sesión",
     },
   };
 
@@ -593,6 +724,10 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
   // LIKE REPLY
   const handleLikeReply = async () => {
+    if (!currentUser) {
+      setLikePopupVisible(true);
+      return;
+    }
     if (isLikeDisabled) return;
 
     try {
@@ -619,6 +754,10 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
   // DISLIKE REPLY
   const handleDislikeReply = async (replyId) => {
+    if (!currentUser) {
+      setDislikePopupVisible(true);
+      return;
+    }
     if (isDislikeDisabled) return;
 
     try {
@@ -642,6 +781,10 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   };
 
   const handleReplyClick = () => {
+    if (!currentUser) {
+      setReplyPopupVisible(true);
+      return;
+    }
     setShowReplySection(!showReplySection);
   };
 
@@ -718,6 +861,10 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   const existingReport = currentReply?.reports.find(report => report.userId === currentUser?._id);
 
   const handleReportReply = () => {
+    if (!currentUser) {
+      setReportPopupVisible(true);
+      return;
+    }
     setShowReportReasonPopup(!showReportReasonPopup);
     setIsMenuOpen(!isMenuOpen);
   };
@@ -832,6 +979,80 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
     };
   }, []);
 
+  // POP UP LIKE NOT LOGGED
+  const [isLikePopupVisible, setLikePopupVisible] = useState(false);
+  const likeRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideLikeNotLogged = (event) => {
+      if (likeRef.current && !likeRef.current.contains(event.target)) {
+        setLikePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideLikeNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideLikeNotLogged);
+    };
+  }, []);
+
+  // POP UP DISLIKE NOT LOGGED
+  const [isDislikePopupVisible, setDislikePopupVisible] = useState(false);
+  const dislikeRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideDislikeNotLogged = (event) => {
+      if (dislikeRef.current && !dislikeRef.current.contains(event.target)) {
+        // Clic fuera del componente, ocultar el popup
+        setDislikePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideDislikeNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideDislikeNotLogged);
+    };
+  }, []);
+
+  // POP UP REPLY NOT LOGGED
+  const [isReplyPopupVisible, setReplyPopupVisible] = useState(false);
+  const replyRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideReplyNotLogged = (event) => {
+      if (replyRef.current && !replyRef.current.contains(event.target)) {
+        // Clic fuera del componente, ocultar el popup
+        setReplyPopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideReplyNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideReplyNotLogged);
+    };
+  }, []);
+
+  // POP UP REPORT NOT LOGGED
+  const [isReportPopupVisible, setReportPopupVisible] = useState(false);
+  const reportRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutsideReportNotLogged = (event) => {
+      if (reportRef.current && !reportRef.current.contains(event.target)) {
+        // Clic fuera del componente, ocultar el popup
+        setReportPopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideReportNotLogged);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideReportNotLogged);
+    };
+  }, []);
 
   return (
     <Container isMenuDotsVisible={isMenuDotsVisible} ref={menuRef}>
@@ -869,6 +1090,28 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                   <RemoveEditReportReplyImg src={ReportarComentarioIcono} />
                   Report
                 </ReportReply>
+              )}
+
+
+              {!currentUser && isReportPopupVisible && (
+                <ReportNotLogged ref={reportRef}>
+
+                  <ReportLoggedTxt> You need to be logged in to report to this comment. </ReportLoggedTxt>
+
+                  <Link
+                    to="../../signin"
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit",
+                    }}
+                  >
+                    <ItemLogin>
+                      <ImgLogin src={InicioSesionIcono2} />
+                      <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                    </ItemLogin>
+                  </Link>
+
+                </ReportNotLogged>
               )}
             </ReplyMenuOptions>
           )}
@@ -1145,6 +1388,26 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
             <ReplyText> Reply </ReplyText>
           </Replyy>
 
+          {!currentUser && isReplyPopupVisible && (
+            <ReplyNotLogged ref={replyRef}>
+
+              <ReplyLoggedTxt> You need to be logged in to reply to this comment. </ReplyLoggedTxt>
+
+              <Link
+                to="../../signin"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <ItemLogin>
+                  <ImgLogin src={InicioSesionIcono2} />
+                  <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                </ItemLogin>
+              </Link>
+
+            </ReplyNotLogged>
+          )}
 
           <EstiloLike onClick={handleLikeReply} >
             {currentReply?.likes?.includes(currentUser?._id) ?
@@ -1153,12 +1416,54 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
             <LikeDislikeCounter> {currentReply?.likes?.length}</LikeDislikeCounter>
           </EstiloLike>
 
+          {!currentUser && isLikePopupVisible && (
+            <LikeNotLogged ref={likeRef}>
+
+              <LikeNotLoggedTxt> You need to be logged in to like this comment. </LikeNotLoggedTxt>
+
+              <Link
+                to="../../signin"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <ItemLogin>
+                  <ImgLogin src={InicioSesionIcono2} />
+                  <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                </ItemLogin>
+              </Link>
+
+            </LikeNotLogged>
+          )}
+
           <EstiloDislike onClick={handleDislikeReply}>
             {currentReply?.dislikes?.includes(currentUser?._id) ?
               (<DislikeImg src={DislikedIcono} />) :
               (<DislikeImg src={DislikeIcono} />)} {" "}
             <LikeDislikeCounter> {currentReply?.dislikes?.length} </LikeDislikeCounter>
           </EstiloDislike>
+
+          {!currentUser && isDislikePopupVisible && (
+            <DislikeNotLogged ref={dislikeRef}>
+
+              <DislikeLoggedTxt> You need to be logged in to dislike this comment. </DislikeLoggedTxt>
+
+              <Link
+                to="../../signin"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <ItemLogin>
+                  <ImgLogin src={InicioSesionIcono2} />
+                  <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                </ItemLogin>
+              </Link>
+
+            </DislikeNotLogged>
+          )}
         </CommentOptions>
         {showReplySection && (
           <ReplyToReply>

@@ -180,7 +180,7 @@ const Comments = ({ videoId, UserUploader }) => {
     <Container>
       <TitleHeader> COMMENTS </TitleHeader>
       {!currentUser && (
-        <NotLoggedText> Please log in to comment in this video. </NotLoggedText>
+        <NotLoggedText> Please sign in to comment in this video. </NotLoggedText>
       )}
 
       {currentUser && (
