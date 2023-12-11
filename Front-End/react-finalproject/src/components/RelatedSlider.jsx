@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import styled, { css } from 'styled-components';
 import { useLanguage } from '../utils/LanguageContext';
 import CardRelated from './CardRelated';
+import axios from "axios";
 
 
-
-const RelatedSlider = () => {
+const RelatedSlider = ({ videoId, UserUploader }) => {
 
   const { language, setLanguage } = useLanguage();
 
@@ -20,6 +20,18 @@ const RelatedSlider = () => {
     },
   };
 
+  const [videos, setVideos] = useState([])
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const res = await axios.get(`/videos/related/${videoId}`);
+        setVideos(res.data);
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      }
+    };
+    fetchVideos();
+  }, [videoId]);
 
 
   const responsive = {
@@ -106,29 +118,24 @@ const RelatedSlider = () => {
     <div className="App" style={{ width: '1000px' }}>
       <Header>{translations[language].related}</Header>
 
-      <StyledCarousel
-        responsive={responsive}
-        autoPlay={false}
-        swipeable={false}
-        draggable={false}
-        itemClass={RelatedSlider.carouselItem}
-        partialVisible={false}
-        customLeftArrow={<CustomLeftArrow />}
-        customRightArrow={<CustomRightArrow />}
-      >
-
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-        <CardRelated />
-
-      </StyledCarousel>
+      {videos.length > 0 ? (
+        <StyledCarousel
+          responsive={responsive}
+          autoPlay={false}
+          swipeable={false}
+          draggable={false}
+          itemClass={RelatedSlider.carouselItem}
+          partialVisible={false}
+          customLeftArrow={<CustomLeftArrow />}
+          customRightArrow={<CustomRightArrow />}
+        >
+          {videos.map((video) => (
+            <CardRelated key={video._id} video={video} />
+          ))}
+        </StyledCarousel>
+      ) : (
+        <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px' }}>No related videos found.</p>
+      )}
 
     </div >
 

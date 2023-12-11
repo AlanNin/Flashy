@@ -4,9 +4,6 @@ import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import CanalTendenciaIcono from '../assets/CanalTendenciaIcono.png';
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
-import MiniaturaLokiS2 from '../assets/MiniaturaLokiS2.jpg';
-import moment from "moment";
-import "moment/locale/es";
 
 const Container = styled.div`
   position: relative;
@@ -147,7 +144,6 @@ const CardTrending = ({ type, video, index }) => {
   useEffect(() => {
     const fetchChannel = async () => {
       try {
-        // Realizar la llamada a la API para obtener la información del canal
         const res = await axios.get(`/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {

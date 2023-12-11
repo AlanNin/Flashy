@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { addVideo, addView, deleteVideo, getByTag, getVideo, random, getByLikes, search, sub, trend, updateVideo, TrendingSub } from "../controllers/video.js";
+import { addVideo, addView, deleteVideo, getByTag, getVideo, random, getByLikes, search, sub, trend, updateVideo, TrendingSub, getRelatedVideos } from "../controllers/video.js";
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router()
@@ -41,5 +41,8 @@ router.get("/tags", getByTag)
 
 // GET VIDEO BY TITLE
 router.get("/search", search)
+
+// GET RELATES VIDEOS
+router.get("/related/:id", getRelatedVideos);
 
 export default router;

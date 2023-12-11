@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Miniatura from "../assets/Miniatura2.jpg";
 import Miniaturahxh from "../assets/Miniaturahxh.jpg";
 
-// Define TitleOverlay before using it in Container
 const TitleOverlay = styled.h1`
   position: absolute;
   top: 50%;
-  left: 100px;
+  left: 60%;
   transform: translate(-50%, -50%);
   font-size: 14px;
   font-family: "Roboto Condensed", Helvetica;
@@ -20,23 +20,24 @@ const TitleOverlay = styled.h1`
   transition: background-color 0.4s;
   padding: 2px 5px;
   border-radius: 8px;
+  width: max-content;
 `;
 
 const Image = styled.img`
-  width: 200px;
-  height: 105px;
+  poistion: absolute;
   background-color: #999;
   flex: 1;
   border-radius: 13px;
-  filter: grayscale(100%) blur(4px) brightness(0.5);
+  filter: grayscale(100%) blur(3px) brightness(0.5);
   transition: filter 0.4s;
 
 `;
 
 const Container = styled.div`
+  position: relative;
   display: flex;
-  width: 150px;
-  height: 105px;
+  width: 160px;
+  height: 115px;
   margin-left: 7px;
 
   &:hover {
@@ -47,21 +48,18 @@ const Container = styled.div`
 
   &:hover {
     ${Image} {
-      filter: grayscale(0%) blur(2px) brightness(1); /* Aplica los valores opuestos en hover */
+      filter: grayscale(0%) blur(1.5px) brightness(1);
     }
   }
 `;
 
 
-const CardRelated = ({ type }) => {
+const CardRelated = ({ video }) => {
   return (
-    <Link to="/video/test" style={{
-      textDecoration: "none",
-      color: "inherit"
-    }}>
-      <Container type={type}>
-        <Image type={type} src={Miniaturahxh} />
-        <TitleOverlay>HunterxHunter EP2 : S1</TitleOverlay>
+    <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+      <Container>
+        <Image src={video.imgUrl} />
+        <TitleOverlay> {video.title} </TitleOverlay>
       </Container>
     </Link>
   );

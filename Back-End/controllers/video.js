@@ -1,5 +1,7 @@
 import User from "../models/User.js";
 import Video from "../models/Video.js";
+import natural from 'natural';
+import stringSimilarity from 'string-similarity';
 import { createError } from "../error.js";
 
 export const addVideo = async (req, res, next) => {
@@ -165,3 +167,41 @@ export const getByLikes = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getRelatedVideos = async (req, res, next) => {
+    try {
+        const currentVideo = await Video.findById(req.params.id);
+
+        if (!currentVideo) {
+            return next(createError(404, "Video not found!"));
+        }
+
+        const titleKeywords = currentVideo.title.split(" ");
+
+        const regexPatterns = titleKeywords
+            .filter(keyword => !/\bs\d+:\w+X?\b/i.test(keyword))
+            .map(keyword => new RegExp(keyword, 'i'));
+
+        const relatedVideos = await Video.find({
+            $and: [
+                {
+                    $or: [
+                        { title: { $in: titleKeywords } },
+                        { title: { $in: regexPatterns } },
+                    ],
+                },
+                {
+                    _id: {
+                        $ne: currentVideo._id,
+                    },
+                },
+            ],
+        });
+
+        res.status(200).json(relatedVideos);
+    } catch (err) {
+        next(err);
+    }
+};
+
+

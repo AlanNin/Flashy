@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
 import Recommendation from "../components/Recommendation";
-import CardRelatedVideos from "../components/CardRelated";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import VideoLikeIcono from "../assets/VideoLikeIcono.png";
 import VideoLikedIcono from "../assets/VideoLikedIcono.png";
@@ -64,7 +63,7 @@ const RelatedVideos = styled.div`
   position: relative;
   display: flex;
   height: auto;
-  padding: 0px 0px 80px 0px;
+  padding: 0px 0px 40px 0px;
 `;
 
 const VideoInfo = styled.div`
@@ -666,7 +665,7 @@ const Video = () => {
 
         <RelatedVideos>
 
-          <RelatedSlider />
+          <RelatedSlider videoId={currentVideo?._id} UserUploader={channel?._id} />
 
         </RelatedVideos>
 
@@ -674,6 +673,7 @@ const Video = () => {
 
       </Content>
       <RecommendationContainer>
+
         <TitleHeader> RECOMMENDED </TitleHeader>
         <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
 
