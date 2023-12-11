@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
 import Recommendation from "../components/Recommendation";
@@ -16,6 +16,7 @@ import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
 import ViewsIcon from '../assets/ViewsIcono2.png';
+import CopyIcono from "../assets/CopyIcono.png"
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
@@ -52,6 +53,7 @@ const Button = styled.div`
   align-items: center;
   gap: 3px;
   cursor: pointer;
+  user-select: none; 
 `;
 
 const ButtonsImg = styled.img`
@@ -315,6 +317,84 @@ const ButtonLoginText = styled.h3`
 
 `;
 
+const ShareContainer = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(70, 67, 74, 0.7);
+  width: auto;
+  border-radius: 0px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 135px;
+  margin-left: 675px;
+  z-index: 2;
+  cursor: normal;
+`;
+
+const ShareTxt = styled.h1`
+  color: white;
+  padding: 10px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const ShareLinkCopyDiv = styled.div`
+  postition: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center; 
+`;
+
+
+const ShareLink = styled.h1`
+  background: rgba(36, 35, 35, 0.8);
+  border-radius: 8px;
+  color: white;
+  padding: 10px 15px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  font-weight: normal;
+`;
+
+const ShareCopyLink = styled.img`
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+  margin-left 8px;
+`;
+
+const fadeOut = keyframes`
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+`;
+
+const SharePopupContainer = styled.div`
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(86, 48, 120);
+  color: white;
+  text-align: center;
+  padding: 16px;
+  border-radius: 8px;
+  opacity: ${({ isPopUpShareVisible }) => (isPopUpShareVisible ? 1 : 0)};
+  animation: ${fadeOut} 4s ease-in-out;
+`;
+
+const SharePopupContent = styled.p`
+  margin: 0;
+`;
+
 const Video = () => {
   const { language, setLanguage } = useLanguage();
 
@@ -516,6 +596,53 @@ const Video = () => {
   }, []);
 
 
+  // SHARE
+  const [shareLink, setShareLink] = useState('');
+  const [isSharePopupVisible, setSharePopupVisible] = useState(false);
+  const shareRef = useRef(null);
+  const buttonShareRef = useRef(null);
+  const currentURL = window.location.href;
+  const [isPopUpShareVisible, setIsPopUpShareVisible] = useState(false);
+
+  const handleShare = () => {
+    setShareLink(currentURL);
+    setSharePopupVisible(!isSharePopupVisible);
+  };
+
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(shareLink)
+      .then(() => {
+        setIsPopUpShareVisible(true);
+
+        const timeout = setTimeout(() => {
+          setIsPopUpShareVisible(false);
+        }, 4000);
+
+        return () => clearTimeout(timeout);
+      })
+      .catch((err) => {
+        console.error('Error al copiar el URL', err);
+      });
+  };
+
+  useEffect(() => {
+    const handleClickOutsideShare = (event) => {
+      // Verificar si el clic ocurrió dentro del botón
+      const isClickInsideButton = buttonShareRef.current && buttonShareRef.current.contains(event.target);
+
+      // Si el clic fue fuera del componente pero dentro del botón, no ocultar el popup
+      if (shareRef.current && !shareRef.current.contains(event.target) && !isClickInsideButton) {
+        setSharePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideShare);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideShare);
+    };
+  }, []);
+
   return (
     <Container>
       <Content>
@@ -588,9 +715,21 @@ const Video = () => {
           <Button>
             <ButtonsImg src={VideoSaveIcono} /> Watch Later
           </Button>
-          <Button>
+
+          <Button onClick={handleShare} ref={buttonShareRef}>
             <ButtonsImg src={VideoShareIcono} /> Share
           </Button>
+
+          {isSharePopupVisible && (
+            <ShareContainer ref={shareRef}>
+              <ShareTxt> Share this video with your friends! </ShareTxt>
+              <ShareLinkCopyDiv>
+                <ShareLink> {shareLink} </ShareLink>
+                <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
+              </ShareLinkCopyDiv>
+            </ShareContainer>
+          )}
+
         </Buttons>
 
         <VideoInfo>
@@ -678,6 +817,12 @@ const Video = () => {
         <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
 
       </RecommendationContainer>
+
+      {isPopUpShareVisible && (
+        <SharePopupContainer>
+          <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
+        </SharePopupContainer>
+      )}
 
     </Container>
   );

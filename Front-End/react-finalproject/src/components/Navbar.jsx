@@ -322,10 +322,6 @@ const MenuUserText = styled.h3`
   color: ${({ theme }) => theme.text};
   letter-spacing: 0;
   line-height: normal;
-  @media only screen and (max-width: 980px),
-    only screen and (max-height: 910px) {
-    display: none;
-  }
 `;
 
 const MenuUserLogoutDiv = styled.div`
@@ -529,8 +525,6 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
             <DisplayName>{currentUser.displayname}</DisplayName>
             <Email>{currentUser.email}</Email>
             <WrapperMenuUser>
-              {/* Dropdown content goes here */}
-              {/* For example, you can add links to user profile, settings, etc. */}
               <Link to="/profile" style={{
                 width: "100%",
                 textDecoration: "none",

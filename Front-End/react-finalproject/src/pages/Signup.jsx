@@ -340,6 +340,7 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [nameError, setNameError] = useState(false);
+  const [nameInvalidError, setNameInvalidError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [checkboxError, setCheckboxError] = useState(false);
@@ -490,6 +491,9 @@ const Signup = () => {
         const nameCheckResponse = await axios.post("/auth/checkname", { name });
         const emailCheckResponse = await axios.post("/auth/checkemail", { email });
 
+        //Check Username 
+        const isNameValid = /^[^\s]{1,8}$/.test(name);
+
         if (nameCheckResponse.data.exists) {
           // Display an error message for username
           console.error("Username is already taken");
@@ -509,6 +513,10 @@ const Signup = () => {
           // Display an error checkbox missing
           console.error("Checkbox missing");
           setCheckboxError(true);
+        }
+        if (!isNameValid) {
+          console.error("Invalid username");
+          setNameInvalidError(true);
         } else {
           // Continue with the hCaptcha verification if the name is not taken
           handleHCaptchaVerify();
@@ -560,6 +568,7 @@ const Signup = () => {
       emailtaken: "Email is already taken.",
       placeholderusername: "Username",
       usernametaken: "Username is already taken.",
+      usernameinvalid: "8 characters maximum, should not contain spaces.",
       placeholderdisplayname: "Display name",
       placeholderpassword: "Password",
       placeholderconfirmpassword: "Confirm Password",
@@ -588,6 +597,7 @@ const Signup = () => {
       emailtaken: "Este correo ya ha sido registrado anteriormente.",
       placeholderusername: "Usuario",
       usernametaken: "Este usuario ya ha sido registrado anteriormente.",
+      usernameinvalid: "Máximo de 8 caracteres y no debe contener espacios.",
       placeholderdisplayname: "Nombre a mostrar",
       placeholderpassword: "Contraseña",
       placeholderconfirmpassword: "Confirmar contraseña",
@@ -649,6 +659,7 @@ const Signup = () => {
               onChange={(e) => {
                 setName(e.target.value)
                 setNameError(false);
+                setNameInvalidError(false);
                 setEmptyFieldsError(false);
               }}
               onFocus={() => {
@@ -662,6 +673,7 @@ const Signup = () => {
               {translations[language].placeholderusername}
             </Placeholder>
             {nameError && <ErrorMessage>{translations[language].usernametaken}</ErrorMessage>}
+            {nameInvalidError && <ErrorMessage>{translations[language].usernameinvalid}</ErrorMessage>}
           </InputContainer>
 
           <InputContainer>
