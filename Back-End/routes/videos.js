@@ -1,6 +1,22 @@
 import express from "express";
 import cors from "cors";
-import { addVideo, addView, deleteVideo, getByTag, getVideo, random, getByLikes, search, sub, trend, updateVideo, TrendingSub, getRelatedVideos } from "../controllers/video.js";
+import {
+    addVideo,
+    addView,
+    deleteVideo,
+    getByTag,
+    getVideo,
+    random,
+    getByLikes,
+    search,
+    sub,
+    trend,
+    updateVideo,
+    TrendingSub,
+    getRelatedVideos,
+    saveVideoProgress,
+    getVideoProgress,
+} from "../controllers/video.js";
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router()
@@ -44,5 +60,12 @@ router.get("/search", search)
 
 // GET RELATES VIDEOS
 router.get("/related/:id", getRelatedVideos);
+
+// SAVE USER VIDEO PROGRESS
+router.post('/saveUserProgress/:id', verifyToken, saveVideoProgress);
+
+// get USER VIDEO PROGRESS
+router.get('/userProgress/:id', verifyToken, getVideoProgress);
+
 
 export default router;

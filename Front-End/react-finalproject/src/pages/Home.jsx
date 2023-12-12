@@ -13,33 +13,38 @@ const MainContainer = styled.div`
   display: relative;
   top:0px;
   z-index: 1;
+  margin: auto;
+  max-width: 2560px;
+  min-height: 100vh;
+  background-color: rgba(15, 12, 18);
 `;
 
 const ShareContainer = styled.div`
-display: flex;
-margin-top: 42px;
-margin-left: 55px;
+  position: relative;
+  display: flex;
+  margin-top: 42px;
+  margin-left: 55px;
 `;
 
 const GifH = styled.img`
-width: 110px;
-height: 98px;
+  width: 110px;
+  height: 98px;
 `;
 
 const ShareDiv = styled.h1`
-flex-direction: column;
-margin-top:25px;
-display: flex;
-margin-left: 15px;
-align-items: center;
+  flex-direction: column;
+  margin-top:25px;
+  display: flex;
+  margin-left: 15px;
+  align-items: center;
 `;
 
 const Share1 = styled.h1`
-font-size: 20px;
-color: rgba(224, 175, 208, 0.8);
-margin-right: 19px;
-font-family: "Roboto Condensed", Helvetica;
-font-weight: 600;
+  font-size: 20px;
+  color: rgba(224, 175, 208, 0.8);
+  margin-right: 19px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 600;
 `;
 
 const Share2 = styled.h1`
@@ -55,6 +60,7 @@ font-size: 32px;
 color: rgba(224, 175, 208);
 margin-top:60px;
 margin-left: 55px;
+
 font-weight: bold;
 font-family: "Roboto Condensed", Helvetica;
 `;
@@ -69,7 +75,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   padding: 32px 55px;
-
+  background-color: rgba(15, 12, 18);
 `;
 
 const Home = ({ type }) => {

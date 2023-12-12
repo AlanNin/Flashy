@@ -195,6 +195,9 @@ export const getRelatedVideos = async (req, res, next) => {
                         $ne: currentVideo._id,
                     },
                 },
+                {
+                    userId: currentVideo.userId, // Filtra por el mismo usuario
+                },
             ],
         });
 
@@ -204,4 +207,50 @@ export const getRelatedVideos = async (req, res, next) => {
     }
 };
 
+export const saveVideoProgress = async (req, res, next) => {
+    const userId = req.user.id;
+    const videoId = req.params.id;
+    const progress = req.body.progress; // Este valor debería ser el porcentaje de progreso
 
+    try {
+        // Encuentra al usuario por su ID
+        const user = await User.findById(userId);
+
+        // Verifica si el usuario ya tiene progreso para este video
+        if (user.videoProgress.has(videoId)) {
+            // Si ya existe, actualiza el progreso existente
+            user.videoProgress.set(videoId, progress);
+        } else {
+            // Si no existe, agrega un nuevo registro de progreso para el video
+            user.videoProgress.set(videoId, progress);
+        }
+
+        // Guarda los cambios en el usuario
+        await user.save();
+
+        res.status(200).json("Video progress saved successfully.");
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getVideoProgress = async (req, res, next) => {
+    const userId = req.user.id;
+    const videoId = req.params.id;
+
+    try {
+        // Encuentra al usuario por su ID
+        const user = await User.findById(userId);
+
+        // Verifica si el usuario tiene progreso para este video
+        if (user.videoProgress.has(videoId)) {
+            const progress = user.videoProgress.get(videoId);
+            res.status(200).json({ progress });
+        } else {
+            // Si no hay progreso registrado, devuelve 0 o cualquier valor predeterminado
+            res.status(200).json({ progress: 0 });
+        }
+    } catch (err) {
+        next(err);
+    }
+};

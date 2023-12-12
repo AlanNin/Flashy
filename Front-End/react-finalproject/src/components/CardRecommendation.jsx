@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
 import axios from "axios";
@@ -107,7 +107,7 @@ const InfoTime = styled.div`
 `;
 
 const CardRecommendation = ({ type, video }) => {
-
+  const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
 
   if (language === "es") {

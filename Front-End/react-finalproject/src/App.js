@@ -14,11 +14,13 @@ import Signup from "./pages/Signup";
 import Video from "./pages/Video";
 
 const Container = styled.div`
+  position: relative;
   display: block;
   width:100%;
 `;
 
 const FlexContainer = styled.div`
+  position: relative;
   display: flex;
   margin: 0 auto;
   background: red;
@@ -26,6 +28,7 @@ const FlexContainer = styled.div`
 `;
 
 const Main = styled.div`
+  position: relative;
   flex: 7;
   height: 100%; 
   width: 100vh; 
@@ -76,6 +79,7 @@ function App() {
   };
 
 
+
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <LanguageProvider>
@@ -102,7 +106,10 @@ function App() {
                     <Route path="search" element={<Search />} />
                     <Route path="subscriptions" element={<Subscriptions />} />
                     <Route path="signup" element={<Signup />} />
-                    <Route path="video">
+                    <Route
+                      path="video"
+                      element={<Video />}
+                    >
                       <Route path=":id" element={<Video />} />
                     </Route>
                   </Route>

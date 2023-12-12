@@ -1,23 +1,47 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
+import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
 
 const Container = styled.div`
-  width: ${(props) => props.type !== "sm" && "360px"};
-  margin-bottom: ${(props) => (props.type === "sm" ? "10px" : "0px")};
-  display: ${(props) => props.type === "sm" && "flex"};
+  width: 360px;
+  margin-bottom: 10px;
+`;
+
+const ImageContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 202px;
+  border-radius: 15px;
+  overflow: hidden;
 `;
 
 const Image = styled.img`
+  position: absolute;
   width: 100%;
-  height: ${(props) => (props.type === "sm" ? "120px" : "202px")};
+  height: 100%;
   background-color: #999;
   flex: 1;
-  border-radius: 15px;
+`;
+
+const ProgressBar = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 3px;
+  bottom: 0px;
+`;
+
+const ProgressIndicator = styled.div`
+  height: 100%;
+  width: ${(props) => `${props.progress}%`};
+  background-color: rgba(145, 19, 118);
+  border-radius: 3px;
 `;
 
 const Details = styled.div`
@@ -68,7 +92,6 @@ const InfoViews = styled.div`
   padding: 5px 7px;
 `;
 
-
 const InfoTime = styled.div`
   font-size: 14px;
   padding: 5px;
@@ -76,6 +99,8 @@ const InfoTime = styled.div`
 `;
 
 const Card = ({ video }) => {
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
 
   const { language, setLanguage } = useLanguage();
 
@@ -113,21 +138,55 @@ const Card = ({ video }) => {
 
 
   const [channel, setChannel] = useState({});
+  const [progress, setProgress] = useState(0);
+
 
   useEffect(() => {
+
     const fetchChannel = async () => {
       const res = await axios.get(`/users/find/${video.userId}`);
       setChannel(res.data);
     };
+
+    const fetchProgress = async () => {
+      if (currentUser) {
+        const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
+        setProgress(userProgressRes.data.progress); // Asegúrate de ajustar el nombre y la estructura según la respuesta real
+      }
+    };
+
     fetchChannel();
-  }, [video.userId]);
+
+    if (currentUser) {
+      fetchProgress();
+    }
+
+  }, [video.userId, video._id]);
+
+  const handleRedirect = (videoId) => {
+    navigate(`/video/${videoId}`);
+    // Reiniciar la página después de la redirección
+    navigate('/video', { replace: true });
+  };
+
+  // GET USER WATCH %
 
   return (
     <Container>
-      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-        <Image
-          src={video.imgUrl}
-        />
+      <Link to={`/video/${video._id}`} onClick={() => handleRedirect(video._id)} style={{ textDecoration: "none" }}>
+        <ImageContainer>
+          <Image
+            src={video.imgUrl}
+          />
+
+          {currentUser && (
+            <ProgressBar>
+              <ProgressIndicator progress={progress} />
+            </ProgressBar>
+          )}
+
+        </ImageContainer>
+
       </Link>
       <Details>
         <Link to="/channel" style={{ textDecoration: "none" }}>
@@ -135,6 +194,7 @@ const Card = ({ video }) => {
             src={channel.img}
           />
         </Link>
+
         <Texts>
           <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
             <Title> {video.title} </Title>
