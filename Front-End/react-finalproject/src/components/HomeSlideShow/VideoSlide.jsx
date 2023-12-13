@@ -146,16 +146,19 @@ const BotonVerDespuesTexto = styled(EstiloTextoBotones)`
 const VideoSlide = ({ type, video, translations, language, index }) => {
 
   const formatDuration = (durationInSeconds) => {
-    if (durationInSeconds < 60) {
-      return `${durationInSeconds}s`;
-    } else if (durationInSeconds < 3600) {
-      const minutes = Math.floor(durationInSeconds / 60);
-      return `${minutes}m`;
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
     } else {
-      const hours = Math.floor(durationInSeconds / 3600);
-      return `${hours}h`;
+      return `${seconds}s`;
     }
   };
+
 
   const formatDate = (createdAt) => {
     const date = new Date(createdAt);

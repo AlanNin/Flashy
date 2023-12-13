@@ -32,7 +32,7 @@ const ProgressBar = styled.div`
   position: absolute;
   width: 100%;
   height: 6px;
-  background-color: #ddd;
+  background-color: rgba(117, 116, 116, 0.8);
   border-radius: 3px;
   bottom: 0px;
 `;
@@ -40,7 +40,7 @@ const ProgressBar = styled.div`
 const ProgressIndicator = styled.div`
   height: 100%;
   width: ${(props) => `${props.progress}%`};
-  background-color: rgba(145, 19, 118);
+  background-color: rgba(145, 1, 111);
   border-radius: 3px;
 `;
 
@@ -101,7 +101,8 @@ const InfoTime = styled.div`
 const Card = ({ video }) => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
-
+  const [channel, setChannel] = useState({});
+  const [progress, setProgress] = useState(0);
   const { language, setLanguage } = useLanguage();
 
   const translations = {
@@ -136,11 +137,6 @@ const Card = ({ video }) => {
     return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
   };
 
-
-  const [channel, setChannel] = useState({});
-  const [progress, setProgress] = useState(0);
-
-
   useEffect(() => {
 
     const fetchChannel = async () => {
@@ -151,7 +147,7 @@ const Card = ({ video }) => {
     const fetchProgress = async () => {
       if (currentUser) {
         const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
-        setProgress(userProgressRes.data.progress); // Asegúrate de ajustar el nombre y la estructura según la respuesta real
+        setProgress(userProgressRes.data.progress);
       }
     };
 
@@ -179,7 +175,7 @@ const Card = ({ video }) => {
             src={video.imgUrl}
           />
 
-          {currentUser && (
+          {currentUser && progress > 0 && (
             <ProgressBar>
               <ProgressIndicator progress={progress} />
             </ProgressBar>

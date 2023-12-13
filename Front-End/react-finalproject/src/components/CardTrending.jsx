@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import CanalTendenciaIcono from '../assets/CanalTendenciaIcono.png';
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Container = styled.div`
   position: relative;
@@ -12,6 +13,7 @@ const Container = styled.div`
   height: 100%;
   margin-left: 2px;
 `;
+
 const SlideContainer = styled.div`
   margin-left: 33px;
   width: 195px;
@@ -29,7 +31,7 @@ const SlideContainerDif = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(195deg, rgba(0, 0, 0, 0.00) 40%, #000 100%);
+  background: linear-gradient(195deg, rgba(0, 0, 0, 0.00) 30%, #000 100%);
 `;
 
 const RankNumber = styled.h1`
@@ -82,6 +84,7 @@ const InsideContainer = styled.div`
   justify-content: flex-end;
   gap: 10px;
   width: 90%;
+  margin-bottom: 5px;
 `;
 
 const Title = styled.h1`
@@ -125,8 +128,27 @@ const TrendThumbnail = styled.img`
   position: absolute;
 `;
 
+const ProgressBar = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  background-color: rgba(117, 116, 116, 0.8);
+  border-radius: 0px;
+  bottom: 0px;
+  z-index: 2;
+`;
+
+const ProgressIndicator = styled.div`
+  height: 100%;
+  width: ${(props) => `${props.progress}%`};
+  background-color: rgba(145, 1, 111);
+  border-radius: 0px;
+`;
+
 const CardTrending = ({ type, video, index }) => {
   const [channel, setChannel] = useState({});
+  const { currentUser } = useSelector((state) => state.user);
+  const [progress, setProgress] = useState(0);
 
   const formatViews = (views) => {
     if (views >= 1000000000) {
@@ -151,9 +173,19 @@ const CardTrending = ({ type, video, index }) => {
       }
     };
 
-    // Llamar a la función para obtener la información del canal
+    const fetchProgress = async () => {
+      if (currentUser) {
+        const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
+        setProgress(userProgressRes.data.progress);
+      }
+    };
+
     fetchChannel();
-  }, [video.userId]);
+
+    if (currentUser) {
+      fetchProgress();
+    }
+  }, [video.userId, video._id]);
 
   return (
 
@@ -177,6 +209,11 @@ const CardTrending = ({ type, video, index }) => {
             </ViewContainer>
           </InsideContainer>
           <TrendThumbnail src={video.imgUrlVertical} />
+          {currentUser && progress > 0 && (
+            <ProgressBar>
+              <ProgressIndicator progress={progress} />
+            </ProgressBar>
+          )}
           <SlideContainerDif />
         </SlideContainer>
       </Link>

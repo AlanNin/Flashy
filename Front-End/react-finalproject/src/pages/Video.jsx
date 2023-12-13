@@ -29,7 +29,7 @@ const Container = styled.div`
   gap: 24px;
   max-width: 1200px;
   min-height: 100vh;
-  padding: 101px 273px 0px 273px;
+  padding: 101px 273px 0px 175px;
   background-color: rgba(15, 12, 18);
 `;
 
@@ -116,7 +116,7 @@ const EstiloIconos = styled.img`
 `;
 
 const ChannelIcon = styled(EstiloIconos)`
-margin-left: 0px;
+  margin-left: 0px;
 `;
 
 
@@ -428,6 +428,14 @@ const ResumePopupWrapper = styled.div`
 const ResumePopupText = styled.h1`
   font-weight: bold;
   font-size: 24px;
+  font-family: "Roboto Condensed", Helvetica;
+`;
+
+const ResumePopupSubText = styled.h1`
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: normal;
+  color: ${({ theme }) => theme.textSoft};
+  font-size: 18px;
 `;
 
 const ResumePopupButtons = styled.div`
@@ -444,7 +452,8 @@ const ResumePopupButton = styled.div`
     background: rgba(45, 45, 45);
   }
   padding: 8px 10px;
-  border-radius: 15px;
+  border-radius: 12px;
+  margin-left: 5px;
 `;
 
 const rotate = keyframes`
@@ -501,16 +510,19 @@ const Video = () => {
   };
 
   const formatDuration = (durationInSeconds) => {
-    if (durationInSeconds < 60) {
-      return `${durationInSeconds}s`;
-    } else if (durationInSeconds < 3600) {
-      const minutes = Math.floor(durationInSeconds / 60);
-      return `${minutes}m`;
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
     } else {
-      const hours = Math.floor(durationInSeconds / 3600);
-      return `${hours}h`;
+      return `${seconds}s`;
     }
   };
+
 
   const formatDate = (createdAt) => {
     const date = new Date(createdAt);
@@ -583,7 +595,7 @@ const Video = () => {
       isMounted = false;
     };
 
-  }, [path, dispatch, currentVideo?._id]);
+  }, [path, dispatch]);
 
   // LIKE VIDEO
   const handleLike = async () => {
@@ -652,7 +664,7 @@ const Video = () => {
       if (percentageWatched >= 5) {
         saveVideoProgress();
       }
-      else if (percentageWatched > 99) {
+      if (percentageWatched > 99) {
         setVideoProgress(0);
         saveVideoProgress();
       }
@@ -796,11 +808,14 @@ const Video = () => {
             <ResumePopupContainer>
               <ResumePopupWrapper>
                 <ResumePopupText>
-                  ¿Deseas continuar desde donde lo dejaste?
+                  Resume Video
                 </ResumePopupText>
+                <ResumePopupSubText>
+                  Would you like to resume this video or start over?
+                </ResumePopupSubText>
                 <ResumePopupButtons>
-                  <ResumePopupButton onClick={handleResumeClick}>Continuar</ResumePopupButton>
-                  <ResumePopupButton onClick={handleStartOverClick}>Desde el principio</ResumePopupButton>
+                  <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
+                  <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
                 </ResumePopupButtons>
               </ResumePopupWrapper>
             </ResumePopupContainer>
