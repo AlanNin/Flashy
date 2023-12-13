@@ -549,15 +549,23 @@ const Video = () => {
     videoRef.current.play();
   };
 
-  useEffect(() => {
+  // Reset Scroll
+  const scrollToTop = () => {
     window.scrollTo(0, 0);
-  }, []);
+  };
 
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
   const { currentVideo } = useSelector((state) => state.video);
   const dispatch = useDispatch();
   const path = useLocation().pathname.split("/")[2];
+
+  // ADD TO HISTORY
+  const UpdateHistory = async () => {
+    if (currentUser) {
+      await axios.put(`/users/${currentUser?._id}/videos/${currentVideo?._id}/history`);
+    }
+  };
 
   // FETCH VIDEO AND CHANNEL DATA + RESUME VIDEO
   useEffect(() => {
@@ -578,6 +586,7 @@ const Video = () => {
         const userProgress = userProgressRes.data.progress || 0;
 
         setVideoLoaded(true);
+        scrollToTop();
         setResumeProgress(userProgress);
 
         if (userProgress > 3) {
@@ -643,7 +652,6 @@ const Video = () => {
       await axios.post(`/videos/saveUserProgress/${currentVideo?._id}`, {
         progress: videoProgress,
       });
-
     } catch (error) {
       console.error("Error al guardar el progreso del video:", error);
     }
@@ -660,6 +668,7 @@ const Video = () => {
       const percentageWatched = (video.currentTime / video.duration) * 100;
 
       setVideoProgress(percentageWatched);
+      UpdateHistory();
 
       if (percentageWatched >= 5) {
         saveVideoProgress();

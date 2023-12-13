@@ -2,20 +2,22 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
+import CanalIcono from "../assets/CanalIcono.png";
+import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
 
 const Container = styled.div`
-  width: 360px;
+  display: flex;
   margin-bottom: 10px;
 `;
 
 const ImageContainer = styled.div`
   position: relative;
-  width: 100%;
-  height: 202px;
+  width: 320px;
+  height: 180px;
   border-radius: 15px;
   overflow: hidden;
 `;
@@ -46,27 +48,37 @@ const ProgressIndicator = styled.div`
 
 const Details = styled.div`
   display: flex;
-  margin-top: ${(props) => props.type !== "sm" && "16px"};
+  margin-left: 16px;
   gap: 12px;
   flex: 1;
-`;
-
-const ChannelImage = styled.img`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #999;
-  display: ${(props) => props.type === "sm" && "none"};
 `;
 
 const Texts = styled.div``;
 
 const Title = styled.h1`
-  font-size: 16px;
+  font-size: 20px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 600;
   color: ${({ theme }) => theme.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
+
+const InfoChannel = styled.div`
+  width: max-content;
+  height: max-content;
+  margin: auto 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+`;
+
 
 const ChannelName = styled.h2`
   font-size: 14px;
@@ -75,30 +87,50 @@ const ChannelName = styled.h2`
 `;
 
 const InfoWrapper = styled.div`
-  display: flex;
+  display: flex;  
   gap: 10px;
+`;
+
+const ImgViews = styled.img`
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
 `;
 
 const InfoViews = styled.div`
   font-size: 15px;
+  width: max-content;
+  height: max-content;
+  margin: auto 4px;
   color: white;
-  background: rgb(196, 90, 172, 0.4);
+  background: rgb(196, 90, 172, 0.3);
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
-  border-radius: 20px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center; 
-  padding: 5px 7px;
+  padding: 2px 7px;
 `;
 
-const InfoTime = styled.div`
+const VideoDesc = styled.h2`
+  max-width: 620px; 
+  margin-top: 5px;
   font-size: 14px;
-  padding: 5px;
   color: ${({ theme }) => theme.textSoft};
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
-const Card = ({ video }) => {
+const CardHistory = ({ video }) => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
@@ -107,10 +139,8 @@ const Card = ({ video }) => {
 
   const translations = {
     en: {
-      views: "views",
     },
     es: {
-      views: "visitas",
     },
   };
 
@@ -167,6 +197,7 @@ const Card = ({ video }) => {
 
   return (
     <Container>
+
       <Link to={`/video/${video._id}`} onClick={() => handleRedirect(video._id)} style={{ textDecoration: "none" }}>
         <ImageContainer>
           <Image
@@ -183,27 +214,28 @@ const Card = ({ video }) => {
 
       </Link>
       <Details>
-        <Link to="/channel" style={{ textDecoration: "none" }}>
-          <ChannelImage
-            src={channel.img}
-          />
-        </Link>
 
         <Texts>
           <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-            <Title> {video.title} </Title>
-          </Link>
-          <Link to="/channel" style={{ textDecoration: "none" }}>
-            <ChannelName> {channel.displayname} </ChannelName>
+            <Title> {video?.title} </Title>
           </Link>
           <InfoWrapper>
-            <InfoViews> {formatViews(video.views)} {translations[language].views}</InfoViews>
-            <InfoTime>• {timeago(video.createdAt)}</InfoTime>
+
+            <Link to="/channel" style={{ textDecoration: "none" }}>
+              <InfoChannel>
+                <ImgViews src={CanalIcono} />
+                <ChannelName> {channel?.displayname} </ChannelName>
+              </InfoChannel>
+            </Link>
+
+            <InfoViews> <ImgViews src={ViewsIcon} /> {formatViews(video?.views)} </InfoViews>
           </InfoWrapper>
+
+          <VideoDesc> {video?.desc} </VideoDesc>
         </Texts>
       </Details>
     </Container >
   );
 };
 
-export default Card;
+export default CardHistory;

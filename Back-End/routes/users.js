@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { update, remove, getUser, subscribe, unsubscribe, like, dislike, likeComment, dislikeComment, likeReply, dislikeReply } from "../controllers/user.js";
+import { update, remove, getUser, subscribe, unsubscribe, like, dislike, likeComment, dislikeComment, likeReply, dislikeReply, updateVideoHistory, getVideoHistory } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router();
@@ -38,5 +38,11 @@ router.put('/likereply/:commentId/:replyId', verifyToken, likeReply);
 
 // DISLIKE A REPLY
 router.put('/dislikereply/:commentId/:replyId', verifyToken, dislikeReply);
+
+// UPDATE VIDEO HISTORY
+router.put("/:userId/videos/:videoId/history", verifyToken, updateVideoHistory);
+
+// GET VIDEO HISTORY
+router.get('/:id/history', verifyToken, getVideoHistory);
 
 export default router;

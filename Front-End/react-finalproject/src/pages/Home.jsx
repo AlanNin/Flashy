@@ -8,15 +8,18 @@ import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
 
-
 const MainContainer = styled.div`
-  display: relative;
-  top:0px;
+  position: relative;
+  top: 0;
   z-index: 1;
   margin: auto;
-  max-width: 2560px;
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
+  max-width: 1920px;
+
+  @media (max-width: 768px) {
+    width: 470px;
+  }
 `;
 
 const ShareContainer = styled.div`

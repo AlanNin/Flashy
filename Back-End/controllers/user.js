@@ -262,3 +262,58 @@ export const dislikeReply = async (req, res, next) => {
         next(error);
     }
 };
+
+// MANAGE USER HISTORY
+export const updateVideoHistory = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const videoId = req.params.videoId;
+
+        const user = await User.findById(userId);
+
+        // Buscar el video en el historial del usuario
+        const videoIndex = user.videoHistory.findIndex(item => item.videoId.toString() === videoId);
+
+        if (videoIndex !== -1) {
+            // Si el video ya está en el historial, actualizar la última vez que fue visto
+            user.videoHistory[videoIndex].lastWatchedAt = Date.now();
+        } else {
+            // Si el video no está en el historial, agregarlo
+            user.videoHistory.push({
+                videoId: videoId,
+                lastWatchedAt: Date.now(),
+            });
+        }
+
+        // Guardar los cambios
+        await user.save();
+
+        res.status(200).json("Historial de video actualizado exitosamente.");
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// GET HISTORY VIDEOS
+export const getVideoHistory = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Buscar el usuario por ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Obtener el historial de videos del usuario con la información completa de cada video
+        const videoHistory = await Video.populate(user.videoHistory, { path: 'videoId' });
+
+        res.status(200).json(videoHistory);
+    } catch (error) {
+        next(error);
+    }
+};
+
+

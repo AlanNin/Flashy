@@ -9,43 +9,60 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Contenedor = styled.div`
-  position: absolute;
+  position: relative;
   z-index:2;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Destacados = styled.h1`
-  position: absolute;
-  left: 45px;
-  top: 132px;
+  margin-left: 45px;
+  margin-top: 132px;
   font-size: 20px;
   color: #fff500;
   font-family: 'Montserrat', sans-serif;
+  @media (max-width: 768px) {
+    font-size: 15px;
+    max-width: 380px;
+  }
 `;
 
 const Titulo = styled.h1`
   font-size: 40px;
   font-family: 'Montserrat', sans-serif;
   color: #FFFFFF;
-  position: absolute;
+  position: relative;
   left: 45px;
-  top: 171px;
+  top: 10px;
+  @media (max-width: 768px) {
+    font-size: 30px;
+    max-width: 380px;
+  }
 `;
 
 const ContenedorIconosTextos = styled.div`
-  position: absolute;
+  position: relative;
   display: flex;
   background: transparent;
-  top: 233px;
+  top: 30px;
   left: 45px;
+  @media (max-width: 768px) {
+    max-width: 380px;
+  }
 `;
 
 const EstiloIconos = styled.img`
   width: 24px;
   height: 24px;
+  margin-right: 4px;
   object-fit: cover;
   margin-left: 25px;
+  @media (max-width: 768px) {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const ChannelIcon = styled(EstiloIconos)`
@@ -57,32 +74,60 @@ const EstiloTextos = styled.h1`
   font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   margin-left: 5px;
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const DescripcionDiv = styled.div`
-  position: absolute;  
-  flexDirection: 'row';
-  top: 283px;
+  position: relative;  
+  display: flex;
+  flex-direction: row;
+  top: 60px;
   left: 45px;
-  width: 800px;
-}
+  width: 100%;
+  }
 `;
 
 const Descripcion = styled.h1`
   position: absolute;
-  border-radius: 30px;
   font-size: 20px;
   font-weight: 400;
   font-family: "Roboto Condensed", Helvetica;
   color: #FFFFFF;
+  max-width: 800px;
+
+  @media (max-width: 768px) {
+    max-width: 380px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 `;
 
-const EstiloBotones = styled.div`
+const ContainerBotones = styled.div`
   position: absolute;
+  display: flex;
+  bottom: 40px;
+  left: 45px;
+  gap: 30px;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+}
+`;
+
+
+const EstiloBotones = styled.div`
   align-items: center;
   display: flex;
   gap: 5.5px;
-  top: 450px;
+
   cursor: pointer;
   border-radius: 30px;
   height: 45px;
@@ -90,7 +135,6 @@ const EstiloBotones = styled.div`
   `;
 
 const BotonVerAhora = styled(EstiloBotones)`
-  left: 45px;
   background-color: #8a517d;
   transition: background-color 0.5s;
 
@@ -100,7 +144,6 @@ const BotonVerAhora = styled(EstiloBotones)`
 `;
 
 const BotonVerDespues = styled(EstiloBotones)`
-  left: 231px;
   background-color: #5d4182;
   transition: background-color 0.5s;
 
@@ -116,7 +159,7 @@ const EstiloImagenes = styled.img`
 
 const ImagenVerAhora = styled(EstiloImagenes)`
 width: 30px;
-height: 25px
+height: 30px
 `;
 
 const ImagenVerDespues = styled(EstiloImagenes)`
@@ -132,6 +175,9 @@ const EstiloTextoBotones = styled.h3`
   letter-spacing: 0;
   line-height: normal;
   margin-bottom: 1px;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const BotonVerAhoraTexto = styled(EstiloTextoBotones)`
@@ -197,16 +243,18 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
         <DescripcionDiv>
           <Descripcion> {video.desc} </Descripcion>
         </DescripcionDiv>
-        <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-          <BotonVerAhora >
-            <ImagenVerAhora src={VerAhoraIcono} />
-            <BotonVerAhoraTexto>{translations[language].watchnow}</BotonVerAhoraTexto>
-          </BotonVerAhora>
-        </Link>
-        <BotonVerDespues>
-          <ImagenVerDespues src={VerDespuesIcono} />
-          <BotonVerDespuesTexto>{translations[language].watchlater}</BotonVerDespuesTexto>
-        </BotonVerDespues>
+        <ContainerBotones>
+          <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+            <BotonVerAhora >
+              <ImagenVerAhora src={VerAhoraIcono} />
+              <BotonVerAhoraTexto>{translations[language].watchnow}</BotonVerAhoraTexto>
+            </BotonVerAhora>
+          </Link>
+          <BotonVerDespues>
+            <ImagenVerDespues src={VerDespuesIcono} />
+            <BotonVerDespuesTexto>{translations[language].watchlater}</BotonVerDespuesTexto>
+          </BotonVerDespues>
+        </ContainerBotones>
       </Contenedor>
     </>
   );
