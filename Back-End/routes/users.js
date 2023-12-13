@@ -1,6 +1,22 @@
 import express from "express";
 import cors from "cors";
-import { update, remove, getUser, subscribe, unsubscribe, like, dislike, likeComment, dislikeComment, likeReply, dislikeReply, updateVideoHistory, getVideoHistory } from "../controllers/user.js";
+import {
+    update,
+    remove,
+    getUser,
+    subscribe,
+    unsubscribe,
+    like,
+    dislike,
+    likeComment,
+    dislikeComment,
+    likeReply,
+    dislikeReply,
+    updateVideoHistory,
+    getVideoHistory,
+    deleteVideoFromHistory,
+    clearAllWatchHistory,
+} from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router();
@@ -44,5 +60,11 @@ router.put("/:userId/videos/:videoId/history", verifyToken, updateVideoHistory);
 
 // GET VIDEO HISTORY
 router.get('/:id/history', verifyToken, getVideoHistory);
+
+// DELETE A SPECIFIC VIDEO FROM WATCH HISTORY
+router.delete('/:userId/videos/:videoId/history', verifyToken, deleteVideoFromHistory);
+
+// CLEAR ALL WATCH HISTORY
+router.delete('/:id/history/clear', verifyToken, clearAllWatchHistory);
 
 export default router;

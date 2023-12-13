@@ -139,7 +139,7 @@ const ButtonLoginText = styled.h3`
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
   display: none;
-}
+  }
 
 `;
 

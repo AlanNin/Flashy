@@ -316,4 +316,53 @@ export const getVideoHistory = async (req, res, next) => {
     }
 };
 
+// DELETE VIDEO FROM USER HISTORY
+export const deleteVideoFromHistory = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const videoId = req.params.videoId;
+
+        const user = await User.findById(userId);
+
+        // Buscar el video en el historial del usuario
+        const videoIndex = user.videoHistory.findIndex(item => item.videoId.toString() === videoId);
+
+        if (videoIndex !== -1) {
+            // Si el video está en el historial, eliminarlo
+            user.videoHistory.splice(videoIndex, 1);
+
+            // Guardar los cambios
+            await user.save();
+
+            res.status(200).json("Video eliminado del historial exitosamente.");
+        } else {
+            res.status(404).json("Video no encontrado en el historial.");
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// CLEAR ALL WATCH HISTORY
+export const clearAllWatchHistory = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Clear all videos from the user's watch history
+        user.videoHistory = [];
+
+        // Save changes
+        await user.save();
+
+        res.status(200).json("Historial de videos borrado exitosamente.");
+    } catch (error) {
+        next(error);
+    }
+};
 

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 import CanalIcono from "../assets/CanalIcono.png";
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
+import DuracionIcono from "../assets/DuracionIcono.png";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
@@ -16,7 +17,7 @@ const Container = styled.div`
 
 const ImageContainer = styled.div`
   position: relative;
-  width: 320px;
+  width: 310px;
   height: 180px;
   border-radius: 15px;
   overflow: hidden;
@@ -68,6 +69,8 @@ const Title = styled.h1`
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  width: max-content;
+
 `;
 
 const InfoChannel = styled.div`
@@ -130,6 +133,37 @@ const VideoDesc = styled.h2`
   overflow-wrap: break-word;
 `;
 
+const InfoDuration = styled.div`
+  position: absolute;
+  margin: 10px;
+  height: 20px;
+  width: max-content;
+  background: rgb(36, 22, 33, 0.9);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 3px 10px;
+  bottom: 5px;
+  right: 0px;
+`;
+
+const ImgDuration = styled.img`
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
+`;
+
+
+const TxtDuration = styled.h1`
+  font-size: 15px;
+  color: white;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 400;
+  margin-top: 1px;  
+`;
+
+
+
 const CardHistory = ({ video }) => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
@@ -162,10 +196,20 @@ const CardHistory = ({ video }) => {
     }
   };
 
-  const timeago = timestamp => {
-    const relativeTime = moment(timestamp).fromNow();
-    return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
+  const formatDuration = (durationInSeconds) => {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
   };
+
 
   useEffect(() => {
 
@@ -203,6 +247,10 @@ const CardHistory = ({ video }) => {
           <Image
             src={video.imgUrl}
           />
+          <InfoDuration>
+            <ImgDuration src={DuracionIcono} />
+            <TxtDuration> {formatDuration(video?.duration)} </TxtDuration>
+          </InfoDuration>
 
           {currentUser && progress > 0 && (
             <ProgressBar>
@@ -216,9 +264,12 @@ const CardHistory = ({ video }) => {
       <Details>
 
         <Texts>
-          <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-            <Title> {video?.title} </Title>
-          </Link>
+          <Title>
+            <Link to={`/video/${video._id}`} style={{ textDecoration: "none", color: "inherit", fontFamily: "inherit", fontSiz: "inherit" }}>
+              {video?.title}
+            </Link>
+          </Title>
+
           <InfoWrapper>
 
             <Link to="/channel" style={{ textDecoration: "none" }}>

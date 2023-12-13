@@ -95,7 +95,9 @@ const Img = styled.img`
 
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
-    margin-left: 12.5px;
+    margin-left: 0px;
+    height: 26px;
+    width: 26px;
   }
 `;
 
@@ -201,8 +203,9 @@ const ItemForMini = styled.div`
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
     gap: 0px;
-    padding: 28px 0px;
-    width: 70px;
+    margin-left: 0px;
+    padding: 28px 20px;
+    width: max-content;
   }
 `;
 
@@ -228,20 +231,20 @@ const ItemCloseMenu = styled.div`
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
     gap: 0px;
-    padding: 28px 0px;
-    width: 70px;
+    padding: 28px 20px;
+    width: max-content;
     margin-left:0px;
   }
 `;
 
 const ImgCloseMenu = styled.img`
-  height: 30px;
+  height: 33px;
   width: 33px;
   
 
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
-    margin-left: 12.5px;
+    margin-left: 0px;
   }
 `;
 
@@ -321,7 +324,7 @@ const ItemLogin = styled.div`
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
       gap: 0px;
-      padding: 28px 35px;
+      padding: 10px 10px;
       margin-left: 0px;
     background-color: ${({ theme }) => theme.bgLighter};
   }
@@ -333,7 +336,7 @@ const ImgLogin = styled.img`
 
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
-    margin-left: 11.5px;
+    margin-left: 0px;
   }
 `;
 
@@ -345,7 +348,7 @@ const ImgUser = styled.img`
 
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
-    margin-left: 11.5px;
+    margin-left: 0px;
   }
 `;
 
