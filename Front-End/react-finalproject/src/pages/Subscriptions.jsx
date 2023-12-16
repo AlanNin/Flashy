@@ -198,10 +198,10 @@ const Home = ({ type = "sub" }) => {
      
         // Get the videos from each channel
         const videosPromises = subscribedChannels.map(async (channel) => {
-          const videosResponse = await axios.get(`/videos/channel/${channel.id}`); 
+          const videosResponse = await axios.get(`/videos/channel/${channel._id}`); 
           return {
-            channelId: channel.id,
-            channelName: channel.name,
+            channelId: channel._id,
+            channelName: channel.displayname,
             videos: videosResponse.data,
           };
         });
@@ -252,7 +252,7 @@ const Home = ({ type = "sub" }) => {
             {channel.videos.slice(0, 3).map((video) => (
             <Card key={video._id} video={video} />
             ))}
-            <Link to="/" style={{ width: "100%", textDecoration: "none", color: "inherit"}}>
+            <Link to={`/channel/${channel.channelId}`} style={{ width: "100%", textDecoration: "none", color: "inherit"}}>
               <BotonVer>{translations[language].button}</BotonVer>
                </Link>
                </div>

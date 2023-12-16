@@ -167,13 +167,18 @@ export const getByLikes = async (req, res, next) => {
 };
 export const getSubscribedChannels = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
+        let user;
+        if (req.params.channelId) {
+            user = await User.findById(req.params.channelId);
+        } else  {
+            user = await User.findById(req.user.id);
+        }
         const subscribedChannels = user.subscribedUsers;
 
         const channels = await Promise.all(
             subscribedChannels.map(async (id) => {
                 const channel = await User.findById(id);
-                return { id, name: channel.name };
+             return channel;
             })
         );
         res.status(200).json(channels);
@@ -194,4 +199,68 @@ export const getSubscribedChannels = async (req, res, next) => {
     }
 
 
+};
+
+export const getPopularVideosByChannel = async (req, res, next) => {
+    try {
+        const channelId = req.params.channelId;
+
+        // Obtener videos del canal ordenados por cantidad de vistas
+        const videos = await Video.find({ userId: channelId }).sort({ views: -1 });
+
+        res.status(200).json(videos);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getLikedVideosByChannel = async (req, res, next) => {
+    try {
+        const channelId = req.params.channelId;
+
+        // Obtener videos del canal ordenados por cantidad de likes
+        const videos = await Video.aggregate([
+            { $match: { userId: channelId } },
+            {
+                $addFields: {
+                    likesCount: { $size: "$likes" }
+                }
+            },
+            { $sort: { likesCount: -1 } }
+        ]);
+
+        res.status(200).json(videos);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getOldVideosByChannel = async (req, res, next) => {
+    try {
+        const channelId = req.params.channelId;
+
+        // Obtener videos del canal ordenados por fecha de creación ascendente (los más antiguos primero)
+        const videos = await Video.find({ userId: channelId }).sort({ createdAt: 1 });
+
+        res.status(200).json(videos);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const searchByChannel = async (req, res, next) => {
+    const query = req.query.q;
+    const channelId = req.query.channelId;  
+
+    try {
+      
+        const videos = await Video.find({
+            userId: channelId,  
+            title: { $regex: query, $options: "i" },
+        }).limit(40);
+
+        res.status(200).json(videos);
+    } catch (err) {
+        next(err);
+    }
 };

@@ -122,8 +122,9 @@ const Card = ({ type, video }) => {
     };
     fetchChannel()
   }, [video.userId]);
-
+  console.log(channel);
   return (
+    
     <Container type={type}>
       <Link to="/video/test" style={{ textDecoration: "none" }}>
         <Image
@@ -132,7 +133,7 @@ const Card = ({ type, video }) => {
         />
       </Link>
       <Details type={type}>
-        <Link to="/channel" style={{ textDecoration: "none" }}>
+        <Link to={`/channel/${channel._id}`} style={{ textDecoration: "none" }}>
           <ChannelImage
             type={type}
             src={channel.img}
@@ -142,7 +143,7 @@ const Card = ({ type, video }) => {
           <Link to="/video/test" style={{ textDecoration: "none" }}>
             <Title>{video.title}</Title>
           </Link>
-          <Link to="/channel" style={{ textDecoration: "none" }}>
+          <Link to={`/channel/${channel._id}`} style={{ textDecoration: "none" }}>
             <ChannelName>{channel.name}</ChannelName>
           </Link>
           <InfoWrapper>
