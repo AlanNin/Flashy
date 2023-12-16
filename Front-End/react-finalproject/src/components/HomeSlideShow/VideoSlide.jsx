@@ -6,6 +6,7 @@ import FechaIcono from "../../assets/FechaIcono.png";
 import VerAhoraIcono from "../../assets/VerAhoraIcono.png";
 import VerDespuesIcono from "../../assets/VerDespuesIcono.png";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Contenedor = styled.div`
   position: absolute;
@@ -167,7 +168,6 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
   useEffect(() => {
     const fetchChannel = async () => {
       try {
-        // Realizar la llamada a la API para obtener la información del canal
         const res = await axios.get(`/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {
@@ -175,7 +175,6 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
       }
     };
 
-    // Llamar a la función para obtener la información del canal
     fetchChannel();
   }, [video.userId]);
 
@@ -186,7 +185,7 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
         <Titulo> {video.title}</Titulo>
         <ContenedorIconosTextos>
           <ChannelIcon src={CanalIcono} />
-          <EstiloTextos> {channel.name} </EstiloTextos>
+          <EstiloTextos> {channel.displayname} </EstiloTextos>
           <EstiloIconos src={DuracionIcono} />
           <EstiloTextos> {formatDuration(video.duration)} </EstiloTextos>
           <EstiloIconos src={FechaIcono} />
@@ -195,10 +194,12 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
         <DescripcionDiv>
           <Descripcion> {video.desc} </Descripcion>
         </DescripcionDiv>
-        <BotonVerAhora>
-          <ImagenVerAhora src={VerAhoraIcono} />
-          <BotonVerAhoraTexto>{translations[language].watchnow}</BotonVerAhoraTexto>
-        </BotonVerAhora>
+        <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+          <BotonVerAhora >
+            <ImagenVerAhora src={VerAhoraIcono} />
+            <BotonVerAhoraTexto>{translations[language].watchnow}</BotonVerAhoraTexto>
+          </BotonVerAhora>
+        </Link>
         <BotonVerDespues>
           <ImagenVerDespues src={VerDespuesIcono} />
           <BotonVerDespuesTexto>{translations[language].watchlater}</BotonVerDespuesTexto>

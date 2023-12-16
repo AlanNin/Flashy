@@ -4,8 +4,8 @@ export const darkTheme = {
   text: "white",
   textSoft: "#aaaaaa",
   soft: "rgba(124, 83, 115, 0.15)",
-  loginbg: "rgba(138, 28, 84 , 0.5)",
-  softloginbg: "rgba(158, 16, 90, 0.2)",
+  loginbg: "rgba(84, 26, 56, 0.5)",
+  softloginbg: "rgba(84, 26, 56, 0.9)",
   closeMenu: "rgba(42, 41, 47, 0.8)",
   borderColor: "rgba(90, 90, 90, 1)"
 };

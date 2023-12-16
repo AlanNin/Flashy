@@ -3,7 +3,8 @@ import styled from "styled-components";
 import "../utils/global.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MenuIcono from "../assets/MenuIcono.png";
-import E2ColorNoBG from "../assets/E2ColorNoBG.png";
+import E2ColorNoBG from "../assets/E3WhiteNoBG.png";
+import FlashLogo from "../assets/GifLogo.gif";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import BuscarIcono from "../assets/BuscarIcono.png";
 import FacebookIcono2 from "../assets/FacebookIcono2.png";
@@ -23,6 +24,7 @@ import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, resetUserState } from "../redux/userSlice";
 import UploadVideoIcono from "../assets/UploadVideoIcono.png";
+import Upload from "./Upload";
 
 const Container = styled.div`
   position: fixed;
@@ -31,8 +33,8 @@ const Container = styled.div`
   backdrop-filter: blur(${({ scrolled }) => (scrolled ? "5px" : "0px")});
   background: ${({ scrolled, theme }) =>
     scrolled
-      ? "rgba(30, 30, 30, 0.6)"
-      : `linear-gradient(to right, rgba(30, 30, 30, 0.8) 40%,  rgba(30, 30, 30, 0.6), rgba(30, 30, 30, 0.4) 45%, rgba(30, 30, 30, 0.3) 50%, rgba(30, 30, 30, 0.1) 60%)`};
+      ? "rgba(8, 8, 8, 0.6)"
+      : `linear-gradient(to right, rgba(8, 8, 8) 40%,  rgba(8, 8, 8, 0.6), rgba(8, 8, 8, 0.4) 45%, rgba(8, 8, 8, 0.3) 50%, rgba(8, 8, 8, 0.1) 60%)`};
   height: 56px;
   width: 100%;
   z-index: 2;
@@ -43,11 +45,12 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0px 35px;
+  padding: 0px 55px;
 `;
 
 const ItemMenu = styled.div`
   display: flex;
+  margin-top: 2px;
   align-items: center;
   cursor: pointer;
   padding: 19px 4.08px;
@@ -60,6 +63,11 @@ const ItemMenu = styled.div`
   }
 `;
 
+const ImgMenu = styled.img`
+  height: 32px;
+  width: 32px;
+`;
+
 const Img = styled.img`
   height: 32px;
   width: 32px;
@@ -70,14 +78,24 @@ const Logo = styled.div`
   align-items: center;
   gap: 7.25px;
   font-weight: bold;
-  margin-left: 14.5px;
+  padding: 0px 14.5px;
 `;
 
 const ImgLogo = styled.img`
-  height: 20px;
-  width: 135px;
+  height: 36px;
+  width: 40px;
   margin-top: 2px;
 `;
+
+const AppName = styled.h1`
+  font-size: 24px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 700;
+  margin-left: -2px;
+  margin-top: 2px;
+  color: white;
+`;
+
 
 const ItemLogin = styled.div`
   display: flex;
@@ -91,8 +109,7 @@ const ItemLogin = styled.div`
   width: auto;
   height: 40px;
   transition: background-color 0.5s;
-  cursor: pointer;
-  border-radius: 30px;
+  border-radius: 10px;
   background-color: ${({ theme }) => theme.loginbg};
   &:hover {
     background-color: ${({ theme }) => theme.softloginbg};
@@ -114,6 +131,7 @@ const ImgLogin = styled.img`
 const ButtonLoginText = styled.h3`
   font-family: "Roboto Condensed", Helvetica;
   font-size: 24px;
+  margin-right: 2px;
   font-weight: normal;
   margin-bottom: 3px;
   color: ${({ theme }) => theme.text};
@@ -135,8 +153,8 @@ const Search = styled.div`
   height:25px;
   background: ${({ scrolled }) =>
     scrolled
-      ? "rgba(18, 17, 17, 0.5)"
-      : "rgba(18, 17, 17)"};
+      ? "rgba(28, 28, 28, 0.9)"
+      : "rgba(28, 28, 28, 0.9)"};
 
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
@@ -165,7 +183,7 @@ const ImgBuscar = styled.img`
 const FollowDiv = styled.div`
   flexDirection: 'row';
   margin-left: 35.5px;
-  margin-right: 15.5px;
+  margin-right: 10px;
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
   display: none;
@@ -187,6 +205,7 @@ const Follow = styled.h1`
 const ImgRedes = styled.img`
   height: 40px;
   width: 40px;
+  margin-bottom: 5px;
   cursor: pointer;
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
@@ -205,12 +224,12 @@ const UserContainer = styled.div`
   gap: 10px;
   width: auto;
   height: 40px;
-  cursor: pointer;
 `;
 
 const UploadVideoImg = styled.img`
   height: 30px;
   width: 30px;
+  cursor: pointer;
 `;
 
 const ItemUser = styled.div`
@@ -430,131 +449,159 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     setDropdownVisible(!dropdownVisible);
   };
 
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    // Add or remove the "overflow: hidden" style on the body based on the "open" state
+    document.body.style.overflow = open ? 'hidden' : 'auto';
+
+    return () => {
+      // Clean up the style when the component is unmounted
+      document.body.style.overflow = 'auto';
+    };
+  }, [open]);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      // Navegar al resultado de búsqueda al presionar Enter
+      navigate(`/search?q=${q}`);
+    }
+  };
+
+  // MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
   const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
 
-  // Si la ruta actual es Signin o Signup, no se muestra el Navbar
   if (isSigninOrSignup) {
     return null;
   }
+
   return (
-    <Container scrolled={scrolled}>
-      <Wrapper>
-        <ItemMenu onClick={() => toggleMenu(menuVisible)}>
-          <Img src={MenuIcono} />
-        </ItemMenu>
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          <Logo>
-            <ImgLogo src={E2ColorNoBG} />
-          </Logo>
-        </Link>
-        <Search scrolled={scrolled}>
-          <Input placeholder={translations[language].search} />
-          <ImgBuscar src={BuscarIcono} />
-        </Search>
-        <FollowDiv>
-          <Follow>{translations[language].join}</Follow>
-          <Follow>{translations[language].now}</Follow>
-        </FollowDiv>
-        <ImgRedes onClick={redFacebook} src={FacebookIcono2} />
-        <ImgRedes onClick={redInstagram} src={InstagramIcono2} />
-        <ImgRedes onClick={redTwitter} src={TwitterIcono2} />
-        <ImgRedes onClick={redTelegram} src={TelegramIcono2} />
-        <ImgRedes onClick={redTikTok} src={TikTokIcono2} />
-        <ImgRedes onClick={redDiscord} src={DiscordIcono2} />
-        {currentUser ? (
-          <UserContainer>
-            <UploadVideoImg src={UploadVideoIcono} />
-            <ItemUser onClick={toggleDropdown}>
-              <UserImg src={currentUser.img} />
-            </ItemUser>
-          </UserContainer>
-        ) : <Link
-          to="signin"
-          style={{
-            textDecoration: "none",
-            color: "inherit",
-          }}
-        >
-          <ItemLogin>
-            <ImgLogin src={InicioSesionIcono2} />
-            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-          </ItemLogin>
-        </Link>}
-      </Wrapper>
-      {dropdownVisible && (
-        <UserOptions>
-          <DisplayName>{currentUser.displayname}</DisplayName>
-          <Email>{currentUser.email}</Email>
-          <WrapperMenuUser>
-            {/* Dropdown content goes here */}
-            {/* For example, you can add links to user profile, settings, etc. */}
-            <Link to="/profile" style={{
-              width: "100%",
-              textDecoration: "none",
-              color: "inherit"
-            }}>
-              <MenuUserDiv onClick={toggleDropdown}>
-
-                <MenuUserImg src={ProfileIcono} />
-                <MenuUserText>{translations[language].profile}</MenuUserText>
-
-              </MenuUserDiv>
-            </Link>
-
-            <Link to="/help" style={{
-              width: "100%",
-              textDecoration: "none",
-              color: "inherit"
-            }}>
-              <MenuUserDiv onClick={toggleDropdown}>
-                <MenuUserImg src={AyudaIcono} />
-                <MenuUserText>{translations[language].help}</MenuUserText>
-              </MenuUserDiv>
-            </Link>
-            <Link to="/terms" style={{
-              width: "100%",
-              textDecoration: "none",
-              color: "inherit"
-            }}>
-              <MenuUserDiv onClick={toggleDropdown}>
-                <MenuUserImg src={TermsIcono} />
-                <MenuUserText>{translations[language].terms}</MenuUserText>
-              </MenuUserDiv>
-            </Link>
-            <Link to="/privacy" style={{
-              width: "100%",
-              textDecoration: "none",
-              color: "inherit"
-            }}>
-              <MenuUserDiv onClick={toggleDropdown}>
-                <MenuUserImg src={PrivacyIcono} />
-                <MenuUserText>{translations[language].privacy}</MenuUserText>
-              </MenuUserDiv>
-            </Link>
-            <Link to="/about" style={{
-              width: "100%",
-              textDecoration: "none",
-              color: "inherit"
-            }}>
-              <MenuUserDiv onClick={toggleDropdown}>
-                <MenuUserImg src={AboutIcono} />
-                <MenuUserText>{translations[language].about}</MenuUserText>
-              </MenuUserDiv>
-            </Link>
-          </WrapperMenuUser>
-          <Link to="/" style={{
-            width: "100%",
-            textDecoration: "none",
-            color: "inherit"
-          }}>
-            <MenuUserLogoutDiv onClick={logoutFunction}>
-              <LogoutUserText>{translations[language].logout}</LogoutUserText>
-              <LogoutUserImg src={LogoutIcono} />
-            </MenuUserLogoutDiv>
+    <>
+      <Container scrolled={scrolled}>
+        <Wrapper>
+          <ItemMenu onClick={() => toggleMenu(menuVisible)}>
+            <ImgMenu src={MenuIcono} />
+          </ItemMenu>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo>
+              <ImgLogo src={FlashLogo} />
+              <AppName> Flashy </AppName>
+            </Logo>
           </Link>
-        </UserOptions>
-      )}
-    </Container >
+          <Search scrolled={scrolled}>
+            <Input
+              placeholder={translations[language].search}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyPress={handleKeyPress} />
+            <ImgBuscar src={BuscarIcono} onClick={() => navigate(`/search?q=${q}`)} />
+          </Search>
+          <FollowDiv>
+            <Follow>{translations[language].join}</Follow>
+            <Follow>{translations[language].now}</Follow>
+          </FollowDiv>
+          <ImgRedes onClick={redFacebook} src={FacebookIcono2} />
+          <ImgRedes onClick={redInstagram} src={InstagramIcono2} />
+          <ImgRedes onClick={redTwitter} src={TwitterIcono2} />
+          <ImgRedes onClick={redTikTok} src={TikTokIcono2} />
+          <ImgRedes onClick={redDiscord} src={DiscordIcono2} />
+          {currentUser ? (
+            <UserContainer>
+              <UploadVideoImg src={UploadVideoIcono} onClick={() => setOpen(true)} />
+              <ItemUser onClick={toggleDropdown}>
+                <UserImg src={currentUser.img} />
+              </ItemUser>
+            </UserContainer>
+          ) : <Link
+            to="signin"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <ItemLogin>
+              <ImgLogin src={InicioSesionIcono2} />
+              <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+            </ItemLogin>
+          </Link>}
+        </Wrapper>
+        {dropdownVisible && (
+          <UserOptions>
+            <DisplayName>{currentUser.displayname}</DisplayName>
+            <Email>{currentUser.email}</Email>
+            <WrapperMenuUser>
+              {/* Dropdown content goes here */}
+              {/* For example, you can add links to user profile, settings, etc. */}
+              <Link to="/profile" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+
+                  <MenuUserImg src={ProfileIcono} />
+                  <MenuUserText>{translations[language].profile}</MenuUserText>
+
+                </MenuUserDiv>
+              </Link>
+
+              <Link to="/help" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+                  <MenuUserImg src={AyudaIcono} />
+                  <MenuUserText>{translations[language].help}</MenuUserText>
+                </MenuUserDiv>
+              </Link>
+              <Link to="/terms" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+                  <MenuUserImg src={TermsIcono} />
+                  <MenuUserText>{translations[language].terms}</MenuUserText>
+                </MenuUserDiv>
+              </Link>
+              <Link to="/privacy" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+                  <MenuUserImg src={PrivacyIcono} />
+                  <MenuUserText>{translations[language].privacy}</MenuUserText>
+                </MenuUserDiv>
+              </Link>
+              <Link to="/about" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+                  <MenuUserImg src={AboutIcono} />
+                  <MenuUserText>{translations[language].about}</MenuUserText>
+                </MenuUserDiv>
+              </Link>
+            </WrapperMenuUser>
+            <Link to="/" style={{
+              width: "100%",
+              textDecoration: "none",
+              color: "inherit"
+            }}>
+              <MenuUserLogoutDiv onClick={logoutFunction}>
+                <LogoutUserText>{translations[language].logout}</LogoutUserText>
+                <LogoutUserImg src={LogoutIcono} />
+              </MenuUserLogoutDiv>
+            </Link>
+          </UserOptions>
+        )}
+      </Container >
+
+      {open && <Upload setOpen={setOpen} />}
+    </>
   );
 };
 

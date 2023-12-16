@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import Menu from "./components/Menu";
 import Navbar from "./components/Navbar";
-import HomeSlideShow from './components/HomeSlideShow/SlideShow';
 import { darkTheme, lightTheme } from "./utils/Theme";
 import { LanguageProvider } from './utils/LanguageContext';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
+import Search from "./pages/Search";
 import Subscriptions from "./pages/Subscriptions";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
@@ -101,6 +101,7 @@ function App() {
                     <Route path="mostliked" element={<Home type="mostliked" />} />
                     <Route path="signin" element={<Signin />} />
                     <Route path="explore" element={<Explore />} />
+                    <Route path="search" element={<Search />} />
                     <Route path="subscriptions" element={<Subscriptions />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="video">

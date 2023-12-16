@@ -55,25 +55,22 @@ const VideoSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-// Antes de guardar el video, calcular y almacenar la duración
 VideoSchema.pre("save", async function (next) {
     try {
         const { videoUrl } = this;
 
-        // Obtener la duración del video utilizando fluent-ffmpeg
         const ffprobeData = await new Promise((resolve, reject) => {
             ffmpeg.ffprobe(videoUrl, (err, data) => {
                 if (err) {
                     console.error("Error obteniendo la duración:", err);
-                    resolve({ format: { duration: 0 } }); // Establecer duración en 0 en caso de error
+                    resolve({ format: { duration: 0 } });
                 } else {
                     resolve(data);
                 }
             });
         });
 
-        // Almacenar la duración en minutos (puedes ajustar según tus necesidades)
-        this.duration = Math.floor(ffprobeData.format.duration / 60);
+        this.duration = Math.floor(ffprobeData.format.duration);
 
         next();
     } catch (error) {

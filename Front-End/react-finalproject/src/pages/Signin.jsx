@@ -30,7 +30,7 @@ const Logo = styled.div`
 `;
 
 const ImgLogo = styled.img`
-  height: 45px;
+  height: 65px;
   width: 190px;
 `;
 
@@ -324,6 +324,8 @@ const Signin = () => {
   const navigate = useNavigate();
   const [signinError, setSigninError] = useState(false);
   const [externalautherror, setExternalAuthError] = useState(false);
+  const [emptyfieldsError, setEmptyFieldsError] = useState(false);
+
 
   const handleHCaptchaVerify = () => {
     captchaRef.current.execute();
@@ -449,6 +451,7 @@ const Signin = () => {
       }
     } else {
       console.error("Se requieren nombre de usuario y contraseña");
+      setEmptyFieldsError(true);
     }
   };
 
@@ -467,6 +470,13 @@ const Signin = () => {
       }
     } else {
       console.error("hCaptcha verification failed");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e && e.key === "Enter") {
+      e.preventDefault();
+      handleDivSigninClick(e);
     }
   };
 
@@ -490,6 +500,7 @@ const Signin = () => {
       orauth: "OR",
       signinErrormsg: "Username or password incorrect.",
       externalautherrormsg: "This email is not registered.",
+      emptyfields: "Please complete all the fields requeried.",
     },
     es: {
       title: "Inicio de Sesión",
@@ -510,6 +521,7 @@ const Signin = () => {
       orauth: "O",
       signinErrormsg: "Usuario o contraseña incorrecta.",
       externalautherrormsg: "Este correo no está registrado.",
+      emptyfields: "Por favor acepta los requerimientos para continuar.",
     },
   };
 
@@ -532,7 +544,9 @@ const Signin = () => {
               onChange={(e) => {
                 setName(e.target.value)
                 setSigninError(false);
+                setEmptyFieldsError(false);
               }}
+              onKeyPress={handleKeyPress}
               onFocus={() => setNameFocused(true)}
               onBlur={() => setNameFocused(false)}
               required
@@ -549,7 +563,9 @@ const Signin = () => {
               onChange={(e) => {
                 setPassword(e.target.value)
                 setSigninError(false);
+                setEmptyFieldsError(false);
               }}
+              onKeyPress={handleKeyPress}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
               required
@@ -558,6 +574,7 @@ const Signin = () => {
               {translations[language].placeholderpassword}
             </Placeholder>
 
+            {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
             {signinError && <ErrorMessage>{translations[language].signinErrormsg}</ErrorMessage>}
 
           </InputContainer>

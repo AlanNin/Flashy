@@ -30,8 +30,8 @@ const Logo = styled.div`
 `;
 
 const ImgLogo = styled.img`
-  height: 45px;
-  width: 190px;
+height: 65px;
+width: 190px;
 `;
 
 
@@ -343,6 +343,7 @@ const Signup = () => {
   const [emailError, setEmailError] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [checkboxError, setCheckboxError] = useState(false);
+  const [emptyfieldsError, setEmptyFieldsError] = useState(false);
   const [confirmpasswordError, setConfirmPasswordError] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [receiveEmails, setReceiveEmails] = useState(false);
@@ -518,6 +519,7 @@ const Signup = () => {
       }
     } else {
       console.error("Username, email, and password are required");
+      setEmptyFieldsError(true);
     }
   };
 
@@ -541,6 +543,12 @@ const Signup = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e && e.key === "Enter") {
+      e.preventDefault();
+      handleDivSignupClick(e);
+    }
+  };
 
   const translations = {
     en: {
@@ -568,6 +576,7 @@ const Signup = () => {
       checkboxtermsofservice: "I agree to the Terms of Service",
       checkboxtemails: "I agree to recive emails",
       checkboxmissing: "Please check the requeriments in order to continue.",
+      emptyfields: "Please complete all the fields requeried.",
       orauth: "OR",
     },
     es: {
@@ -594,7 +603,7 @@ const Signup = () => {
       confirmpassworderror: "Las contraseñas no coinciden.",
       checkboxtermsofservice: "Acepto los Términos de Servicio",
       checkboxtemails: "Acepto recibir correos electrónicos",
-      checkboxmissing: "Por favor acepta los requerimientos para continuar.",
+      emptyfields: "Por favor acepta los requerimientos para continuar.",
       orauth: "O",
     },
   };
@@ -618,11 +627,13 @@ const Signup = () => {
               onChange={(e) => {
                 setEmail(e.target.value)
                 setEmailError(false);
+                setEmptyFieldsError(false);
               }}
               onFocus={() => {
                 setEmailFocused(true);
               }}
               onBlur={() => setEmailFocused(false)}
+              onKeyPress={handleKeyPress}
               required
             />
             <Placeholder hasFocus={emailFocused || email !== ""} hasValue={email !== ""}>
@@ -636,11 +647,13 @@ const Signup = () => {
               onChange={(e) => {
                 setName(e.target.value)
                 setNameError(false);
+                setEmptyFieldsError(false);
               }}
               onFocus={() => {
                 setNameFocused(true);
               }}
               onBlur={() => setNameFocused(false)}
+              onKeyPress={handleKeyPress}
               required
             />
             <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
@@ -651,9 +664,13 @@ const Signup = () => {
 
           <InputContainer>
             <Input
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e) => {
+                setDisplayName(e.target.value)
+                setEmptyFieldsError(false);
+              }}
               onFocus={() => setDisplayNameFocused(true)}
               onBlur={() => setDisplayNameFocused(false)}
+              onKeyPress={handleKeyPress}
               required
             />
             <Placeholder hasFocus={displaynameFocused || displayname !== ""} hasValue={displayname !== ""}>
@@ -665,9 +682,13 @@ const Signup = () => {
             <Input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setEmptyFieldsError(false);
+              }}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
+              onKeyPress={handleKeyPress}
               required
             />
             <Placeholder hasFocus={passwordFocused || password !== ""} hasValue={password !== ""}>
@@ -678,14 +699,19 @@ const Signup = () => {
           <InputContainer>
             <Input
               type="password"
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value)
+                setEmptyFieldsError(false);
+              }}
               onFocus={() => setConfirmPasswordFocused(true)}
               onBlur={() => setConfirmPasswordFocused(false)}
+              onKeyPress={handleKeyPress}
               required
             />
             <Placeholder hasFocus={confirmpasswordFocused || confirmpassword !== ""} hasValue={confirmpassword !== ""}>
               {translations[language].placeholderconfirmpassword}
             </Placeholder>
+            {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
             {confirmpasswordError && <ErrorMessage>{translations[language].confirmpassworderror}</ErrorMessage>}
           </InputContainer>
 

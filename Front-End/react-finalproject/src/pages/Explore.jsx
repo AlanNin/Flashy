@@ -7,7 +7,7 @@ import axios from "axios";
 const MainContainer = styled.div`
   display: relative;
   width: 100%;
-  min-height: 100vh;  // Asegura que el contenedor tenga al menos el 100% de la altura de la pantalla
+  min-height: 100vh;
   background-color: rgba(15, 12, 18);
   z-index: 1;
 `;
@@ -30,7 +30,6 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   padding: 32px 55px;
-
 `;
 
 const Home = ({ type = "random" }) => {

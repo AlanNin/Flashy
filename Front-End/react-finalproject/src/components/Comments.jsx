@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import Comment from "./Comment";
+import { useLanguage } from '../utils/LanguageContext';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from "axios";
 
 const Container = styled.div``;
 
@@ -12,9 +15,19 @@ const TitleHeader = styled.h1`
   padding: 0px 0px 30px 0px;
 `;
 
+const NotLoggedText = styled.h1`
+  font-size: 18px;
+  color: rgb(158, 93, 176);
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+  margin-top: -15px;
+  padding: 0px 0px 30px 0px;
+`;
+
 const NewComment = styled.div`
   display: flex;
   gap: 10px;
+  padding: 0px 0px 30px 0px;
 `;
 
 const PostComment = styled.div`
@@ -63,6 +76,8 @@ const Textarea = styled.textarea`
 `;
 
 const ButtonsDiv = styled.div`
+  position: relative;
+  margin-left: auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -104,39 +119,95 @@ const CloseButton = styled.button`
   margin-top: 5px;
 `;
 
-const Comments = () => {
+const Comments = ({ videoId, UserUploader }) => {
   const [isTextareaFocused, setTextareaFocused] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
+  const [comments, setComments] = useState([]);
+  const [newCommentText, setNewCommentText] = useState('');
+
+
+  const fetchComments = async () => {
+    try {
+      const res = await axios.get(`/comments/${videoId}`);
+      setComments(res.data);
+    } catch (err) {
+      console.error('Error fetching comments:', err);
+    }
+  };
+
+  const handleComment = async () => {
+    try {
+      console.log(newCommentText);
+      const response = await axios.post('/comments', {
+        videoId,
+        desc: newCommentText,
+      });
+
+      fetchComments();
+
+      setNewCommentText('');
+
+      setTextareaFocused(false);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
+  const handleCommentsReload = () => {
+    // Recargar comentarios después de agregar una nueva respuesta
+    fetchComments();
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [videoId]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`/comments/${videoId}`);
+        setComments(res.data);
+      } catch (err) { }
+    };
+    fetchComments();
+  }, [videoId]);
 
   return (
     <Container>
       <TitleHeader> COMMENTS </TitleHeader>
-      <NewComment>
-        <Avatar
-          src="https://yt3.ggpht.com/yti/APfAmoE-Q0ZLJ4vk3vqmV4Kwp0sbrjxLyB8Q4ZgNsiRH=s88-c-k-c0x00ffffff-no-rj-mo"
-          alt="avatar"
-        />
-        <PostComment>
-          <UserComment>
-            Comment as <UserCommentName> Alan Nin </UserCommentName>{" "}
-          </UserComment>
-          <Textarea
-            placeholder="Leave a comment..."
-            onFocus={() => setTextareaFocused(true)}
-            onBlur={() => setTextareaFocused(false)}
+      {!currentUser && (
+        <NotLoggedText> Please log in to comment in this video. </NotLoggedText>
+      )}
+
+      {currentUser && (
+        <NewComment>
+          <Avatar
+            src={currentUser?.img}
+            alt="avatar"
           />
-          <ButtonsDiv showButtons={isTextareaFocused}>
-            <CloseButton> Close </CloseButton>
-            <CommentButton> Comment </CommentButton>
-          </ButtonsDiv>
-        </PostComment>
-      </NewComment>
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
+          <PostComment>
+            <UserComment>
+              Comment as <UserCommentName> {currentUser?.displayname} </UserCommentName>{" "}
+            </UserComment>
+            <Textarea
+              placeholder="Leave a comment..."
+              onFocus={() => setTextareaFocused(true)}
+              value={newCommentText}
+              onChange={(e) => setNewCommentText(e.target.value)}
+            />
+            <ButtonsDiv showButtons={isTextareaFocused}>
+              <CloseButton onClick={() => setTextareaFocused(false)}> Close </CloseButton>
+              <CommentButton onClick={handleComment}> Comment </CommentButton>
+            </ButtonsDiv>
+          </PostComment>
+        </NewComment>
+      )}
+
+      {comments.map(comment => {
+        return (
+          <Comment key={comment._id} comment={comment} UserUploader={UserUploader} onCommentsReload={handleCommentsReload} />
+        );
+      })}
     </Container>
   );
 };
