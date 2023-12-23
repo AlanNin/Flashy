@@ -16,6 +16,15 @@ import {
     getVideoHistory,
     deleteVideoFromHistory,
     clearAllWatchHistory,
+    addVideoToPlaylist,
+    deletePlaylist,
+    deleteVideoFromPlaylist,
+    getVideosFromPlaylist,
+    getAllPlaylists,
+    getPublicPlaylists,
+    checkPlaylistExists,
+    updatePlaylist,
+    addPlaylist,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -66,5 +75,32 @@ router.delete('/:userId/videos/:videoId/history', verifyToken, deleteVideoFromHi
 
 // CLEAR ALL WATCH HISTORY
 router.delete('/:id/history/clear', verifyToken, clearAllWatchHistory);
+
+// ADD PLAYLIST
+router.post("/:userId/playlists", verifyToken, addPlaylist);
+
+// ADD VIDEO TO PLAYLIST
+router.put("/:userId/playlists/videos/:videoId", verifyToken, addVideoToPlaylist);
+
+// DELETE PLAYLIST
+router.delete("/:userId/playlists/:playlistId", verifyToken, deletePlaylist);
+
+// DELETE VIDEO FROM PLAYLIST
+router.delete("/:userId/playlists/:playlistId/videos/:videoId", verifyToken, deleteVideoFromPlaylist);
+
+// GET ALL PLAYLISTS
+router.get("/:userId/playlists", verifyToken, getAllPlaylists);
+
+// GET PUBLIC PLAYLISTS
+router.get("/:userId/playlists/public", verifyToken, getPublicPlaylists);
+
+// GET VIDEOS FROM PLAYLIST
+router.get("/:userId/playlists/:playlistId/videos", verifyToken, getVideosFromPlaylist);
+
+// UPDATE PLAYLIST
+router.put("/:userId/playlists/update", verifyToken, updatePlaylist);
+
+// CHECK IF PLAYLIST EXISTS
+router.post("/:userId/playlists/check/:name", verifyToken, checkPlaylistExists);
 
 export default router;

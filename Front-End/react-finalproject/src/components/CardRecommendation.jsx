@@ -242,9 +242,16 @@ const CardRecommendation = ({ type, video }) => {
 
 
   const [channel, setChannel] = useState({})
+  const [noVideosMessage, setNoVideosMessage] = useState('');
+
+
   useEffect(() => {
     const fetchChannel = async () => {
       try {
+        if (!video || !video.userId) {
+          setNoVideosMessage('No hay videos recomendados');
+          return;
+        }
         const res = await axios.get(`/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {
@@ -253,6 +260,10 @@ const CardRecommendation = ({ type, video }) => {
     };
     fetchChannel()
   }, [video.userId]);
+
+  if (noVideosMessage) {
+    return <div>{noVideosMessage}</div>;
+  }
 
   return (
     <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>

@@ -492,7 +492,7 @@ const Signup = () => {
         const emailCheckResponse = await axios.post("/auth/checkemail", { email });
 
         //Check Username 
-        const isNameValid = /^[^\s]{1,8}$/.test(name);
+        const isNameValid = /^[^\s]{1,12}$/.test(name);
 
         if (nameCheckResponse.data.exists) {
           // Display an error message for username

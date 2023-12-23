@@ -56,11 +56,11 @@ const GlobalStyle = createGlobalStyle`
   }
 
   ::-webkit-scrollbar {
-    width: 12px;
+    width: 7px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #898989;
+    background-color: #424242;
     border-radius: 6px;
   }
 

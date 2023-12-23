@@ -23,6 +23,7 @@
     "natural": "^6.10.4",
     "nodemon": "^3.0.1",
     "string-similarity": "^4.0.4",
-    "tenv": "^0.2.3"
+    "tenv": "^0.2.3",
+    "uuid": "^9.0.1"
   }
 }

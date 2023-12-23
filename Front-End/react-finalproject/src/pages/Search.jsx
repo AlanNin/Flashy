@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
+import SadFace from "../assets/NotSubbedIcono.png";
 import Card from "../components/Card";
 import { useLanguage } from '../utils/LanguageContext';
 
@@ -39,26 +40,66 @@ const Wrapper = styled.div`
   padding: 32px 55px;
 `;
 
+const NoVideosWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center; // Alineación del texto
+`;
+const NoVideos1 = styled.h1`
+  margin-top: 15px;
+  font-size: 32px;
+  color: rgba(224, 175, 208, 0.8);
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+`;
+const NoVideos2 = styled.h1`
+  margin-top: 15px;
+  font-size: 32px;
+  color: white;
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+`;
+
+const NovideosImg = styled.img`
+  height: 96px;
+  width: 96px;
+  padding: 20 px;
+`;
+
+
 
 const Search = () => {
     const [videos, setVideos] = useState([]);
     const query = useLocation().search;
     const qValue = new URLSearchParams(query).get("q");
     const { language, setLanguage } = useLanguage();
+    const [NoVideosFound, setNoVideosFound] = useState(false);
 
     const translations = {
         en: {
             searchfor: "Search for:",
+            novideo1: "No videos found for this query",
+            novideo2: "Try our Explore section to find new content!",
         },
         es: {
             searchfor: "Busqueda:",
+            novideo1: "No se han encontrado videos para esta consulta",
+            novideo2: "Prueba nuestra sección Explorar para encuentrar nuevo contenido!",
         },
     };
 
 
     useEffect(() => {
+        setNoVideosFound(false);
         const fetchVideos = async () => {
             const res = await axios.get(`/videos/search${query}`);
+            if (res && res.data && res.data.length > 0) {
+
+            } else {
+                setNoVideosFound(true);
+            }
             setVideos(res.data);
         };
         fetchVideos();
@@ -74,6 +115,15 @@ const Search = () => {
                     ))}
                 </Container>
             </Wrapper>
+
+            {NoVideosFound &&
+                <NoVideosWrapper>
+                    <NovideosImg src={SadFace} />
+                    <NoVideos1>{translations[language].novideo1}</NoVideos1>
+                    <NoVideos2>{translations[language].novideo2}</NoVideos2>
+                </NoVideosWrapper>
+            }
+
         </MainContainer>
     );
 };

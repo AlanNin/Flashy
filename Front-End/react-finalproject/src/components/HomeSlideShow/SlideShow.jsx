@@ -13,8 +13,6 @@ const SlideShowContainer = styled.div`
   height: 540px;
   width: 100%;
   z-index: 1;
-
-
 `;
 
 const HomeSlideShow = ({ type = "mostliked" }) => {

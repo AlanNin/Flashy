@@ -12,6 +12,26 @@ const VideoHistorySchema = new mongoose.Schema({
     },
 });
 
+const PlaylistSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: false,
+    },
+    image: {
+        type: String,
+    },
+    videos: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Video',
+    }],
+    privacy: {
+        type: String,
+        enum: ['public', 'private', 'unlisted'],
+        default: 'public',
+    },
+});
+
+
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -41,13 +61,21 @@ const UserSchema = new mongoose.Schema({
         type: [String],
     },
     videoProgress: {
-        type: Map, // Puedes usar un Map para almacenar el progreso de cada video
-        of: Number, // El valor será el porcentaje de progreso del video
+        type: Map,
+        of: Number,
         default: {},
     },
     videoHistory: {
         type: [VideoHistorySchema],
         default: [],
+    },
+    playlists: {
+        type: [PlaylistSchema],
+        default: [{
+            name: "Watch Later",
+            videos: [],
+            privacy: "private",
+        }],
     },
 }, { timestamps: true }
 );

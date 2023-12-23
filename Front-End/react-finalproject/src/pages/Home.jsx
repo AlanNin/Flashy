@@ -70,7 +70,7 @@ font-family: "Roboto Condensed", Helvetica;
 
 const Container = styled.div`
   display: flex;
-  justify-content: flex-start;  // Ajusta la propiedad justify-content
+  justify-content: flex-start; 
   flex-wrap: wrap;
   z-index: 1;
   gap: 118px;
@@ -103,11 +103,14 @@ const Home = ({ type }) => {
     const fetchVideos = async () => {
       try {
         let res;
-        // Si hay un usuario autenticado y tiene suscriptores o suscripciones
         if (currentUser && (currentUser.subscribers > 0 || currentUser.subscribedUsers.length > 0)) {
           res = await axios.get(`/videos/${type}`);
+          if (res && res.data && res.data.length > 0) {
+
+          } else {
+            res = await axios.get("/videos/random");
+          }
         } else {
-          // Si no hay usuario autenticado o no tiene suscriptores/suscripciones, cargar videos aleatorios
           res = await axios.get("/videos/random");
         }
         setVideos(res.data);

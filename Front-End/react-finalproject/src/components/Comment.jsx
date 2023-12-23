@@ -40,14 +40,14 @@ const CommentMenu = styled.img`
   height: 17px;
   margin-bottom: ${({ isUploader }) => (isUploader ? '5px' : '0px')};;
   display: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'block' : 'none')};
-  right: 15px;
+  right: 3px;
   top: 0px;
 `;
 
 const ContainerForComment = styled.div`
   display: flex;
   gap: 17px;
-  width: 935px;
+  width: 947px;
   margin: 0px 0px 0px 0px;
   padding: 10px 10px;
   border-radius: 10px;
@@ -282,7 +282,7 @@ const ReplyContainer = styled.div`
   margin-left: 50px;
   margin-top: -10px;
   display: flex;
-  width: 905px;
+  width: 917px;
   color: ${({ theme }) => theme.text}
 `;
 
@@ -296,8 +296,6 @@ const CommentMenuOptions = styled.div`
   cursor: pointer;
   border-radius: 10px;
   z-index: 2;
-
-
 `;
 
 const RemoveComment = styled.button`
@@ -473,7 +471,6 @@ const EditButton = styled.button`
     cursor: not-allowed;
   `}
 `;
-
 
 const ReportReasonOption = styled.div`
   padding: 8px;
@@ -902,6 +899,18 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
     }
   };
 
+  useEffect(() => {
+    if (isDeletePopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isDeletePopupOpen]);
+
   // REPORT COMMENT
   const [showReportReasonPopup, setShowReportReasonPopup] = useState(false);
   const [showReportSubmittedPopup, setShowReportSubmittedPopup] = useState(false);
@@ -946,6 +955,18 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
       // Manejar el error si es necesario
     }
   };
+
+  useEffect(() => {
+    if (showReportReasonPopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showReportReasonPopup]);
 
 
   // REPLIES

@@ -24,8 +24,7 @@ const Image = styled.img`
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: #999;
-  flex: 1;
+  object-fit: cover; 
 `;
 
 const ProgressBar = styled.div`

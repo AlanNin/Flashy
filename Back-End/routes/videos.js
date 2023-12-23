@@ -16,6 +16,9 @@ import {
     getRelatedVideos,
     saveVideoProgress,
     getVideoProgress,
+    addAllowedUserToPrivateVideo,
+    removeAllowedUserFromPrivateVideo,
+    getAllowedUsersForVideo,
 } from "../controllers/video.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -64,8 +67,16 @@ router.get("/related/:id", getRelatedVideos);
 // SAVE USER VIDEO PROGRESS
 router.post('/saveUserProgress/:id', verifyToken, saveVideoProgress);
 
-// get USER VIDEO PROGRESS
+// GET USER VIDEO PROGRESS
 router.get('/userProgress/:id', verifyToken, getVideoProgress);
 
+// ALLOW USER TO PRIVATE VIDEO
+router.post('/:id/allowedUsers', verifyToken, addAllowedUserToPrivateVideo);
+
+// REMOVE ALLOWED USER TO PRIVATE VIDEO
+router.delete('/:id/allowedUsers', verifyToken, removeAllowedUserFromPrivateVideo);
+
+// GET ALLOWED USERS TO PRIVATE VIDEO
+router.get('/:id/allowedUsers', getAllowedUsersForVideo);
 
 export default router;

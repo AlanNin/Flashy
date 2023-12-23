@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import CardHistory from "../components/CardHistory";
 import BuscarIcono from "../assets/BuscarIcono.png";
 import ClearHistory from "../assets/BorrarComentarioIcono.png";
 import EmptyWatchHistoryIcon from "../assets/NotSubbedIcono.png";
+import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import { useLanguage } from '../utils/LanguageContext';
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 
@@ -74,10 +76,10 @@ const CardsContainer = styled.div`
     gap: 50px;
 `;
 
-const MenuContainer = styled.div`
+const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin-left 100px;
+    margin-left 150px;
     gap: 20px;
 `;
 
@@ -210,11 +212,72 @@ const ClearHistoryClear = styled.div`
   border-radius: 15px;
 `;
 
+const ItemLogin = styled.div`
+  margin-top: 20px;
+  display: flex;
+  padding: 0px 12px;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: 40px;
+  transition: background-color 0.5s;
+  cursor: pointer;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.loginbg};
+  &:hover {
+    background-color: ${({ theme }) => theme.softloginbg};
+  }
+`;
+
+const ImgLogin = styled.img`
+  height: 30px;
+  width: 30px;
+`;
+
+const ButtonLoginText = styled.h3`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 24px;
+  font-weight: normal;
+  color: ${({ theme }) => theme.text};
+  margin-bottom: 3px;
+  
+  @media only screen and (max-width: 980px),
+  only screen and (max-height: 910px) {
+  display: none;
+  }
+`;
+
+const rotate = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  margin-top: -250px;
+`;
+
+const LoadingCircle = styled.div`
+  margin-top: 150px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #7932a8;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${rotate} 1s linear infinite;
+`;
+
 const History = () => {
     // CONST DEFINITION
     const { currentUser } = useSelector(state => state.user);
     const [videos, setVideos] = useState([]);
     const { language, setLanguage } = useLanguage();
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     // TRANSLATIONS
     const translations = {
@@ -224,6 +287,9 @@ const History = () => {
             clearhistory: "Clear Watch History",
             emptyHistoryMessage1: "Seems like you haven't watch any video recently :(",
             emptyHistoryMessage2: "Don't miss any Flashy Videos, Watch Now!",
+            emptyHistoryMessage1userless: "Seems like you currently logged in as a user :(",
+            emptyHistoryMessage2userless: "Keep track of your recently watched videos, sign in now!",
+            signin: "Sign in",
         },
         es: {
             history: "Historial de Reproducción",
@@ -231,32 +297,45 @@ const History = () => {
             clearhistory: "Limpiar Historial de Reproducción",
             emptyHistoryMessage1: "Parece que no has visto ningún video recientemente :(",
             emptyHistoryMessage2: "No te pierdas ningún video, empieza ahora!",
+            emptyHistoryMessage1userless: "Parece que aún no has iniciado sesión como usuario :(",
+            emptyHistoryMessage2userless: "Manten registrados tus videos recientes, inicia sesión ahora!",
+            signin: "Iniciar Sesión",
         },
     };
 
     // FETCH VIDEOS HISTORY
     useEffect(() => {
+        setHistoryLoaded(false);
+
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(`/users/${currentUser?._id}/history`);
                 const videoHistory = res.data;
 
-                // Sort the videos based on a property (e.g., lastWatchedAt)
                 videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
 
-                // Fetch details for each video using the 'find/:id' route
                 const detailedVideos = await Promise.all(
                     videoHistory.map(async (videoItem) => {
-                        const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
-                        return videoDetails.data;
+                        try {
+                            const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                            return videoDetails.data;
+                        } catch (error) {
+                            return null;
+                        }
                     })
                 );
 
-                setVideos(detailedVideos);
+                // Filtra los videos nulos
+                const filteredVideos = detailedVideos.filter(video => video !== null);
+
+                setVideos(filteredVideos);
+                setHistoryLoaded(true);
+
             } catch (error) {
                 console.error("Error fetching videos:", error);
             }
         };
+
 
         if (currentUser) {
             fetchHistory();
@@ -295,35 +374,67 @@ const History = () => {
         <MainContainer>
             <Header> {translations[language].history} </Header>
 
-            <Wrapper>
-                {videos.length === 0 ? (
-                    <EmptyHistoryMessageContainer>
-                        <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
-                        <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
-                        <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
-                    </EmptyHistoryMessageContainer>
-                ) : (
-                    <CardsContainer>
-                        {videos.map(video => (
-                            <CardHistory key={video._id} video={video} />
-                        ))}
-                    </CardsContainer>
-                )}
-                <MenuContainer>
-                    <Search>
-                        <ImgBuscar src={BuscarIcono} />
-                        <Input
-                            placeholder={translations[language].search}
-                            onChange={(e) => []}
-                            onKeyPress={handleKeyPress} />
-                    </Search>
+            {historyLoaded && (
+                <Wrapper>
+                    {videos.length === 0 ? (
+                        <EmptyHistoryMessageContainer>
+                            <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
 
-                    <ItemClearHistory onClick={handleClearHistory}>
-                        <ImgClearHistory src={ClearHistory} />
-                        <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
-                    </ItemClearHistory>
-                </MenuContainer>
-            </Wrapper>
+                            {currentUser ? (
+                                <>
+                                    <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
+                                    <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
+                                </>
+                            ) : (
+                                <>
+                                    <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
+                                    <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
+                                    <Link
+                                        to="../signin"
+                                        style={{
+                                            textDecoration: "none",
+                                            color: "inherit",
+                                        }}
+                                    >
+                                        <ItemLogin>
+                                            <ImgLogin src={InicioSesionIcono2} />
+                                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                                        </ItemLogin>
+                                    </Link>
+                                </>
+                            )}
+
+                        </EmptyHistoryMessageContainer>
+                    ) : (
+                        <CardsContainer>
+                            {videos.map(video => (
+                                <CardHistory key={video._id} video={video} />
+                            ))}
+                        </CardsContainer>
+                    )}
+                    <SearchContainer>
+                        <Search>
+                            <ImgBuscar src={BuscarIcono} />
+                            <Input
+                                placeholder={translations[language].search}
+                                onChange={(e) => []}
+                                onKeyPress={handleKeyPress} />
+                        </Search>
+
+                        <ItemClearHistory onClick={handleClearHistory}>
+                            <ImgClearHistory src={ClearHistory} />
+                            <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
+                        </ItemClearHistory>
+                    </SearchContainer>
+                </Wrapper>
+            )}
+
+            {!historyLoaded && (
+                <LoadingContainer>
+                    <LoadingCircle />
+                </LoadingContainer>
+            )}
+
 
             {isClearHistoryPopupOpen && (
                 <ClearHistoryPopupContainer

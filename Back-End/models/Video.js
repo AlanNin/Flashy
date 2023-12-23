@@ -53,7 +53,31 @@ const VideoSchema = new mongoose.Schema({
         type: [String],
         default: [],
     },
+    privacy: {
+        type: String,
+        enum: ['public', 'private', 'unlisted'],
+        default: 'public',
+    },
+    allowedUsers: {
+        type: [String],
+        default: [],
+    },
+    language: {
+        type: String,
+        required: true,
+    },
+    subtitles: [
+        {
+            name: {
+                type: String,
+            },
+            url: {
+                type: String,
+            },
+        }
+    ],
 }, { timestamps: true });
+
 
 VideoSchema.pre("save", async function (next) {
     try {

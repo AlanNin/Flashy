@@ -32,7 +32,7 @@ const ReplyMenu = styled.img`
   height: 17px;
   margin-bottom: ${({ isUploader }) => (isUploader ? '5px' : '0px')};;
   display: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'block' : 'none')};
-  right: 15px;
+  right: 3px;
   top: 0px;
 `;
 
@@ -854,6 +854,19 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
     }
   };
 
+  useEffect(() => {
+    if (isDeletePopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isDeletePopupOpen]);
+
+
   // REPORT REPLY
   const [showReportReasonPopup, setShowReportReasonPopup] = useState(false);
   const [showReportSubmittedPopup, setShowReportSubmittedPopup] = useState(false);
@@ -898,6 +911,19 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       // Manejar el error si es necesario
     }
   };
+
+  useEffect(() => {
+    if (showReportReasonPopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showReportReasonPopup]);
+
 
   // REPLY TO A REPLY
   const [replyText, setReplyText] = useState('');

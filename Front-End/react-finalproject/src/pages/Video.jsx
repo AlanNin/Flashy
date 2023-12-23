@@ -16,32 +16,89 @@ import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
 import ViewsIcon from '../assets/ViewsIcono2.png';
-import CopyIcono from "../assets/CopyIcono.png"
+import CopyIcono from "../assets/CopyIcono.png";
+import WhatsappIcon from "../assets/WhatsappIcon.png";
+import CloseXGr from "../assets/CloseXGr.png"
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  GabShareButton,
+  HatenaShareButton,
+  InstapaperShareButton,
+  LineShareButton,
+  LinkedinShareButton,
+  LivejournalShareButton,
+  MailruShareButton,
+  OKShareButton,
+  PinterestShareButton,
+  PocketShareButton,
+  RedditShareButton,
+  TelegramShareButton,
+  TumblrShareButton,
+  TwitterShareButton,
+  ViberShareButton,
+  VKShareButton,
+  WhatsappShareButton,
+  WorkplaceShareButton,
+} from "react-share";
+
+import {
+  EmailIcon,
+  FacebookIcon,
+  FacebookMessengerIcon,
+  GabIcon,
+  HatenaIcon,
+  InstapaperIcon,
+  LineIcon,
+  LinkedinIcon,
+  LivejournalIcon,
+  MailruIcon,
+  OKIcon,
+  PinterestIcon,
+  PocketIcon,
+  RedditIcon,
+  TelegramIcon,
+  TumblrIcon,
+  TwitterIcon,
+  ViberIcon,
+  VKIcon,
+  WeiboIcon,
+  WorkplaceIcon,
+  XIcon,
+} from "react-share";
 
 const Container = styled.div`
-  margin: auto;
-  display: flex;
-  gap: 24px;
+  background-color: rgba(15, 12, 18);
+  position: relative;
+  width: 100%;
   max-width: 1200px;
   min-height: 100vh;
-  padding: 101px 273px 0px 175px;
+  margin: auto;
+`;
+
+const Wrapper = styled.div`
+  margin-top: 101px;
+  margin-left: -49px;
+  display: flex;
+  gap: 24px;
   background-color: rgba(15, 12, 18);
 `;
 
-const Content = styled.div`wwwwwwwwwwwwwwwww
+const Content = styled.div`
   flex: 5;
 `;
+
 const VideoWrapper = styled.div``;
 
 const Buttons = styled.div`
+  justify-content: center;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 20px;
   padding: 20px;
   color: ${({ theme }) => theme.text};
@@ -62,6 +119,7 @@ const Button = styled.div`
 const ButtonsImg = styled.img`
     width: 25px;
     height: 25px;
+    margin-right: 3px;
 `;
 
 const RelatedVideos = styled.div`
@@ -82,6 +140,8 @@ const VideoInfo = styled.div`
 const VideoImg = styled.img`
   height: 306px;
   width: 211px;
+  border-radius: 10px;
+  object-fit: cover; 
 `;
 
 const VideoOtherInfo = styled.div`
@@ -210,6 +270,7 @@ const RecommendationContainer = styled.div`
   flex-direction: column;
   height: auto;
   width: auto;
+  margin-right: 30px;
 `;
 
 const SuscbribeContainer = styled.div`
@@ -328,22 +389,30 @@ const ShareContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   height: max-content;
-  background-color: rgba(70, 67, 74, 0.7);
+  background-color: rgba(20, 13, 20);
   width: auto;
-  border-radius: 0px 10px 10px 10px;
-  padding: 10px;
-  margin-top: 135px;
-  margin-left: 675px;
+  border-radius: 10px;
+  padding: 20px 20px 30px 20px;
   z-index: 2;
   cursor: normal;
 `;
 
-const ShareTxt = styled.h1`
-  color: white;
-  padding: 10px 5px;
-  font-family: "Roboto Condensed", Helvetica;
-  font-size: 18px;
-  font-weight: normal;
+const CloseShare = styled.img`
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+`;
+
+const ShareLabel = styled.label`
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    margin-right: auto;
+    margin-left: 5px;
+    margin-bottom: 15px;
 `;
 
 const ShareLinkCopyDiv = styled.div`
@@ -353,6 +422,22 @@ const ShareLinkCopyDiv = styled.div`
   align-items: center; 
 `;
 
+const ShareExternalButtons = styled.div`
+  display: flex;
+  gap: 28px;
+  margin-right: auto;
+  padding-top: 10px;
+`;
+
+const ShareExternalButtonsTxt = styled.h1`
+  color: white;
+  padding: 8px 5px 0px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 30px;
+`;
+
 
 const ShareLink = styled.h1`
   background: rgba(36, 35, 35, 0.8);
@@ -360,7 +445,7 @@ const ShareLink = styled.h1`
   color: white;
   padding: 10px 15px;
   font-family: "Roboto Condensed", Helvetica;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: normal;
 `;
 
@@ -380,6 +465,19 @@ const fadeOut = keyframes`
   }
 `;
 
+const SharePopupContainerBg = styled.div`
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
 const SharePopupContainer = styled.div`
   position: fixed;
   bottom: 40px;
@@ -392,6 +490,7 @@ const SharePopupContainer = styled.div`
   border-radius: 8px;
   opacity: ${({ isPopUpShareVisible }) => (isPopUpShareVisible ? 1 : 0)};
   animation: ${fadeOut} 4s ease-in-out;
+  z-index: 9;
 `;
 
 const SharePopupContent = styled.p`
@@ -464,12 +563,10 @@ const rotate = keyframes`
 
 const LoadingContainer = styled.div`
   display: flex;
-  margin-top: -101px;
   align-items: center;
   justify-content: center;
   height: 100vh;
   width: 100%;
-
 `;
 
 const LoadingCircle = styled.div`
@@ -479,6 +576,76 @@ const LoadingCircle = styled.div`
   width: 50px;
   height: 50px;
   animation: ${rotate} 1s linear infinite;
+`;
+
+
+const NotAllowedContainerBg = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #000000b9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+`;
+
+const NotAllowedContainer = styled.div`
+    position: relative;
+    width: 35%;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 0px;
+`;
+
+const WrapperNotAllowed = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 60px);
+    height: 100%;
+    gap: 30px;
+    padding: 0px 30px 5px 30px;
+  `;
+
+const TitleNotAllowed = styled.h1`
+  text-align: center;
+  font-size: 28px;
+  font-family: "Roboto Condensed", Helvetica;
+  padding-bottom: 15px;
+  padding-top: 10px;
+`;
+
+const SubLabelNotAllowed = styled.label`
+    margin-top: -20px;
+    font-size: 16px;
+    padding: 0px 10px;
+    color: ${({ theme }) => theme.textSoft};
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const GoHomeNotAllowed = styled.button`
+  border: none;
+  width: max-content;;
+  height: max-content;
+  padding: 8px 18px;
+  border-radius: 3px;
+  position: relative;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+  cursor: pointer;
+  background: rgba(82, 41, 73, 0.7);
+  color: ${({ theme }) => theme.text};
+  margin-left: auto;
+  margin-right: 40px;
+  margin-top: 15px;
 `;
 
 const Video = () => {
@@ -537,8 +704,12 @@ const Video = () => {
 
   const handleResumeClick = () => {
     setShowResumePopup(false);
-    videoRef.current.currentTime = (resumeProgress / 100) * videoRef.current.duration;
-    videoRef.current.play();
+    const videoDuration = videoRef?.current.duration;
+
+    if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
+      videoRef.current.currentTime = (resumeProgress / 100) * videoDuration;
+      videoRef.current.play();
+    }
   };
 
   const handleStartOverClick = () => {
@@ -570,7 +741,6 @@ const Video = () => {
   // FETCH VIDEO AND CHANNEL DATA + RESUME VIDEO
   useEffect(() => {
     let isMounted = true;
-
     const fetchData = async () => {
       try {
         const videoRes = await axios.get(`/videos/find/${path}`);
@@ -582,16 +752,22 @@ const Video = () => {
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
 
-        const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data._id}`);
-        const userProgress = userProgressRes.data.progress || 0;
+        if (currentUser) {
 
-        setVideoLoaded(true);
-        scrollToTop();
-        setResumeProgress(userProgress);
+          const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data._id}`);
+          const userProgress = userProgressRes.data.progress || 0;
 
-        if (userProgress > 3) {
-          setShowResumePopup(true);
+          if (userProgress > 3) {
+            setShowResumePopup(true);
+          }
+
+          setResumeProgress(userProgress);
+
         }
+
+        scrollToTop();
+        setVideoLoaded(true);
+
 
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -605,6 +781,46 @@ const Video = () => {
     };
 
   }, [path, dispatch]);
+
+  // VALIDATE PRIVACY PRIVATE
+  const isVideoPrivate = currentVideo?.privacy === "private" || false;
+  const [allowedUsers, setAllowedUsers] = useState([]);
+  const [UserAllowed, setUserAllowed] = useState(true);
+
+  useEffect(() => {
+    axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
+      .then(response => {
+        const allowedUsersData = response.data.allowedUsers;
+        console.log(allowedUsersData);
+
+        if (Array.isArray(allowedUsersData)) {
+          setAllowedUsers(allowedUsersData);
+
+          const isUserAllowed = allowedUsers.includes(currentUser?.email);
+
+          if (isVideoPrivate) {
+            if (currentUser) {
+              if (isUserAllowed) {
+                setUserAllowed(true);
+              }
+              else {
+                setUserAllowed(false);
+              }
+            } else {
+              setUserAllowed(false);
+            }
+          } else {
+            setUserAllowed(true);
+          }
+          console.log(UserAllowed);
+
+        } else {
+        }
+      })
+      .catch(error => {
+      });
+
+  }, [UserAllowed, currentVideo._id]);
 
   // LIKE VIDEO
   const handleLike = async () => {
@@ -663,43 +879,50 @@ const Video = () => {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const handleTimeUpdate = () => {
-      const video = videoRef.current;
-      const percentageWatched = (video.currentTime / video.duration) * 100;
+    if (currentUser) {
+      const handleTimeUpdate = () => {
+        const video = videoRef.current;
 
-      setVideoProgress(percentageWatched);
-      UpdateHistory();
+        // Verifica que videoRef.current no sea null o undefined antes de acceder a sus propiedades
+        if (video) {
+          const percentageWatched = (video.currentTime / video.duration) * 100;
 
-      if (percentageWatched >= 5) {
-        saveVideoProgress();
-      }
-      if (percentageWatched > 99) {
-        setVideoProgress(0);
-        saveVideoProgress();
-      }
+          setVideoProgress(percentageWatched);
+          UpdateHistory();
 
+          if (percentageWatched >= 5) {
+            saveVideoProgress();
+          }
+          if (percentageWatched > 99) {
+            setVideoProgress(0);
+            saveVideoProgress();
+          }
 
-      if (percentageWatched >= 55 && !isViewIncreased) {
-        setIsViewIncreased(true);
-        axios.put(`/videos/view/${currentVideo?._id}`)
-          .then(() => {
-          })
-          .catch((error) => {
-            console.error("Error updating view count:", error);
-          });
-      }
-    };
-    const video = videoRef.current;
-
-    if (video) {
-      video.addEventListener("timeupdate", handleTimeUpdate);
-
-      return () => {
-        video.removeEventListener("timeupdate", handleTimeUpdate);
+          if (percentageWatched >= 55 && !isViewIncreased) {
+            setIsViewIncreased(true);
+            axios.put(`/videos/view/${currentVideo?._id}`)
+              .then(() => {
+                // ...
+              })
+              .catch((error) => {
+                console.error("Error updating view count:", error);
+              });
+          }
+        }
       };
-    }
 
+      const video = videoRef.current;
+
+      if (video) {
+        video.addEventListener("timeupdate", handleTimeUpdate);
+
+        return () => {
+          video.removeEventListener("timeupdate", handleTimeUpdate);
+        };
+      }
+    }
   }, [currentVideo?._id, isViewIncreased, videoProgress, videoLoaded]);
+
 
 
   // POP UP SUSCRIBE NOT LOGGED
@@ -805,223 +1028,331 @@ const Video = () => {
     };
   }, []);
 
-  return (
+  useEffect(() => {
+    // Cuando el popup se abre, deshabilitar el scroll
+    if (isSharePopupVisible) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Cuando el popup se cierra, habilitar el scroll
+      document.body.style.overflow = 'auto';
+    }
 
+    // Limpiar el efecto al desmontar el componente
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isSharePopupVisible]);
+
+  return (
 
     <Container>
 
-      {videoLoaded && (
-        <Content>
+      {UserAllowed && videoLoaded && (
 
-          {showResumePopup && (
-            <ResumePopupContainer>
-              <ResumePopupWrapper>
-                <ResumePopupText>
-                  Resume Video
-                </ResumePopupText>
-                <ResumePopupSubText>
-                  Would you like to resume this video or start over?
-                </ResumePopupSubText>
-                <ResumePopupButtons>
-                  <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
-                  <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
-                </ResumePopupButtons>
-              </ResumePopupWrapper>
-            </ResumePopupContainer>
-          )}
+        <Wrapper>
 
+          <Content>
 
-          <VideoWrapper>
-            <VideoFrame
-              ref={videoRef}
-              src={currentVideo?.videoUrl}
-              autoPlay={showResumePopup ? false : true}
-              controls={showResumePopup ? false : true}
-            />
-          </VideoWrapper>
-
-          <Buttons>
-            <Button onClick={handleLike}>
-
-              {currentVideo?.likes?.includes(currentUser?._id) ?
-                (<ButtonsImg src={VideoLikedIcono} />) :
-                (<ButtonsImg src={VideoLikeIcono} />)} {" "}
-              {currentVideo?.likes?.length}
-
-              {!currentUser && isLikePopupVisible && (
-                <LikeNotLogged ref={likeRef}>
-
-                  <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
-
-                  <Link
-                    to="../../signin"
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                    }}
-                  >
-                    <ItemLogin>
-                      <ImgLogin src={InicioSesionIcono2} />
-                      <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                    </ItemLogin>
-                  </Link>
-
-                </LikeNotLogged>
-              )}
-
-            </Button>
-
-            <Button onClick={handleDislike}>
-
-              {currentVideo?.dislikes?.includes(currentUser?._id) ?
-                (<ButtonsImg src={VideoDislikedIcono} />) :
-                (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
-              {currentVideo?.dislikes?.length}
-
-              {!currentUser && isDislikePopupVisible && (
-                <DislikeNotLogged ref={dislikeRef}>
-
-                  <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
-
-                  <Link
-                    to="../../signin"
-                    style={{
-                      textDecoration: "none",
-                      color: "inherit",
-                    }}
-                  >
-                    <ItemLogin>
-                      <ImgLogin src={InicioSesionIcono2} />
-                      <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                    </ItemLogin>
-                  </Link>
-
-                </DislikeNotLogged>
-              )}
-
-            </Button>
-
-            <Button>
-              <ButtonsImg src={VideoSaveIcono} /> Watch Later
-            </Button>
-
-            <Button onClick={handleShare} ref={buttonShareRef}>
-              <ButtonsImg src={VideoShareIcono} /> Share
-            </Button>
-
-            {isSharePopupVisible && (
-              <ShareContainer ref={shareRef}>
-                <ShareTxt> Share this video with your friends! </ShareTxt>
-                <ShareLinkCopyDiv>
-                  <ShareLink> {shareLink} </ShareLink>
-                  <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
-                </ShareLinkCopyDiv>
-              </ShareContainer>
+            {showResumePopup && (
+              <ResumePopupContainer>
+                <ResumePopupWrapper>
+                  <ResumePopupText>
+                    Resume Video
+                  </ResumePopupText>
+                  <ResumePopupSubText>
+                    Would you like to resume this video or start over?
+                  </ResumePopupSubText>
+                  <ResumePopupButtons>
+                    <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
+                    <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
+                  </ResumePopupButtons>
+                </ResumePopupWrapper>
+              </ResumePopupContainer>
             )}
 
-          </Buttons>
 
-          <VideoInfo>
+            <VideoWrapper>
+              <VideoFrame
+                ref={videoRef}
+                src={currentVideo?.videoUrl}
+                autoPlay={showResumePopup ? false : true}
+                controls={showResumePopup ? false : true}
+              />
+            </VideoWrapper>
 
-            <VideoImg src={currentVideo?.imgUrlVertical} />
+            <Buttons>
+              <Button onClick={handleLike}>
 
-            <VideoOtherInfo>
+                {currentVideo?.likes?.includes(currentUser?._id) ?
+                  (<ButtonsImg src={VideoLikedIcono} />) :
+                  (<ButtonsImg src={VideoLikeIcono} />)} {" "}
+                {currentVideo?.likes?.length}
 
-              <Title> {currentVideo?.title}</Title>
+                {!currentUser && isLikePopupVisible && (
+                  <LikeNotLogged ref={likeRef}>
 
-              <ContenedorIconosTextos>
+                    <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
 
-                <ChannelIcon src={CanalIcono} />
-                <EstiloTextos> {channel?.displayname} </EstiloTextos>
-                <EstiloIconos src={DuracionIcono} />
-                <EstiloTextos> {formatDuration(currentVideo?.duration)} </EstiloTextos>
-                <EstiloIconos src={FechaIcono} />
-                <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
-                <EstiloIconos src={ViewsIcon} />
-                <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
-
-              </ContenedorIconosTextos>
-
-              <Description>
-
-                {currentVideo?.desc}
-
-              </Description>
-
-              <ChannelInfo>
-                <ChannelImage src={channel?.img} />
-                <ChannelInfoTx>
-                  <ChannelName> {channel?.displayname} </ChannelName>
-                  <ChannelCounter> {channel?.subscribers} </ChannelCounter>
-                </ChannelInfoTx>
-                <SuscbribeContainer>
-                  {!isCurrentUserUploader && (
-                    <Subscribe
-                      onClick={handleSub}
-                      isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                    <Link
+                      to="../../signin"
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
                     >
-                      {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
-                    </Subscribe>
+                      <ItemLogin>
+                        <ImgLogin src={InicioSesionIcono2} />
+                        <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                      </ItemLogin>
+                    </Link>
 
-                  )}
-                  {!currentUser && isSubscribePopupVisible && (
-                    <SuscbribeNotLogged ref={subscribeRef}>
+                  </LikeNotLogged>
+                )}
 
-                      <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
+              </Button>
 
-                      <Link
-                        to="../../signin"
-                        style={{
-                          textDecoration: "none",
-                          color: "inherit",
-                        }}
+              <Button onClick={handleDislike}>
+
+                {currentVideo?.dislikes?.includes(currentUser?._id) ?
+                  (<ButtonsImg src={VideoDislikedIcono} />) :
+                  (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
+                {currentVideo?.dislikes?.length}
+
+                {!currentUser && isDislikePopupVisible && (
+                  <DislikeNotLogged ref={dislikeRef}>
+
+                    <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
+
+                    <Link
+                      to="../../signin"
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
+                    >
+                      <ItemLogin>
+                        <ImgLogin src={InicioSesionIcono2} />
+                        <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                      </ItemLogin>
+                    </Link>
+
+                  </DislikeNotLogged>
+                )}
+
+              </Button>
+
+              <Button>
+                <ButtonsImg src={VideoSaveIcono} /> Watch Later
+              </Button>
+
+              <Button onClick={handleShare} ref={buttonShareRef}>
+                <ButtonsImg src={VideoShareIcono} /> Share
+              </Button>
+
+            </Buttons>
+
+            <VideoInfo>
+
+              <VideoImg src={currentVideo?.imgUrlVertical} />
+
+              <VideoOtherInfo>
+
+                <Title> {currentVideo?.title}</Title>
+
+                <ContenedorIconosTextos>
+
+                  <ChannelIcon src={CanalIcono} />
+                  <EstiloTextos> {channel?.displayname} </EstiloTextos>
+                  <EstiloIconos src={DuracionIcono} />
+                  <EstiloTextos> {formatDuration(currentVideo?.duration)} </EstiloTextos>
+                  <EstiloIconos src={FechaIcono} />
+                  <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
+                  <EstiloIconos src={ViewsIcon} />
+                  <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
+
+                </ContenedorIconosTextos>
+
+                <Description>
+
+                  {currentVideo?.desc}
+
+                </Description>
+
+                <ChannelInfo>
+                  <ChannelImage src={channel?.img} />
+                  <ChannelInfoTx>
+                    <ChannelName> {channel?.displayname} </ChannelName>
+                    <ChannelCounter> {channel?.subscribers} </ChannelCounter>
+                  </ChannelInfoTx>
+                  <SuscbribeContainer>
+                    {!isCurrentUserUploader && (
+                      <Subscribe
+                        onClick={handleSub}
+                        isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
                       >
-                        <ItemLogin>
-                          <ImgLogin src={InicioSesionIcono2} />
-                          <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                        </ItemLogin>
-                      </Link>
+                        {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+                      </Subscribe>
 
-                    </SuscbribeNotLogged>
-                  )}
-                </SuscbribeContainer>
-              </ChannelInfo>
+                    )}
+                    {!currentUser && isSubscribePopupVisible && (
+                      <SuscbribeNotLogged ref={subscribeRef}>
 
-            </VideoOtherInfo>
+                        <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
 
-          </VideoInfo>
+                        <Link
+                          to="../../signin"
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                          }}
+                        >
+                          <ItemLogin>
+                            <ImgLogin src={InicioSesionIcono2} />
+                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                          </ItemLogin>
+                        </Link>
 
-          <RelatedVideos>
+                      </SuscbribeNotLogged>
+                    )}
+                  </SuscbribeContainer>
+                </ChannelInfo>
 
-            <RelatedSlider videoId={currentVideo?._id} UserUploader={channel?._id} />
+              </VideoOtherInfo>
 
-          </RelatedVideos>
+            </VideoInfo>
 
-          <Comments videoId={currentVideo?._id} UserUploader={channel?._id} />
+            <RelatedVideos>
 
-        </Content>
+              <RelatedSlider videoId={currentVideo?._id} UserUploader={channel?._id} />
+
+            </RelatedVideos>
+
+            <Comments videoId={currentVideo?._id} UserUploader={channel?._id} />
+
+          </Content>
+
+          <RecommendationContainer>
+
+            <TitleHeader> RECOMMENDED </TitleHeader>
+            <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
+
+          </RecommendationContainer>
+
+
+          {isPopUpShareVisible && (
+            <SharePopupContainer>
+              <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
+            </SharePopupContainer>
+          )}
+
+        </Wrapper>
       )}
 
-      {videoLoaded && (
-        <RecommendationContainer>
 
-          <TitleHeader> RECOMMENDED </TitleHeader>
-          <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
+      {isSharePopupVisible && (
+        <SharePopupContainerBg>
+          <ShareContainer ref={shareRef}>
+            <ShareLabel> Share </ShareLabel>
+            <CloseShare onClick={handleShare} src={CloseXGr} />
 
-        </RecommendationContainer>
+            <ShareExternalButtons>
+              <FacebookShareButton
+                url={shareLink}
+                quote={'Hey There, Watch This Awesome Video Now!'}
+                hashtag="#Flashy"
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <FacebookIcon size={48} round />
+                <ShareExternalButtonsTxt>
+                  Facebook
+                </ShareExternalButtonsTxt>
+              </FacebookShareButton>
+
+              <WhatsappShareButton url={shareLink} title={'Watch This Awesome Video at Flashy'}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+              >
+                <div style={{ cursor: 'pointer' }}>
+                  <img src={WhatsappIcon} alt="Compartir en WhatsApp" width="48" height="48" />
+                </div>
+                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                  Whatsapp
+                </ShareExternalButtonsTxt>
+              </WhatsappShareButton>
+
+              <TwitterShareButton
+                url={shareLink}
+                title={'Watch This Awesome Video at Flashy'}
+                hashtags={['Flashy', 'Video']}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+              >
+                <XIcon size={48} round />
+                <ShareExternalButtonsTxt style={{ marginTop: '2px' }}>
+                  X
+                </ShareExternalButtonsTxt>
+              </TwitterShareButton>
+
+              <TelegramShareButton
+                url={shareLink}
+                title={'Watch This Awesome Video at Flashy'}
+              >
+                <TelegramIcon size={48} round />
+                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                  Telegram
+                </ShareExternalButtonsTxt>
+              </TelegramShareButton>
+
+              <RedditShareButton
+                url={shareLink}
+                title={'Watch This Awesome Video at Flashy'}
+              >
+                <RedditIcon size={48} round />
+                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                  Reddit
+                </ShareExternalButtonsTxt>
+              </RedditShareButton>
+
+              <EmailShareButton
+                url={shareLink}
+                subject={'Flashy Video'}
+                body={'Watch This Awesome Video at Flashy'}
+                separator={'\n\n'}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+              >
+                <EmailIcon size={48} round />
+                <ShareExternalButtonsTxt>
+                  Email
+                </ShareExternalButtonsTxt>
+              </EmailShareButton>
+            </ShareExternalButtons>
+
+            <ShareLinkCopyDiv>
+              <ShareLink> {shareLink} </ShareLink>
+              <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
+            </ShareLinkCopyDiv>
+          </ShareContainer>
+        </SharePopupContainerBg>
+      )}
+
+      {!UserAllowed && videoLoaded && (
+        <NotAllowedContainerBg>
+          <NotAllowedContainer>
+            <WrapperNotAllowed>
+              <TitleNotAllowed> Private Video </TitleNotAllowed>
+              <SubLabelNotAllowed>
+                "Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access."
+              </SubLabelNotAllowed>
+            </WrapperNotAllowed>
+            <Link to={"../"} style={{ textDecoration: "none", marginLeft: "auto" }}>
+              <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
+            </Link>
+
+          </NotAllowedContainer>
+        </NotAllowedContainerBg>
       )}
 
       {!videoLoaded && (
         <LoadingContainer>
           <LoadingCircle />
         </LoadingContainer>
-      )}
-
-
-      {isPopUpShareVisible && (
-        <SharePopupContainer>
-          <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-        </SharePopupContainer>
       )}
 
     </Container>

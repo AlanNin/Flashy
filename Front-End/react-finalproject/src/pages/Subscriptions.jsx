@@ -91,8 +91,7 @@ const ButtonLoginText = styled.h3`
   @media only screen and (max-width: 980px),
   only screen and (max-height: 910px) {
   display: none;
-}
-
+  }
 `;
 
 const NotSubbedWrapper = styled.div`
@@ -127,7 +126,7 @@ const NotSubbedImg = styled.img`
 const Home = ({ type = "sub" }) => {
   const { language, setLanguage } = useLanguage();
   const { currentUser } = useSelector(state => state.user);
-
+  const [NoVideosFound, setNoVideosFound] = useState(false);
 
 
   const translations = {
@@ -135,23 +134,33 @@ const Home = ({ type = "sub" }) => {
       explore: "Subscriptions",
       notauth: "Sign in now, don't miss our special Flashy content!",
       signin: "Sign in",
-      notsubbed1: "Seems like you are not subbed to any channel :(",
+      notsubbed1: "Seems like you are not subbed to any channel",
       notsubbed2: "Sub now to stay updated with your favorites channels!",
+      novideo1: "Seems like your subscribed channels haven't upload any video yet",
+      novideo2: "Stay tuned and don't missed any flashy content!",
     },
     es: {
       explore: "Suscripciones",
       notauth: "¡Inicia sesión ahora, no te pierdas nuestro contenido Flashy!",
       signin: "Iniciar Sesión",
-      notsubbed1: "Parece que no estás suscrito a ningún canal :(",
+      notsubbed1: "Parece que no estás suscrito a ningún canal",
       notsubbed2: "¡Suscribete ahora para estar al día con tus canales favoritos!",
+      novideo1: "Parece que los canales a los que estás suscrito aún no han subido contenido",
+      novideo2: "Mantente al tanto y no te pierdas de un contenido increíble!",
     },
   };
 
   const [videos, setVideos] = useState([])
   useEffect(() => {
+    setNoVideosFound(false);
     const fetchVideos = async () => {
       try {
         const res = await axios.get(`/videos/${type}`);
+        if (res && res.data && res.data.length > 0) {
+
+        } else {
+          setNoVideosFound(true);
+        }
         setVideos(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);
@@ -160,7 +169,6 @@ const Home = ({ type = "sub" }) => {
     if (currentUser) {
       fetchVideos();
     } else {
-      // Handle the case where no user is logged in, maybe clear videos state
       setVideos([]);
     }
   }, [type, currentUser]);
@@ -210,6 +218,13 @@ const Home = ({ type = "sub" }) => {
         </NotSubbedWrapper>
       }
 
+      {NoVideosFound &&
+        <NotSubbedWrapper>
+          <NotSubbedImg src={NotSubbedIcono} />
+          <NotSubbed1>{translations[language].novideo1}</NotSubbed1>
+          <NotSubbed2>{translations[language].novideo2}</NotSubbed2>
+        </NotSubbedWrapper>
+      }
 
     </MainContainer>
 

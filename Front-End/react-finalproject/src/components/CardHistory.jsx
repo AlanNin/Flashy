@@ -1,18 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
-import styled from "styled-components";
+import styled, { css } from 'styled-components';
 import CanalIcono from "../assets/CanalIcono.png";
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
 import DuracionIcono from "../assets/DuracionIcono.png";
+import PuntosSuspensivosIcono from "../assets/PuntosSuspensivosIcono.png";
+import VideoSaveIcono from "../assets/VideoSaveIcono.png";
+import VideoShareIconoOutline from "../assets/VideoShareIconoOutline.png";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
 
+const HistoryMenu = styled.img`
+  position: absolute;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transform: rotate(90deg);
+  border-radius: 7px;
+  padding: 5px;
+  width: 17px;
+  height: 17px;
+  margin-bottom: ${({ isUploader }) => (isUploader ? '5px' : '0px')};;
+  display: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'block' : 'none')};
+  right: 5px;
+  top: 5px;
+`;
+
+
 const Container = styled.div`
+  position: relative;
   display: flex;
   margin-bottom: 10px;
+  border-radius: 15px;
+  background: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'rgba(24, 19, 28)' : 'transparent')};
+  padding: 0px 15px 0px 0px;
+
+  &:hover {
+    background: rgba(24, 19, 28);
+    & ${HistoryMenu} {
+      display: block;
+    }
+  }
 `;
 
 const ImageContainer = styled.div`
@@ -162,15 +193,61 @@ const TxtDuration = styled.h1`
   margin-top: 1px;  
 `;
 
+const HistoryMenuOptions = styled.div`
+  position: absolute;
+  top: 32px;
+  right: -125px;
+  width: max-content;
+  height: max-content;
+  background: rgba(36, 36, 36);
+  cursor: pointer;
+  border-radius: 10px;
+  z-index: 2;
+  padding: 5px 0px;
+`;
 
+const CommentOptionImg = styled.img`
+  width: 18px;
+  height: 18px;
+  margin-right: 20px;
+`;
+
+
+const CommentOption = styled.button`
+  width: 100%;
+  display: flex;
+  text-align: center;
+  padding: 10px 20px;
+  background: rgba(36, 36, 36);
+  cursor: pointer;
+  border:none;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.text};
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Roboto", Helvetica;
+`;
 
 const CardHistory = ({ video }) => {
+  // CONST DEFINITION
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
   const [progress, setProgress] = useState(0);
   const { language, setLanguage } = useLanguage();
+  const [isMenuDotsVisible, setIsMenuDotsVisible] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
+  // Reset Scroll
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+
+  // TRANSLATIONS
   const translations = {
     en: {
     },
@@ -178,6 +255,7 @@ const CardHistory = ({ video }) => {
     },
   };
 
+  // FORMATS
   if (language === "es") {
     moment.locale("es");
   } else {
@@ -210,9 +288,8 @@ const CardHistory = ({ video }) => {
     }
   };
 
-
+  // FETCH INFO FOR CARDS
   useEffect(() => {
-
     const fetchChannel = async () => {
       const res = await axios.get(`/users/find/${video.userId}`);
       setChannel(res.data);
@@ -226,6 +303,7 @@ const CardHistory = ({ video }) => {
     };
 
     fetchChannel();
+    scrollToTop();
 
     if (currentUser) {
       fetchProgress();
@@ -235,12 +313,59 @@ const CardHistory = ({ video }) => {
 
   const handleRedirect = (videoId) => {
     navigate(`/video/${videoId}`);
-    // Reiniciar la página después de la redirección
     navigate('/video', { replace: true });
   };
 
+  // HANDLE MENU
+  const handleHistoryMenuClick = () => {
+    setIsMenuDotsVisible(!isMenuDotsVisible);
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = (event) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target) &&
+      !event.target.classList.contains("HistoryMenu")
+    ) {
+      setIsMenuOpen(false);
+      setIsMenuDotsVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", closeMenu);
+
+    return () => {
+      document.removeEventListener("click", closeMenu);
+    };
+  }, []);
+
+  // HANDLE MENU: Watch Later
+
+  const handleWatchLater = () => {
+
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <Container>
+    <Container isMenuDotsVisible={isMenuDotsVisible} ref={menuRef}>
+      <HistoryMenu
+        src={PuntosSuspensivosIcono}
+        onClick={handleHistoryMenuClick}
+        isMenuDotsVisible={isMenuDotsVisible} />
+      {isMenuOpen && (
+        <HistoryMenuOptions className="HistoryMenuOptions">
+          <CommentOption onClick={handleWatchLater}>
+            <CommentOptionImg src={VideoSaveIcono} />
+            Watch Later
+          </CommentOption>
+          <CommentOption>
+            <CommentOptionImg src={VideoShareIconoOutline} />
+            Share
+          </CommentOption>
+        </HistoryMenuOptions>
+      )}
 
       <Link to={`/video/${video._id}`} onClick={() => handleRedirect(video._id)} style={{ textDecoration: "none" }}>
         <ImageContainer>

@@ -279,7 +279,7 @@ const UserOptions = styled.div`
   align-items: center;
   right: 40px;
   top: 50px;
-  border-radius: 12px;
+  border-radius: 12px 0px 12px 12px;
   background: rgba(36, 36, 36);
   padding: 20px 20px 20px 20px; 
   gap: 10px;
@@ -440,9 +440,6 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const toggleDropdown = () => {
-    setDropdownVisible(!dropdownVisible);
-  };
 
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -464,7 +461,32 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     }
   };
 
-  // MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
+  // DROPDOWN USER
+  const dropdownRef = useRef(null);
+  const dropdownButtonRef = useRef(null);
+
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  useEffect(() => {
+    const handleClickOutsideDropdown = (event) => {
+
+      const isClickInsideButton = dropdownButtonRef.current && dropdownButtonRef.current.contains(event.target);
+
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !isClickInsideButton) {
+        setDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideDropdown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideDropdown);
+    };
+  }, []);
+
+  // HIDE NAVBAR SIGN IN SIGN UP, MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
   const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
 
   if (isSigninOrSignup) {
@@ -503,7 +525,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
           {currentUser ? (
             <UserContainer>
               <UploadVideoImg src={UploadVideoIcono} onClick={() => setOpen(true)} />
-              <ItemUser onClick={toggleDropdown}>
+              <ItemUser onClick={toggleDropdown} ref={dropdownButtonRef}>
                 <UserImg src={currentUser.img} />
               </ItemUser>
             </UserContainer>
@@ -521,7 +543,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
           </Link>}
         </Wrapper>
         {dropdownVisible && (
-          <UserOptions>
+          <UserOptions ref={dropdownRef}>
             <DisplayName>{currentUser.displayname}</DisplayName>
             <Email>{currentUser.email}</Email>
             <WrapperMenuUser>
