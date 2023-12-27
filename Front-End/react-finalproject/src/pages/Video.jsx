@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import ReactPlayer from "react-player";
 import styled, { keyframes } from "styled-components";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
@@ -8,22 +9,24 @@ import VideoLikeIcono from "../assets/VideoLikeIcono.png";
 import VideoLikedIcono from "../assets/VideoLikedIcono.png";
 import VideoDislikeIcono from "../assets/VideoDislikeIcono.png";
 import VideoDislikedIcono from "../assets/VideoDislikedIcono.png";
+import VideoPlaylistIcono from "../assets/VideoPlaylistIcono.png";
 import VideoShareIcono from "../assets/VideoShareIcono.png";
-import VideoSaveIcono from "../assets/VideoSaveIcono.png";
-import VideoSavedIcono from "../assets/VideoSavedIcono.png";
 import RelatedSlider from "../components/RelatedSlider";
 import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
 import ViewsIcon from '../assets/ViewsIcono2.png';
+import LanguageIcono from '../assets/IdiomaIcono.png';
 import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png"
+import VerticalLineIcono from "../assets/VerticalLineIcono.png"
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
+
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -46,7 +49,6 @@ import {
   WhatsappShareButton,
   WorkplaceShareButton,
 } from "react-share";
-
 import {
   EmailIcon,
   FacebookIcon,
@@ -83,7 +85,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   margin-top: 101px;
-  margin-left: -49px;
+  margin-left: ${({ NoRecommendations }) => (NoRecommendations ? '55px' : '-49px')};
   display: flex;
   gap: 24px;
   background-color: rgba(15, 12, 18);
@@ -98,10 +100,17 @@ const VideoWrapper = styled.div``;
 const Buttons = styled.div`
   justify-content: center;
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+  padding: 0px 0px;
   color: ${({ theme }) => theme.text};
+  margin-left: auto;
+  margin-top: 0px;
+  margin-right: 17px;
+  overflow: hidden;
+  height: max-content;
+  width: max-content;
 `;
 
 
@@ -111,9 +120,43 @@ const Button = styled.div`
   font-family: "Roboto Condensed", Helvetica;
   font-weight: normal;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
   cursor: pointer;
   user-select: none; 
+  background: rgba(30, 27, 33);
+  padding: 8px 12px;
+  border-radius: 15px;
+  &:hover {
+    background: rgba(36, 34, 38);
+  }
+`;
+
+const LikeButton = styled(Button)`
+  border-radius: 15px 0px 0px 15px;
+  padding: 8px 12px 8px 12px;
+  margin-right: -7px;
+  gap: 5px;
+`;
+
+const DislikeButton = styled(Button)`
+  border-radius: 0px 15px 15px 0px;
+  padding: 8px 12px 8px 12px;
+  margin-left: -7px;
+  gap: 5px;
+`;
+
+const LikeAndDislikeButtons = styled.div`
+  display: flex;
+  gap: 0px;
+  border-radius: 15px;
+  align-items: center;
+  background: rgba(30, 27, 33);
+`;
+
+const DislikeLikeSeparator = styled.img`
+    width: 13px;
+    height: 30px;
+    z-index: 2;
 `;
 
 const ButtonsImg = styled.img`
@@ -134,7 +177,7 @@ const VideoInfo = styled.div`
   display: flex;
   height: auto;
   width: auto;
-  padding: 15px 0px 10px 0px;
+  padding: 30px 0px 10px 0px;
 `;
 
 const VideoImg = styled.img`
@@ -158,7 +201,17 @@ const Title = styled.h1`
   font-weight: 400;
   top: 10px;
   color: ${({ theme }) => theme.text};
-  padding: 0px 0px 10px 0px;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  max-width: 523px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow: hidden;
 `;
 
 const ContenedorIconosTextos = styled.div`
@@ -183,19 +236,28 @@ const ChannelIcon = styled(EstiloIconos)`
 const EstiloTextos = styled.h1`
   color: #c4c4c4;
   font-size: 16px;
-  margin-left: 3px;
+  margin-left: 5px;
   font-weight: normal;
   font-family: "Roboto Condensed", Helvetica;
 `;
 
 const Description = styled.p`
-  width: 710px;
+  width: 524px;
   color: #c4c4c4;
   font-size: 16px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: normal;
-  padding: 0px 0px 50px 0px;
+  padding: 0px 0px 30px 0px;
+  height: max-content;
   max-height: 110px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow: hidden;
 `;
 
 const Subscribe = styled.button`
@@ -205,12 +267,12 @@ const Subscribe = styled.button`
   font-family: "Roboto", Helvetica;
   color: white;
   border: none;
-  border-radius: 3px;
+  border-radius: 18px;
   height: max-content;
-  padding: 10px 20px;
+  padding: ${({ isSubscribed }) => (isSubscribed ? '8px 18px 10px 20px' : '10px 20px')};
   cursor: pointer;
   margin-left: 20px;
-  margin-top: 10px;
+  margin-top: 5px;
 `;
 
 const ChannelInfo = styled.div`
@@ -218,6 +280,8 @@ const ChannelInfo = styled.div`
   height: 100%;
   width: 100%;
   text-align: left;
+  margin-top: 20px;
+  margin-bottom: -20px;
 `;
 
 const ChannelImage = styled.img`
@@ -650,6 +714,7 @@ const GoHomeNotAllowed = styled.button`
 
 const Video = () => {
   const { language, setLanguage } = useLanguage();
+  const [NoRecommendations, setNoRecommendations] = useState(false);
 
   const translations = {
     en: {
@@ -697,28 +762,6 @@ const Video = () => {
     return date.toLocaleDateString('en-US', options);
   };
 
-  // RESUME VIDEO FROM PROGRESS
-  const [showResumePopup, setShowResumePopup] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [resumeProgress, setResumeProgress] = useState(0);
-
-  const handleResumeClick = () => {
-    setShowResumePopup(false);
-    const videoDuration = videoRef?.current.duration;
-
-    if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
-      videoRef.current.currentTime = (resumeProgress / 100) * videoDuration;
-      videoRef.current.play();
-    }
-  };
-
-  const handleStartOverClick = () => {
-    setShowResumePopup(false);
-    setVideoProgress(0);
-    saveVideoProgress();
-    videoRef.current.currentTime = 0;
-    videoRef.current.play();
-  };
 
   // Reset Scroll
   const scrollToTop = () => {
@@ -812,8 +855,6 @@ const Video = () => {
           } else {
             setUserAllowed(true);
           }
-          console.log(UserAllowed);
-
         } else {
         }
       })
@@ -862,6 +903,8 @@ const Video = () => {
   const isCurrentUserUploader = currentUser?._id === channel?._id;
 
   // SET VIDEO PROGRESS PER USER
+  const videoRef = useRef(null);
+
   const [videoProgress, setVideoProgress] = useState(0);
   const saveVideoProgress = async () => {
     try {
@@ -873,10 +916,31 @@ const Video = () => {
     }
   };
 
+  // RESUME VIDEO FROM PROGRESS
+  const [showResumePopup, setShowResumePopup] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [resumeProgress, setResumeProgress] = useState(0);
+
+  const handleResumeClick = () => {
+    setShowResumePopup(false);
+    const videoDuration = videoRef?.current.duration;
+
+    if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
+      videoRef.current.currentTime = (resumeProgress / 100) * videoDuration;
+      videoRef.current.play();
+    }
+  };
+
+  const handleStartOverClick = () => {
+    setShowResumePopup(false);
+    setVideoProgress(0);
+    saveVideoProgress();
+    videoRef.current.currentTime = 0;
+    videoRef.current.play();
+  };
 
   // ADD VIEWS TO VIDEO AND TRACK WATCH PROGRESS
   const [isViewIncreased, setIsViewIncreased] = useState(false);
-  const videoRef = useRef(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -1043,13 +1107,15 @@ const Video = () => {
     };
   }, [isSharePopupVisible]);
 
+  // VIDEO PLAYER
+
   return (
 
     <Container>
 
       {UserAllowed && videoLoaded && (
 
-        <Wrapper>
+        <Wrapper NoRecommendations={NoRecommendations}>
 
           <Content>
 
@@ -1080,84 +1146,13 @@ const Video = () => {
               />
             </VideoWrapper>
 
-            <Buttons>
-              <Button onClick={handleLike}>
-
-                {currentVideo?.likes?.includes(currentUser?._id) ?
-                  (<ButtonsImg src={VideoLikedIcono} />) :
-                  (<ButtonsImg src={VideoLikeIcono} />)} {" "}
-                {currentVideo?.likes?.length}
-
-                {!currentUser && isLikePopupVisible && (
-                  <LikeNotLogged ref={likeRef}>
-
-                    <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
-
-                    <Link
-                      to="../../signin"
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                      }}
-                    >
-                      <ItemLogin>
-                        <ImgLogin src={InicioSesionIcono2} />
-                        <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                      </ItemLogin>
-                    </Link>
-
-                  </LikeNotLogged>
-                )}
-
-              </Button>
-
-              <Button onClick={handleDislike}>
-
-                {currentVideo?.dislikes?.includes(currentUser?._id) ?
-                  (<ButtonsImg src={VideoDislikedIcono} />) :
-                  (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
-                {currentVideo?.dislikes?.length}
-
-                {!currentUser && isDislikePopupVisible && (
-                  <DislikeNotLogged ref={dislikeRef}>
-
-                    <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
-
-                    <Link
-                      to="../../signin"
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                      }}
-                    >
-                      <ItemLogin>
-                        <ImgLogin src={InicioSesionIcono2} />
-                        <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                      </ItemLogin>
-                    </Link>
-
-                  </DislikeNotLogged>
-                )}
-
-              </Button>
-
-              <Button>
-                <ButtonsImg src={VideoSaveIcono} /> Watch Later
-              </Button>
-
-              <Button onClick={handleShare} ref={buttonShareRef}>
-                <ButtonsImg src={VideoShareIcono} /> Share
-              </Button>
-
-            </Buttons>
-
             <VideoInfo>
 
               <VideoImg src={currentVideo?.imgUrlVertical} />
 
               <VideoOtherInfo>
 
-                <Title> {currentVideo?.title}</Title>
+                <Title> {currentVideo?.title} </Title>
 
                 <ContenedorIconosTextos>
 
@@ -1169,6 +1164,18 @@ const Video = () => {
                   <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
                   <EstiloIconos src={ViewsIcon} />
                   <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
+                  <EstiloIconos src={LanguageIcono} />
+                  <EstiloTextos> {currentVideo?.language} </EstiloTextos>
+                  <EstiloTextos
+                    style={{
+                      marginLeft: '25px',
+                      backgroundColor: 'rgba(30, 27, 33)',
+                      padding: '4px 10px',
+                      borderRadius: '10px',
+                      marginTop: '-4px'
+                    }}>
+                    {currentVideo?.privacy && currentVideo.privacy.charAt(0).toUpperCase() + currentVideo.privacy.slice(1)}
+                  </EstiloTextos>
 
                 </ContenedorIconosTextos>
 
@@ -1177,6 +1184,7 @@ const Video = () => {
                   {currentVideo?.desc}
 
                 </Description>
+
 
                 <ChannelInfo>
                   <ChannelImage src={channel?.img} />
@@ -1219,6 +1227,80 @@ const Video = () => {
 
               </VideoOtherInfo>
 
+              <Buttons>
+                <LikeAndDislikeButtons>
+                  <LikeButton onClick={handleLike}>
+
+                    {currentVideo?.likes?.includes(currentUser?._id) ?
+                      (<ButtonsImg src={VideoLikedIcono} />) :
+                      (<ButtonsImg src={VideoLikeIcono} />)} {" "}
+                    {currentVideo?.likes?.length}
+
+                    {!currentUser && isLikePopupVisible && (
+                      <LikeNotLogged ref={likeRef}>
+
+                        <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
+
+                        <Link
+                          to="../../signin"
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                          }}
+                        >
+                          <ItemLogin>
+                            <ImgLogin src={InicioSesionIcono2} />
+                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                          </ItemLogin>
+                        </Link>
+
+                      </LikeNotLogged>
+                    )}
+
+                  </LikeButton>
+
+                  <DislikeLikeSeparator src={VerticalLineIcono} />
+
+                  <DislikeButton onClick={handleDislike}>
+
+                    {currentVideo?.dislikes?.includes(currentUser?._id) ?
+                      (<ButtonsImg src={VideoDislikedIcono} />) :
+                      (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
+                    {currentVideo?.dislikes?.length}
+
+                    {!currentUser && isDislikePopupVisible && (
+                      <DislikeNotLogged ref={dislikeRef}>
+
+                        <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
+
+                        <Link
+                          to="../../signin"
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                          }}
+                        >
+                          <ItemLogin>
+                            <ImgLogin src={InicioSesionIcono2} />
+                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                          </ItemLogin>
+                        </Link>
+
+                      </DislikeNotLogged>
+                    )}
+
+                  </DislikeButton>
+                </LikeAndDislikeButtons>
+                <Button>
+                  <ButtonsImg src={VideoPlaylistIcono} /> Save
+                </Button>
+
+                <Button onClick={handleShare} ref={buttonShareRef}>
+                  <ButtonsImg src={VideoShareIcono} /> Share
+                </Button>
+
+              </Buttons>
+
             </VideoInfo>
 
             <RelatedVideos>
@@ -1234,7 +1316,7 @@ const Video = () => {
           <RecommendationContainer>
 
             <TitleHeader> RECOMMENDED </TitleHeader>
-            <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} />
+            <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} NoRecommendations={NoRecommendations} setNoRecommendations={setNoRecommendations} />
 
           </RecommendationContainer>
 

@@ -5,6 +5,8 @@ import DuracionIcono from "../../assets/DuracionIcono.png";
 import FechaIcono from "../../assets/FechaIcono.png";
 import VerAhoraIcono from "../../assets/VerAhoraIcono.png";
 import VerDespuesIcono from "../../assets/VerDespuesIcono.png";
+import LanguageIcono from '../../assets/IdiomaIcono.png';
+import SubtitleIcono from '../../assets/SubtitleIcono.png';
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -239,6 +241,14 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
           <EstiloTextos> {formatDuration(video.duration)} </EstiloTextos>
           <EstiloIconos src={FechaIcono} />
           <EstiloTextos> {formatDate(video.createdAt)} </EstiloTextos>
+          <EstiloIconos src={LanguageIcono} />
+          <EstiloTextos> {video.language} </EstiloTextos>
+          <EstiloIconos src={SubtitleIcono} />
+          <EstiloTextos>
+            {video.subtitles && video.subtitles.length > 0
+              ? video.subtitles[0].name
+              : 'No Subtitles'}
+          </EstiloTextos>
         </ContenedorIconosTextos>
         <DescripcionDiv>
           <Descripcion> {video.desc} </Descripcion>

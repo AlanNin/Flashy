@@ -36,10 +36,11 @@ const LoadingCircle = styled.div`
 `;
 
 
-const Recommendation = ({ tags, currentVideoId }) => {
+const Recommendation = ({ tags, currentVideoId, NoRecommendations, setNoRecommendations }) => {
     const [videos, setVideos] = useState([]);
     const filteredVideos = videos.filter((video) => video._id !== currentVideoId);
     const [cardLoaded, setCardLoaded] = useState(false);
+    const [isRecommendationEmpty, setIsRecommendationEmpty] = useState(false);
 
 
     useEffect(() => {
@@ -48,16 +49,20 @@ const Recommendation = ({ tags, currentVideoId }) => {
             const res = await axios.get(`/videos/tags?tags=${tags}`);
             setVideos(res.data);
             setCardLoaded(true);
+            if (res.data.length < 2) {
+                setNoRecommendations(true);
+            }
         };
         fetchVideos();
-    }, [tags]);
+
+    }, [tags, setNoRecommendations]);
 
     return (
 
         <Container>
             {cardLoaded ? (
                 filteredVideos.length === 0 ? (
-                    <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute' }}>
+                    <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
                         No recommended videos found.
                     </p>
                 ) : (
