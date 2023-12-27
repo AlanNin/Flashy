@@ -23,8 +23,9 @@ const MainContainer = styled.div`
 
 const Wrapper = styled.div`
     position: relative;  
-    padding: 32px 250px;
+    margin: 32px 250px;
     display: flex;
+    max-width: 1372px;
 `;
 
 const EmptyHistoryMessageContainer = styled.div`
@@ -79,7 +80,8 @@ const CardsContainer = styled.div`
 const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin-left 150px;
+    margin-left: auto;
+    right: 0px;
     gap: 20px;
 `;
 
@@ -278,6 +280,7 @@ const History = () => {
     const [videos, setVideos] = useState([]);
     const { language, setLanguage } = useLanguage();
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [searchInput, setSearchInput] = useState('');
 
     // TRANSLATIONS
     const translations = {
@@ -326,8 +329,7 @@ const History = () => {
                 );
 
                 // Filtra los videos nulos
-                const filteredVideos = detailedVideos.filter(video => video !== null);
-
+                const filteredVideos = detailedVideos.filter((video) => video !== null);
                 setVideos(filteredVideos);
                 setHistoryLoaded(true);
 
@@ -336,16 +338,82 @@ const History = () => {
             }
         };
 
-
         if (currentUser) {
             fetchHistory();
         }
     }, [currentUser]);
 
     // SEARCH WHEN ENTER IS PRESSED
-    const handleKeyPress = (e) => {
+    const handleKeyPress = async (e) => {
         if (e.key === "Enter") {
+            setHistoryLoaded(false);
 
+            try {
+                const res = await axios.get(`/users/${currentUser?._id}/history`);
+                const videoHistory = res.data;
+
+                videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
+
+                const detailedVideos = await Promise.all(
+                    videoHistory.map(async (videoItem) => {
+                        try {
+                            const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                            return videoDetails.data;
+                        } catch (error) {
+                            return null;
+                        }
+                    })
+                );
+
+                // Filtra los videos nulos y por búsqueda
+                const filteredVideos = detailedVideos.filter(
+                    (video) =>
+                        video !== null &&
+                        video.title.toLowerCase().includes(searchInput.toLowerCase())
+                );
+
+                setVideos(filteredVideos);
+                setHistoryLoaded(true);
+
+            } catch (error) {
+                console.error("Error fetching videos:", error);
+            }
+        }
+    };
+
+    // SEARCH WITH ICON
+    const handleSearch = async (e) => {
+        setHistoryLoaded(false);
+
+        try {
+            const res = await axios.get(`/users/${currentUser?._id}/history`);
+            const videoHistory = res.data;
+
+            videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
+
+            const detailedVideos = await Promise.all(
+                videoHistory.map(async (videoItem) => {
+                    try {
+                        const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                        return videoDetails.data;
+                    } catch (error) {
+                        return null;
+                    }
+                })
+            );
+
+            // Filtra los videos nulos y por búsqueda
+            const filteredVideos = detailedVideos.filter(
+                (video) =>
+                    video !== null &&
+                    video.title.toLowerCase().includes(searchInput.toLowerCase())
+            );
+
+            setVideos(filteredVideos);
+            setHistoryLoaded(true);
+
+        } catch (error) {
+            console.error("Error fetching videos:", error);
         }
     };
 
@@ -374,103 +442,113 @@ const History = () => {
         <MainContainer>
             <Header> {translations[language].history} </Header>
 
-            {historyLoaded && (
-                <Wrapper>
-                    {videos.length === 0 ? (
-                        <EmptyHistoryMessageContainer>
-                            <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
+            <Wrapper>
+                {historyLoaded && (
+                    <>
+                        {
+                            videos.length === 0 ? (
+                                <EmptyHistoryMessageContainer>
+                                    <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
 
-                            {currentUser ? (
-                                <>
-                                    <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
-                                    <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
-                                </>
+                                    {currentUser ? (
+                                        <>
+                                            <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
+                                            <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
+                                            <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
+                                            <Link
+                                                to="../signin"
+                                                style={{
+                                                    textDecoration: "none",
+                                                    color: "inherit",
+                                                }}
+                                            >
+                                                <ItemLogin>
+                                                    <ImgLogin src={InicioSesionIcono2} />
+                                                    <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                                                </ItemLogin>
+                                            </Link>
+                                        </>
+                                    )}
+
+                                </EmptyHistoryMessageContainer>
                             ) : (
-                                <>
-                                    <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
-                                    <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
-                                    <Link
-                                        to="../signin"
-                                        style={{
-                                            textDecoration: "none",
-                                            color: "inherit",
-                                        }}
-                                    >
-                                        <ItemLogin>
-                                            <ImgLogin src={InicioSesionIcono2} />
-                                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                                        </ItemLogin>
-                                    </Link>
-                                </>
-                            )}
+                                <CardsContainer>
+                                    {videos.map(video => (
+                                        <CardHistory key={video._id} video={video} />
+                                    ))}
+                                </CardsContainer>
+                            )
+                        }
+                    </>
+                )}
 
-                        </EmptyHistoryMessageContainer>
-                    ) : (
-                        <CardsContainer>
-                            {videos.map(video => (
-                                <CardHistory key={video._id} video={video} />
-                            ))}
-                        </CardsContainer>
-                    )}
-                    <SearchContainer>
-                        <Search>
-                            <ImgBuscar src={BuscarIcono} />
-                            <Input
-                                placeholder={translations[language].search}
-                                onChange={(e) => []}
-                                onKeyPress={handleKeyPress} />
-                        </Search>
+                {
+                    !historyLoaded && (
+                        <LoadingContainer>
+                            <LoadingCircle />
+                        </LoadingContainer>
+                    )
+                }
 
-                        <ItemClearHistory onClick={handleClearHistory}>
-                            <ImgClearHistory src={ClearHistory} />
-                            <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
-                        </ItemClearHistory>
-                    </SearchContainer>
-                </Wrapper>
-            )}
+                <SearchContainer historyLoaded={historyLoaded}>
+                    <Search>
+                        <ImgBuscar onClick={handleSearch} src={BuscarIcono} />
+                        <Input
+                            placeholder={translations[language].search}
+                            onChange={(e) => [setSearchInput(e.target.value)]}
+                            onKeyPress={handleKeyPress} />
+                    </Search>
 
-            {!historyLoaded && (
-                <LoadingContainer>
-                    <LoadingCircle />
-                </LoadingContainer>
-            )}
+                    <ItemClearHistory onClick={handleClearHistory}>
+                        <ImgClearHistory src={ClearHistory} />
+                        <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
+                    </ItemClearHistory>
+                </SearchContainer>
+            </Wrapper>
 
 
-            {isClearHistoryPopupOpen && (
-                <ClearHistoryPopupContainer
-                    onDeleteConfirmed={() => handleDeleteConfirmation(true)}
-                    onCancel={() => handleDeleteConfirmation(false)}
-                >
-                    {videos.length === 0 ? (
-                        <ClearHistoryPopupWrapper>
-                            <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
-                            <ClearHistoryPopupTxt> Your watch history is currently empty. </ClearHistoryPopupTxt>
-                            <OptionsClearCancel>
-                                <ClearHistoryClear onClick={() => handleDeleteConfirmation(false)}>
-                                    Go Back
-                                </ClearHistoryClear>
-                            </OptionsClearCancel>
-                        </ClearHistoryPopupWrapper>
-                    ) : (
-                        <ClearHistoryPopupWrapper>
-                            <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
-                            <ClearHistoryPopupTxt> Your watch history will be completely cleared. </ClearHistoryPopupTxt>
-                            <OptionsClearCancel>
-                                <ClearHistoryCancel onClick={() => handleDeleteConfirmation(false)}>
-                                    Cancel
-                                </ClearHistoryCancel>
-                                <ClearHistoryClear onClick={() => handleDeleteConfirmation(true)}>
-                                    Clear
-                                </ClearHistoryClear>
-                            </OptionsClearCancel>
-                        </ClearHistoryPopupWrapper>
-                    )}
+
+            {
+                isClearHistoryPopupOpen && (
+                    <ClearHistoryPopupContainer
+                        onDeleteConfirmed={() => handleDeleteConfirmation(true)}
+                        onCancel={() => handleDeleteConfirmation(false)}
+                    >
+                        {videos.length === 0 ? (
+                            <ClearHistoryPopupWrapper>
+                                <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
+                                <ClearHistoryPopupTxt> Your watch history is currently empty. </ClearHistoryPopupTxt>
+                                <OptionsClearCancel>
+                                    <ClearHistoryClear onClick={() => handleDeleteConfirmation(false)}>
+                                        Go Back
+                                    </ClearHistoryClear>
+                                </OptionsClearCancel>
+                            </ClearHistoryPopupWrapper>
+                        ) : (
+                            <ClearHistoryPopupWrapper>
+                                <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
+                                <ClearHistoryPopupTxt> Your watch history will be completely cleared. </ClearHistoryPopupTxt>
+                                <OptionsClearCancel>
+                                    <ClearHistoryCancel onClick={() => handleDeleteConfirmation(false)}>
+                                        Cancel
+                                    </ClearHistoryCancel>
+                                    <ClearHistoryClear onClick={() => handleDeleteConfirmation(true)}>
+                                        Clear
+                                    </ClearHistoryClear>
+                                </OptionsClearCancel>
+                            </ClearHistoryPopupWrapper>
+                        )}
 
 
-                </ClearHistoryPopupContainer>
-            )}
+                    </ClearHistoryPopupContainer>
+                )
+            }
 
-        </MainContainer>
+        </MainContainer >
     );
 };
 

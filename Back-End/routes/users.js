@@ -103,4 +103,5 @@ router.put("/:userId/playlists/update", verifyToken, updatePlaylist);
 // CHECK IF PLAYLIST EXISTS
 router.post("/:userId/playlists/check/:name", verifyToken, checkPlaylistExists);
 
+
 export default router;

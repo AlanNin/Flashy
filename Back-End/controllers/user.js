@@ -371,10 +371,12 @@ export const clearAllWatchHistory = async (req, res, next) => {
 export const addPlaylist = async (req, res, next) => {
     try {
         const userId = req.user.id;
+        const userEmail = req.body.email;
         const playlistData = req.body;
         const playlistName = playlistData.name;
         const playlistImageURL = playlistData.image;
         const privacy = playlistData.privacy;
+        const allowedUsersPlaylist = playlistData.allowedUsersPlaylist || [];
 
         const user = await User.findById(userId);
 
@@ -385,12 +387,18 @@ export const addPlaylist = async (req, res, next) => {
             return res.status(400).json({ error: "Ya existe una playlist con el mismo nombre." });
         }
 
+        // Agregar el email del usuario que hace la solicitud al array
+        if (!allowedUsersPlaylist.includes(userEmail)) {
+            allowedUsersPlaylist.push(userEmail);
+        }
+
         // Crear la nueva playlist sin agregar video
         const newPlaylist = {
             name: playlistName,
-            image: playlistImageURL, // Save the image URL to the playlist
+            image: playlistImageURL,
             videos: [],
             privacy: privacy,
+            allowedUsersPlaylist: allowedUsersPlaylist,
         };
 
         user.playlists.push(newPlaylist);

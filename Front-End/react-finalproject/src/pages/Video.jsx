@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import ReactPlayer from "react-player";
+import React, { useState, useEffect, useRef, useMemo, useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comments from "../components/Comments";
@@ -74,6 +73,23 @@ import {
   XIcon,
 } from "react-share";
 
+// VIDSTACK DEPENDENCIES
+import '@vidstack/react/player/styles/default/theme.css';
+import '@vidstack/react/player/styles/default/layouts/video.css';
+import {
+  MediaPlayer,
+  MediaProvider,
+  Track,
+  Captions,
+  Poster,
+  MediaPlayerInstance,
+  useStore,
+} from '@vidstack/react';
+import {
+  defaultLayoutIcons,
+  DefaultVideoLayout,
+} from '@vidstack/react/player/layouts/default';
+
 const Container = styled.div`
   background-color: rgba(15, 12, 18);
   position: relative;
@@ -86,16 +102,21 @@ const Container = styled.div`
 const Wrapper = styled.div`
   margin-top: 101px;
   margin-left: ${({ NoRecommendations }) => (NoRecommendations ? '55px' : '-49px')};
-  display: flex;
   gap: 24px;
   background-color: rgba(15, 12, 18);
+  display: ${({ videoLoaded }) => (videoLoaded ? 'flex' : 'none')};
 `;
 
 const Content = styled.div`
   flex: 5;
 `;
 
-const VideoWrapper = styled.div``;
+const VideoWrapper = styled.div`
+  height: 560px;
+  width: 1000px;
+  overflow: hidden;
+  z-index: 1;
+`;
 
 const Buttons = styled.div`
   justify-content: center;
@@ -170,6 +191,7 @@ const RelatedVideos = styled.div`
   display: flex;
   height: auto;
   padding: 0px 0px 40px 0px;
+  width: 100%;
 `;
 
 const VideoInfo = styled.div`
@@ -712,7 +734,7 @@ const GoHomeNotAllowed = styled.button`
   margin-top: 15px;
 `;
 
-const Video = () => {
+const VideoPage = () => {
   const { language, setLanguage } = useLanguage();
   const [NoRecommendations, setNoRecommendations] = useState(false);
 
@@ -765,6 +787,7 @@ const Video = () => {
 
   // Reset Scroll
   const scrollToTop = () => {
+
     window.scrollTo(0, 0);
   };
 
@@ -773,6 +796,7 @@ const Video = () => {
   const { currentVideo } = useSelector((state) => state.video);
   const dispatch = useDispatch();
   const path = useLocation().pathname.split("/")[2];
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   // ADD TO HISTORY
   const UpdateHistory = async () => {
@@ -783,6 +807,7 @@ const Video = () => {
 
   // FETCH VIDEO AND CHANNEL DATA + RESUME VIDEO
   useEffect(() => {
+
     let isMounted = true;
     const fetchData = async () => {
       try {
@@ -834,7 +859,6 @@ const Video = () => {
     axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
       .then(response => {
         const allowedUsersData = response.data.allowedUsers;
-        console.log(allowedUsersData);
 
         if (Array.isArray(allowedUsersData)) {
           setAllowedUsers(allowedUsersData);
@@ -902,10 +926,32 @@ const Video = () => {
 
   const isCurrentUserUploader = currentUser?._id === channel?._id;
 
-  // SET VIDEO PROGRESS PER USER
-  const videoRef = useRef(null);
+  // CONST DECLARATIONS
 
+  const player = useRef(null);
+
+  const [showResumePopup, setShowResumePopup] = useState(false);
+
+  const [resumeProgress, setResumeProgress] = useState(0);
+
+  const [isViewIncreased, setIsViewIncreased] = useState(false);
+
+  // GET VIDEO CURRENT TIME
+  const [currentTime, setCurrentTime] = useState(0);
+  const handleCurrentTimeUpdate = () => {
+    setCurrentTime(player.current.currentTime);
+  };
+
+  // DELAY CURRENT TIME TO AVOID CRASH REQUEST
+  const [delayedCurrentTime, setDelayedCurrentTime] = useState(0);
+  const currentTimeRef = useRef(0);
+
+  // GET VIDEO DURATION
+  const videoDuration = currentVideo?.duration;
+
+  // VIDEO PROGRESS TO SAVE
   const [videoProgress, setVideoProgress] = useState(0);
+
   const saveVideoProgress = async () => {
     try {
       await axios.post(`/videos/saveUserProgress/${currentVideo?._id}`, {
@@ -916,78 +962,75 @@ const Video = () => {
     }
   };
 
-  // RESUME VIDEO FROM PROGRESS
-  const [showResumePopup, setShowResumePopup] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [resumeProgress, setResumeProgress] = useState(0);
+  // SLOW TIME FOR REQUEST
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
 
+  useEffect(() => {
+    let intervalId;
+    const updateDelayedCurrentTime = () => {
+      setDelayedCurrentTime(currentTimeRef.current);
+    };
+    if (videoLoaded) {
+      intervalId = setInterval(updateDelayedCurrentTime, 500);
+    }
+    return () => clearInterval(intervalId);
+  }, [videoLoaded]);
+
+  // SET AND SAVE VIDEO PROGRESS PER SECOND
+  useEffect(() => {
+
+    if (videoLoaded) {
+
+      // GET VIDEO CURRENT PROGRESS
+      const newProgress = (currentTime / videoDuration) * 100;
+
+      if (newProgress >= 3 && newProgress < 95) {
+        setVideoProgress(newProgress);
+        saveVideoProgress();
+      }
+      if (newProgress >= 95) {
+        setVideoProgress(0);
+        saveVideoProgress();
+      }
+
+      if (newProgress >= 55 && !isViewIncreased) {
+        setIsViewIncreased(true);
+        axios.put(`/videos/view/${currentVideo?._id}`)
+          .then(() => {
+            // ...
+          })
+          .catch((error) => {
+            console.error("Error updating view count:", error);
+          });
+      }
+      UpdateHistory();
+    }
+  }, [delayedCurrentTime]);
+
+  // RESUME VIDEO FROM PROGRESS  
   const handleResumeClick = () => {
     setShowResumePopup(false);
-    const videoDuration = videoRef?.current.duration;
-
-    if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
-      videoRef.current.currentTime = (resumeProgress / 100) * videoDuration;
-      videoRef.current.play();
+    const videoPlayer = player.current;
+    if (videoLoaded) {
+      if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
+        videoPlayer.currentTime = (resumeProgress / 100) * videoDuration;
+        videoPlayer.play();
+      }
     }
   };
 
+  // START OVER AND RESTART PROGRESS  
   const handleStartOverClick = () => {
     setShowResumePopup(false);
     setVideoProgress(0);
     saveVideoProgress();
-    videoRef.current.currentTime = 0;
-    videoRef.current.play();
+
+    const videoPlayer = player.current;
+    videoPlayer.currentTime = 0;
+    videoPlayer.play();
   };
-
-  // ADD VIEWS TO VIDEO AND TRACK WATCH PROGRESS
-  const [isViewIncreased, setIsViewIncreased] = useState(false);
-
-  useEffect(() => {
-    if (currentUser) {
-      const handleTimeUpdate = () => {
-        const video = videoRef.current;
-
-        // Verifica que videoRef.current no sea null o undefined antes de acceder a sus propiedades
-        if (video) {
-          const percentageWatched = (video.currentTime / video.duration) * 100;
-
-          setVideoProgress(percentageWatched);
-          UpdateHistory();
-
-          if (percentageWatched >= 5) {
-            saveVideoProgress();
-          }
-          if (percentageWatched > 99) {
-            setVideoProgress(0);
-            saveVideoProgress();
-          }
-
-          if (percentageWatched >= 55 && !isViewIncreased) {
-            setIsViewIncreased(true);
-            axios.put(`/videos/view/${currentVideo?._id}`)
-              .then(() => {
-                // ...
-              })
-              .catch((error) => {
-                console.error("Error updating view count:", error);
-              });
-          }
-        }
-      };
-
-      const video = videoRef.current;
-
-      if (video) {
-        video.addEventListener("timeupdate", handleTimeUpdate);
-
-        return () => {
-          video.removeEventListener("timeupdate", handleTimeUpdate);
-        };
-      }
-    }
-  }, [currentVideo?._id, isViewIncreased, videoProgress, videoLoaded]);
-
-
 
   // POP UP SUSCRIBE NOT LOGGED
   const [isSubscribePopupVisible, setSubscribePopupVisible] = useState(false);
@@ -1109,13 +1152,68 @@ const Video = () => {
 
   // VIDEO PLAYER
 
+  // CONST DEFINITIONS
+  const [wasVideoRendered, setWasVideoRendered] = useState(false);
+  const [canPlay, setCanPlay] = useState(false);
+  const streamUrl = `https://stream.mux.com/${currentVideo?.videoUrlStream}.m3u8`;
+  const videoUrl = currentVideo?.videoUrl;
+  const sources = [
+    streamUrl, videoUrl
+  ];
+  const [src, setSrc] = useState(0);
+
+  // VALIDATE IF VIDEO WAS RENDERED
+  useEffect(() => {
+    if (currentVideo?.videoUrlStream) {
+      setWasVideoRendered(true);
+    } else {
+      setWasVideoRendered(false);
+    }
+  }, [currentVideo?._id]);
+
+  // IF VIDEO WAS RENDERED SET SRC TO STREAM
+  useEffect(() => {
+    if (wasVideoRendered) {
+      setSrc(0)
+    } else {
+      setSrc(1)
+    }
+  }, [wasVideoRendered]);
+
+  const handleCanPlay = () => {
+    setCanPlay(true);
+  };
+
+  // FIX AUTO PLAY BECAUSE OF DELAYED LOADING
+  useEffect(() => {
+
+    if (canPlay && showResumePopup === false) {
+      const videoPlayer = player.current;
+      videoPlayer.play();
+    }
+
+    setCanPlay(false);
+
+  }, [canPlay]);
+
+  // MAP SUBTITLES TO VIDEO PLAYER
+  const subtitleTracks = currentVideo?.subtitles.map((subtitle, index) => (
+    <Track
+      key={index}
+      src={subtitle.url}
+      kind="subtitles"
+      label={subtitle.name}
+      lang={subtitle.name}
+    />
+  ));
+
   return (
 
     <Container>
 
-      {UserAllowed && videoLoaded && (
+      {UserAllowed && (
 
-        <Wrapper NoRecommendations={NoRecommendations}>
+        <Wrapper videoLoaded={videoLoaded} NoRecommendations={NoRecommendations}>
 
           <Content>
 
@@ -1136,15 +1234,37 @@ const Video = () => {
               </ResumePopupContainer>
             )}
 
-
             <VideoWrapper>
-              <VideoFrame
-                ref={videoRef}
-                src={currentVideo?.videoUrl}
-                autoPlay={showResumePopup ? false : true}
-                controls={showResumePopup ? false : true}
-              />
+
+              <MediaPlayer
+                playsinline
+                viewType="video"
+                title={currentVideo?.title}
+                src={sources[src]}
+                ref={player}
+                onTimeUpdate={handleCurrentTimeUpdate}
+                autoPlay={showResumePopup ? true : false}
+                controls={showResumePopup ? true : false}
+                onCanPlay={handleCanPlay}
+              >
+                <MediaProvider>
+                  {subtitleTracks}
+                  <Poster
+                    className="vds-poster"
+                    src={currentVideo?.imgUrlLandscape}
+                    alt={currentVideo?.title}
+                  />
+                </MediaProvider>
+
+                <DefaultVideoLayout
+                  thumbnails="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"
+                  icons={defaultLayoutIcons}
+                  style={{ zIndex: '1' }}
+                />
+              </MediaPlayer>
+
             </VideoWrapper>
+
 
             <VideoInfo>
 
@@ -1174,7 +1294,7 @@ const Video = () => {
                       borderRadius: '10px',
                       marginTop: '-4px'
                     }}>
-                    {currentVideo?.privacy && currentVideo.privacy.charAt(0).toUpperCase() + currentVideo.privacy.slice(1)}
+                    {currentVideo?.privacy && currentVideo?.privacy.charAt(0).toUpperCase() + currentVideo?.privacy.slice(1)}
                   </EstiloTextos>
 
                 </ContenedorIconosTextos>
@@ -1321,124 +1441,133 @@ const Video = () => {
           </RecommendationContainer>
 
 
-          {isPopUpShareVisible && (
-            <SharePopupContainer>
-              <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-            </SharePopupContainer>
-          )}
+          {
+            isPopUpShareVisible && (
+              <SharePopupContainer>
+                <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
+              </SharePopupContainer>
+            )
+          }
 
-        </Wrapper>
-      )}
+        </Wrapper >
+      )
+      }
 
 
-      {isSharePopupVisible && (
-        <SharePopupContainerBg>
-          <ShareContainer ref={shareRef}>
-            <ShareLabel> Share </ShareLabel>
-            <CloseShare onClick={handleShare} src={CloseXGr} />
+      {
+        isSharePopupVisible && (
+          <SharePopupContainerBg>
+            <ShareContainer ref={shareRef}>
+              <ShareLabel> Share </ShareLabel>
+              <CloseShare onClick={handleShare} src={CloseXGr} />
 
-            <ShareExternalButtons>
-              <FacebookShareButton
-                url={shareLink}
-                quote={'Hey There, Watch This Awesome Video Now!'}
-                hashtag="#Flashy"
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <FacebookIcon size={48} round />
-                <ShareExternalButtonsTxt>
-                  Facebook
-                </ShareExternalButtonsTxt>
-              </FacebookShareButton>
+              <ShareExternalButtons>
+                <FacebookShareButton
+                  url={shareLink}
+                  quote={'Hey There, Watch This Awesome Video Now!'}
+                  hashtag="#Flashy"
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                  <FacebookIcon size={48} round />
+                  <ShareExternalButtonsTxt>
+                    Facebook
+                  </ShareExternalButtonsTxt>
+                </FacebookShareButton>
 
-              <WhatsappShareButton url={shareLink} title={'Watch This Awesome Video at Flashy'}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-              >
-                <div style={{ cursor: 'pointer' }}>
-                  <img src={WhatsappIcon} alt="Compartir en WhatsApp" width="48" height="48" />
-                </div>
-                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
-                  Whatsapp
-                </ShareExternalButtonsTxt>
-              </WhatsappShareButton>
+                <WhatsappShareButton url={shareLink} title={'Watch This Awesome Video at Flashy'}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <div style={{ cursor: 'pointer' }}>
+                    <img src={WhatsappIcon} alt="Compartir en WhatsApp" width="48" height="48" />
+                  </div>
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Whatsapp
+                  </ShareExternalButtonsTxt>
+                </WhatsappShareButton>
 
-              <TwitterShareButton
-                url={shareLink}
-                title={'Watch This Awesome Video at Flashy'}
-                hashtags={['Flashy', 'Video']}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-              >
-                <XIcon size={48} round />
-                <ShareExternalButtonsTxt style={{ marginTop: '2px' }}>
-                  X
-                </ShareExternalButtonsTxt>
-              </TwitterShareButton>
+                <TwitterShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Video at Flashy'}
+                  hashtags={['Flashy', 'Video']}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <XIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '2px' }}>
+                    X
+                  </ShareExternalButtonsTxt>
+                </TwitterShareButton>
 
-              <TelegramShareButton
-                url={shareLink}
-                title={'Watch This Awesome Video at Flashy'}
-              >
-                <TelegramIcon size={48} round />
-                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
-                  Telegram
-                </ShareExternalButtonsTxt>
-              </TelegramShareButton>
+                <TelegramShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Video at Flashy'}
+                >
+                  <TelegramIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Telegram
+                  </ShareExternalButtonsTxt>
+                </TelegramShareButton>
 
-              <RedditShareButton
-                url={shareLink}
-                title={'Watch This Awesome Video at Flashy'}
-              >
-                <RedditIcon size={48} round />
-                <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
-                  Reddit
-                </ShareExternalButtonsTxt>
-              </RedditShareButton>
+                <RedditShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Video at Flashy'}
+                >
+                  <RedditIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Reddit
+                  </ShareExternalButtonsTxt>
+                </RedditShareButton>
 
-              <EmailShareButton
-                url={shareLink}
-                subject={'Flashy Video'}
-                body={'Watch This Awesome Video at Flashy'}
-                separator={'\n\n'}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-              >
-                <EmailIcon size={48} round />
-                <ShareExternalButtonsTxt>
-                  Email
-                </ShareExternalButtonsTxt>
-              </EmailShareButton>
-            </ShareExternalButtons>
+                <EmailShareButton
+                  url={shareLink}
+                  subject={'Flashy Video'}
+                  body={'Watch This Awesome Video at Flashy'}
+                  separator={'\n\n'}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <EmailIcon size={48} round />
+                  <ShareExternalButtonsTxt>
+                    Email
+                  </ShareExternalButtonsTxt>
+                </EmailShareButton>
+              </ShareExternalButtons>
 
-            <ShareLinkCopyDiv>
-              <ShareLink> {shareLink} </ShareLink>
-              <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
-            </ShareLinkCopyDiv>
-          </ShareContainer>
-        </SharePopupContainerBg>
-      )}
+              <ShareLinkCopyDiv>
+                <ShareLink> {shareLink} </ShareLink>
+                <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
+              </ShareLinkCopyDiv>
+            </ShareContainer>
+          </SharePopupContainerBg>
+        )
+      }
 
-      {!UserAllowed && videoLoaded && (
-        <NotAllowedContainerBg>
-          <NotAllowedContainer>
-            <WrapperNotAllowed>
-              <TitleNotAllowed> Private Video </TitleNotAllowed>
-              <SubLabelNotAllowed>
-                "Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access."
-              </SubLabelNotAllowed>
-            </WrapperNotAllowed>
-            <Link to={"../"} style={{ textDecoration: "none", marginLeft: "auto" }}>
-              <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
-            </Link>
+      {
+        !UserAllowed && videoLoaded && (
+          <NotAllowedContainerBg>
+            <NotAllowedContainer>
+              <WrapperNotAllowed>
+                <TitleNotAllowed> Private Video </TitleNotAllowed>
+                <SubLabelNotAllowed>
+                  "Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access."
+                </SubLabelNotAllowed>
+              </WrapperNotAllowed>
+              <Link to={"../"} style={{ textDecoration: "none", marginLeft: "auto" }}>
+                <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
+              </Link>
 
-          </NotAllowedContainer>
-        </NotAllowedContainerBg>
-      )}
+            </NotAllowedContainer>
+          </NotAllowedContainerBg>
+        )
+      }
 
-      {!videoLoaded && (
-        <LoadingContainer>
-          <LoadingCircle />
-        </LoadingContainer>
-      )}
+      {
+        !videoLoaded && (
+          <LoadingContainer>
+            <LoadingCircle />
+          </LoadingContainer>
+        )
+      }
 
-    </Container>
+    </Container >
   );
 };
 
-export default Video;
+export default VideoPage;

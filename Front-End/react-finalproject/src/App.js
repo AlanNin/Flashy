@@ -12,7 +12,7 @@ import History from "./pages/History";
 import Subscriptions from "./pages/Subscriptions";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
-import Video from "./pages/Video";
+import VideoPage from "./pages/Video";
 
 const Container = styled.div`
   position: relative;
@@ -110,9 +110,9 @@ function App() {
                     <Route path="signup" element={<Signup />} />
                     <Route
                       path="video"
-                      element={<Video />}
+                      element={<VideoPage />}
                     >
-                      <Route path=":id" element={<Video />} />
+                      <Route path=":id" element={<VideoPage />} />
                     </Route>
                   </Route>
                 </Routes>

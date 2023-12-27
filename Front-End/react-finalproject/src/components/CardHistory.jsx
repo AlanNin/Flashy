@@ -148,7 +148,7 @@ const InfoViews = styled.div`
 `;
 
 const VideoDesc = styled.h2`
-  max-width: 620px; 
+  max-width: 500px; 
   margin-top: 5px;
   font-size: 14px;
   color: ${({ theme }) => theme.textSoft};

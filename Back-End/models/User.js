@@ -29,6 +29,10 @@ const PlaylistSchema = new mongoose.Schema({
         enum: ['public', 'private', 'unlisted'],
         default: 'public',
     },
+    allowedUsersPlaylist: {
+        type: [String],
+        default: [],
+    },
 });
 
 
@@ -71,11 +75,15 @@ const UserSchema = new mongoose.Schema({
     },
     playlists: {
         type: [PlaylistSchema],
-        default: [{
-            name: "Watch Later",
-            videos: [],
-            privacy: "private",
-        }],
+        default: function () {
+            const userEmail = this.parent().email;
+            return [{
+                name: "Watch Later",
+                videos: [],
+                privacy: "private",
+                allowedUsersPlaylist: [userEmail],
+            }];
+        },
     },
 }, { timestamps: true }
 );

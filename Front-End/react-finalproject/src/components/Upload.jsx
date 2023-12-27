@@ -29,6 +29,8 @@ import PreviewIcono from "../assets/ReportarComentarioInfoIcono.png";
 import ThumbnailPreview from "../assets/ThumbnailPreview.jpg";
 import VerticalThumbnailPreview from "../assets/VerticalThumbnailPreview.jpg";
 import LandscapeThumbnailPreview from "../assets/LandscapeThumbnailPreview.jpg";
+import ResetIcon from "../assets/ResetIcon.png";
+
 // EN flags
 import USAflag from "../assets/USAflag.png";
 import UKflag from "../assets/UKflag.png";
@@ -248,7 +250,7 @@ const TitleCharCountInput = styled.label`
   bottom: 20px;
   right: 15px;
   font-size: 12px;
-  color: ${({ TitleCharCounter, theme }) => (TitleCharCounter > 100 ? 'red' : theme.textSoft)};
+  color: ${({ TitleCharCounter, theme }) => (TitleCharCounter > 150 ? 'red' : theme.textSoft)};
   transform: translate(0, 50%);
   pointer-events: none;
   transition: transform 0.2s ease-out;
@@ -269,7 +271,7 @@ const TagCharCountInput = styled.label`
   bottom: 20px;
   right: 15px;
   font-size: 12px;
-  color: ${({ TagCharCounter, theme }) => (TagCharCounter > 80 ? 'red' : theme.textSoft)};
+  color: ${({ TagCharCounter, theme }) => (TagCharCounter > 120 ? 'red' : theme.textSoft)};
   transform: translate(0, 50%);
   pointer-events: none;
   transition: transform 0.2s ease-out;
@@ -596,6 +598,11 @@ const TitleAndPreview = styled.div`
     display:flex;
 `;
 
+const TitleAndPreviewLandscape = styled.div`
+    display:flex;
+    margin-top: ${({ imgPerc, imgVerticalPerc }) => (imgPerc === 0 && imgVerticalPerc > 0 ? '30px' : '0px')}; 
+`;
+
 const PreviewDiv = styled.div`
   position: relative;
   display: inline-block;
@@ -658,6 +665,21 @@ const PreviewImg = styled.img`
   padding-bottom:
 `;
 
+
+const ResetDiv = styled.img`
+  display: flex;
+`;
+
+
+const SideDropdownImg = styled.img`
+  height: 18px;
+  width: 18px;
+  cursor: pointer;
+  margin-top: -13px;
+  margin-left: 8px;
+`;
+
+
 // STEP 3: Elements
 
 const LabelStep3 = styled.label`
@@ -674,7 +696,6 @@ const SubLabelStep3 = styled.label`
     color: ${({ theme }) => theme.textSoft};
     font-weight: normal;
     font-family: "Roboto Condensed", Helvetica;
-    margin-bottom: 10 px;
 `;
 
 const SelecterAndFlags = styled.div`
@@ -686,6 +707,11 @@ const SelecterAndFlags = styled.div`
 const FlagsImg = styled.img`
     width: 35px;
     height: 35px;
+`;
+
+const DropDownSubtitlesContainer = styled.div`
+    display: flex;
+    padding-bottom: 100px;
 `;
 
 // STEP 4
@@ -839,6 +865,81 @@ const WrapperUploading = styled.div`
     text-align: center;
   `;
 
+const ContainerProcessConfirmBg = styled.div`
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+`;
+const ContainerProcessConfirm = styled.div`
+    position: absolute;
+    width: max-content;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    padding: 20px 20px 20px 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+`;
+
+const WrapperProcessConfirm = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    align-items: left;
+    text-align: center;
+  `;
+
+const SubLabelProcessConfirm = styled.label`
+  margin-top: -15px;
+  font-size: 16px;
+  color: ${({ theme }) => theme.textSoft};
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  width: 450px;
+  word-wrap: break-word;
+  text-align: left;
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 20px;
+`;
+
+const NoProcessButton = styled.div`
+  margin-right: 10px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(45, 45, 45);
+  }
+  padding: 8px 10px;
+  border-radius: 10px;
+`;
+
+const YesProcessButton = styled.div`
+  cursor: pointer;
+  background: rgba(82, 41, 73, 0.7);
+  &:hover {
+    background: rgba(124, 83, 115, 0.15);
+  }
+  padding: 8px 10px;
+  border-radius: 10px;
+`;
+
 
 const Upload = ({ setOpen }) => {
     const [img, setImg] = useState(undefined);
@@ -878,6 +979,8 @@ const Upload = ({ setOpen }) => {
     const [DescCharCounter, setDescCharCounter] = useState(0);
     const [TagCharCounter, setTagCharCounter] = useState(0);
     const [UploadingVideo, setUploadingVideo] = useState(false);
+    const [ProcessConfirmPopup, setProcessConfirmPopup] = useState(false);
+    const [renderingVideo, setRenderingVideo] = useState(false);
 
     const handleLanguageChange = (language) => {
         setEmptyLanguageError(false);
@@ -971,7 +1074,7 @@ const Upload = ({ setOpen }) => {
     useEffect(() => {
         let disableButton = false;
 
-        if (TitleCharCounter > 100 || DescCharCounter > 500 || TagCharCounter > 80 || inputs.desc === undefined || inputs.desc === '') {
+        if (TitleCharCounter > 150 || DescCharCounter > 500 || TagCharCounter > 120 || inputs.desc === undefined || inputs.desc === '') {
             disableButton = true;
         }
 
@@ -1011,7 +1114,7 @@ const Upload = ({ setOpen }) => {
         if (step === 4) {
             setButtonNextDisable(false);
         }
-    }, [inputs, step]);
+    }, [inputs, inputs.imgUrl, inputs.imgUrlVertical, inputs.imgUrlLandscape, step]);
 
 
     const handleTags = (e) => {
@@ -1126,7 +1229,6 @@ const Upload = ({ setOpen }) => {
 
 
     const handleUpload = async (e) => {
-        e.preventDefault();
         setUploadingVideo(true);
         try {
             // Subir el video y obtener la respuesta
@@ -1134,7 +1236,7 @@ const Upload = ({ setOpen }) => {
                 inputs.title = defaultTitle;
             }
 
-            const uploadResponse = await axios.post("/videos", { ...inputs, tags });
+            const uploadResponse = await axios.post("/videos", { ...inputs, tags, renderingVideo });
 
             // Verificar si la carga fue exitosa
             if (uploadResponse.status === 200) {
@@ -1261,9 +1363,65 @@ const Upload = ({ setOpen }) => {
         setShowLandscapePreview(false);
     };
 
+    const handlePublishPressed = () => {
+        setProcessConfirmPopup(true);
+    };
+
+    const handleRender = () => {
+        setRenderingVideo(true);
+    };
+
+    useEffect(() => {
+        if (renderingVideo) {
+            setProcessConfirmPopup(false);
+            handleUpload();
+        }
+    }, [renderingVideo]);
+
+    const handleNotThisTime = () => {
+        setRenderingVideo(false);
+        setProcessConfirmPopup(false);
+        handleUpload();
+    };
+
+    const resetThumbnail = () => {
+        inputs.imgUrl = undefined;
+        setImg(undefined);
+        setImgPerc(0);
+    };
+
+    const resetVerticalThumbnail = () => {
+        inputs.imgUrlVertical = undefined;
+        setImgVertical(undefined);
+        setImgVerticalPerc(0);
+    };
+
+    const resetLandscapeThumbnail = () => {
+        inputs.imgUrlLandscape = undefined;
+        setImgLandscape(undefined);
+        setImgLandscapePerc(0);
+    };
 
     return (
         <ContainerBg>
+
+            {ProcessConfirmPopup && (
+                <ContainerProcessConfirmBg>
+                    <ContainerProcessConfirm>
+                        <WrapperProcessConfirm>
+                            <Label style={{ marginTop: '5px', fontSize: '28px', textAlign: 'left' }}> Video Rendering </Label>
+                            <SubLabelProcessConfirm style={{ marginTop: '0px', fontSize: '16px' }}>
+                                Rendering your video will create different resolutions for the video player,
+                                but will take significantly longer to be uploaded.
+                            </SubLabelProcessConfirm>
+                            <ButtonsContainer>
+                                <NoProcessButton onClick={handleNotThisTime}> Not this time </NoProcessButton>
+                                <YesProcessButton onClick={handleRender}> Render </YesProcessButton>
+                            </ButtonsContainer>
+                        </WrapperProcessConfirm>
+                    </ContainerProcessConfirm>
+                </ContainerProcessConfirmBg>
+            )}
 
             {UploadingVideo ? (
                 <ContainerUploading>
@@ -1353,7 +1511,7 @@ const Upload = ({ setOpen }) => {
                                             value={inputs.title !== undefined ? inputs.title : defaultTitle}
                                         />
                                         <TitleInput> Video Title (Required) </TitleInput>
-                                        <TitleCharCountInput TitleCharCounter={TitleCharCounter}>{TitleCharCounter}/100</TitleCharCountInput>
+                                        <TitleCharCountInput TitleCharCounter={TitleCharCounter}>{TitleCharCounter}/150</TitleCharCountInput>
                                     </InputContainer>
                                     <InputContainer>
                                         <Desc
@@ -1379,7 +1537,7 @@ const Upload = ({ setOpen }) => {
                                             value={inputs.tag}
                                         />
                                         <TitleInput> Video Tags (Optional) </TitleInput>
-                                        <TagCharCountInput TagCharCounter={TagCharCounter}>{TagCharCounter}/80</TagCharCountInput>
+                                        <TagCharCountInput TagCharCounter={TagCharCounter}>{TagCharCounter}/120</TagCharCountInput>
                                     </InputContainer>
 
                                     <LabelPlaylist> Playlist </LabelPlaylist>
@@ -1413,23 +1571,31 @@ const Upload = ({ setOpen }) => {
 
                                     </TitleAndPreview>
 
-                                    <SubLabelStep2> This thumbnail will be displayed on regular video cards. (Requiered) </SubLabelStep2>
+                                    <SubLabelStep2> This thumbnail will be displayed on regular video cards. (Requiered) • Recommended Size: 1280x720 </SubLabelStep2>
 
                                     {imgPerc > 0 ? (
                                         imgPerc < 100 ? (
-                                            <UploadImage imgPerc={imgPerc}>Uploading: {imgPerc}%</UploadImage>
+                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgPerc}%</UploadImage>
+                                            </div>
                                         ) : (
-                                            <UploadImage imgPerc={imgPerc}>Thumbnail uploaded successfully!</UploadImage>
+                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                                <UploadImage imgPerc={imgPerc}>Thumbnail uploaded successfully!</UploadImage>
+                                                <SideDropdownImg src={ResetIcon} onClick={resetThumbnail} />
+                                            </div>
+
                                         )
                                     ) : (
-                                        <InputImage
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                setImg(e.target.files[0]);
-                                                setEmptyThumbnailError(false);
-                                            }}
-                                        />
+                                        <div>
+                                            <InputImage
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    setImg(e.target.files[0]);
+                                                    setEmptyThumbnailError(false);
+                                                }}
+                                            />
+                                        </div>
                                     )}
                                     <TitleAndPreview>
                                         <LabelStep2VerticalThumbnail emptyThumbnailVerticalError={emptyThumbnailVerticalError}>Set a vertical thumbnail</LabelStep2VerticalThumbnail>
@@ -1442,25 +1608,32 @@ const Upload = ({ setOpen }) => {
                                             </ShowPreviewVerticalDiv>
                                         </PreviewDiv>
                                     </TitleAndPreview>
-                                    <SubLabelStep2> This thumbnail will be displayed on the Trending Slider. (Requiered) </SubLabelStep2>
+                                    <SubLabelStep2> This thumbnail will be displayed on the Trending Slider. (Requiered) • Recommended Size: 1080 x 1350 </SubLabelStep2>
 
                                     {imgVerticalPerc > 0 ? (
                                         imgVerticalPerc < 100 ? (
-                                            <UploadImage imgPerc={imgPerc}>Uploading: {imgVerticalPerc}%</UploadImage>
+                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgVerticalPerc}%</UploadImage>
+                                            </div>
                                         ) : (
-                                            <UploadImage imgPerc={imgPerc}>Vertical thumbnail uploaded successfully!</UploadImage>
+                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                                <UploadImage imgPerc={imgPerc}>Vertical thumbnail uploaded successfully!</UploadImage>
+                                                <SideDropdownImg src={ResetIcon} onClick={resetVerticalThumbnail} />
+                                            </div>
                                         )
                                     ) : (
-                                        <InputImage
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                setImgVertical(e.target.files[0]);
-                                                setEmptyThumbnailVerticalError(false);
-                                            }}
-                                        />
+                                        <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                            <InputImage
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    setImgVertical(e.target.files[0]);
+                                                    setEmptyThumbnailVerticalError(false);
+                                                }}
+                                            />
+                                        </div>
                                     )}
-                                    <TitleAndPreview>
+                                    <TitleAndPreviewLandscape imgPerc={imgPerc} imgVerticalPerc={imgVerticalPerc}>
 
                                         <LabelStep2LandscapeThumbnail emptyThumbnailLandscapeError={emptyThumbnailLandscapeError}>Set a landscape thumbnail</LabelStep2LandscapeThumbnail>
 
@@ -1468,23 +1641,30 @@ const Upload = ({ setOpen }) => {
                                             <PreviewIcon src={PreviewIcono} onMouseEnter={handleLandscapeShowPreview} onMouseLeave={handleLandscapeHidePreview} />
                                         </PreviewDiv>
 
-                                    </TitleAndPreview>
-                                    <SubLabelStep2> This thumbnail will be displayed on the spotlight Slideshow. (Requiered) </SubLabelStep2>
+                                    </TitleAndPreviewLandscape>
+                                    <SubLabelStep2> This thumbnail will be displayed on the home slideshow. (Requiered) • Recommended Size: 2560x1440 </SubLabelStep2>
 
                                     {imgLandscapePerc > 0 ? (
                                         imgLandscapePerc < 100 ? (
-                                            <UploadImage imgPerc={imgPerc}>Uploading: {imgLandscapePerc}%</UploadImage>
+                                            <div>
+                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgLandscapePerc}%</UploadImage>
+                                            </div>
                                         ) : (
-                                            <UploadImage imgPerc={imgPerc}>Landscape thumbnail uploaded successfully!</UploadImage>
+                                            <div style={{ display: 'flex' }}>
+                                                <UploadImage imgPerc={imgPerc}>Landscape thumbnail uploaded successfully!</UploadImage>
+                                                <SideDropdownImg src={ResetIcon} onClick={resetLandscapeThumbnail} />
+                                            </div>
                                         )
                                     ) : (
-                                        <InputImage
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                setImgLandscape(e.target.files[0]);
-                                                setEmptyThumbnailLandscapeError(false);
-                                            }} />
+                                        <div>
+                                            <InputImage
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    setImgLandscape(e.target.files[0]);
+                                                    setEmptyThumbnailLandscapeError(false);
+                                                }} />
+                                        </div>
                                     )}
                                 </>
                             )}
@@ -1562,7 +1742,13 @@ const Upload = ({ setOpen }) => {
 
                                     <LabelStep3 style={{ marginTop: '50px' }}>Subtitles</LabelStep3>
                                     <SubLabelStep3> Boost your audience reach with language subtitles for your video. (Optional) </SubLabelStep3>
-                                    <DropdownSubtitle selectedSubtitle={selectedSubtitle} onSubtitleChange={handleSubtitleChange} />
+
+                                    <DropDownSubtitlesContainer>
+
+                                        <DropdownSubtitle selectedSubtitle={selectedSubtitle} onSubtitleChange={handleSubtitleChange} />
+
+                                    </DropDownSubtitlesContainer>
+
                                 </>
                             )}
                             {step === 4 && (
@@ -1651,7 +1837,7 @@ const Upload = ({ setOpen }) => {
                                     </ButtonBack>
                                 )}
                                 {step > 0 && (
-                                    <ButtonNextUpload onClick={isLastStep ? handleUpload : handleNext} step={step} buttonNextDisable={buttonNextDisable}>
+                                    <ButtonNextUpload onClick={isLastStep ? handlePublishPressed : handleNext} step={step} buttonNextDisable={buttonNextDisable}>
                                         {isLastStep ? "Publish" : "Next"}
                                     </ButtonNextUpload>
                                 )}

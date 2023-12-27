@@ -33,6 +33,9 @@ const VideoSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    videoUrlStream: {
+        type: String,
+    },
     duration: {
         type: Number,
         default: 0,

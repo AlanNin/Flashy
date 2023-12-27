@@ -139,8 +139,18 @@ const subtitleOptions = [
 ];
 
 const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
-  const [dropdowns, setDropdowns] = useState([{ selectedSubtitle: [], subtitleFile: undefined, subtitleFilePerc: 0 }]);
-  const [dropdownCount, setDropdownCount] = useState(1);
+  const [dropdowns, setDropdowns] = useState(
+    selectedSubtitle.length > 0
+      ? selectedSubtitle.map((subtitle, index) => ({
+        selectedSubtitle: [subtitle],
+        subtitleFile: subtitle.url,
+        subtitleFilePerc: subtitle.url ? 100 : 0,
+      }))
+      : [{ selectedSubtitle: [], subtitleFile: null, subtitleFilePerc: 0 }]
+  );
+
+
+  const [dropdownCount, setDropdownCount] = useState(selectedSubtitle.length > 0 ? selectedSubtitle.length : 1);
   const dropdownRefs = useRef([]);
 
   useEffect(() => {
@@ -305,6 +315,8 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
   };
 
   const handleRemoveDropdown = (dropdownIndex) => {
+    setDropdownCount((prevCount) => prevCount - 1);
+
     setDropdowns((prevDropdowns) => {
       const updatedDropdowns = prevDropdowns.filter((_, index) => index !== dropdownIndex);
       onSubtitleChange(updatedDropdowns.map((dropdown) => dropdown.selectedSubtitle).flat());
@@ -315,10 +327,14 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: 'max-content', gap: '20px' }}>
       {renderDropdowns()}
-      <AddNewDropdown onClick={handleAddDropdown}>
-        <AddNewDropdownImg src={BigAddIcon} />
-        <AddNewDropdownTxt> Add a new subtitle </AddNewDropdownTxt>
-      </AddNewDropdown>
+
+      {dropdownCount < 8 && (
+        <AddNewDropdown onClick={handleAddDropdown}>
+          <AddNewDropdownImg src={BigAddIcon} />
+          <AddNewDropdownTxt> Add a new subtitle </AddNewDropdownTxt>
+        </AddNewDropdown>
+      )}
+
     </div>
   );
 };

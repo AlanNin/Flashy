@@ -3,20 +3,116 @@ import Video from "../models/Video.js";
 import natural from 'natural';
 import stringSimilarity from 'string-similarity';
 import { createError } from "../error.js";
+import path from 'path';
+import fs from 'fs';
+import axios from 'axios';
+import Mux from '@mux/mux-node';
+import { v2 as cloudinary } from 'cloudinary';
+
+const accessToken = '4c34dd9f-d2a7-447f-91c6-9b922f77d550';
+const secret = '0uKUvBxqbOrPa+ZusHAa/zsz245OnkRptCkbiqvAoFoAV8sV7fl/8p12rG3eYSQTfJeDxzNaBTW';
+
+const mux = new Mux(accessToken, secret);
+
+cloudinary.config({
+    cloud_name: 'dnepj9jjf',
+    api_key: '161251231549537',
+    api_secret: 'jHEIoLaGJP-xWJ-2qvJgvTCaUFU'
+});
 
 export const addVideo = async (req, res, next) => {
     const userId = req.user.id;
     const { privacy, ...videoData } = req.body;
+    const renderVideo = req.body.renderingVideo;
 
-    try {
-        const newVideo = new Video({ userId, privacy, ...videoData });
-        const savedVideo = await newVideo.save();
+    if (renderVideo) {
 
-        res.status(200).json(savedVideo);
-    } catch (err) {
-        console.error("Error al añadir video:", err);
-        next(err);
+        try {
+            const newVideo = new Video({ userId, privacy, ...videoData });
+            const savedVideo = await newVideo.save();
+            const videoId = savedVideo._id;
+            const videoUrl = videoData.videoUrl;
+
+
+            // Sube el video a Mux
+            const MuxData = await mux.Video.Assets.create({
+                input: videoUrl,
+                "playback_policy": [
+                    "public"
+                ],
+                "max_resolution_tier": "1080p",
+                "encoding_tier": "smart"
+            });
+
+            const playbackId = MuxData.playback_ids[0].id;
+            console.log("MuxData:", MuxData);
+            console.log("playbackId:", playbackId);
+
+            await Video.findByIdAndUpdate(videoId, {
+                videoUrlStream: playbackId,
+            });
+
+            // Actualiza los URLs de los subtítulos en el documento de Video
+            const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
+                // Sube el archivo de subtítulos a Cloudinary
+                const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
+                    resource_type: 'raw', // Indica que el recurso no es una imagen
+                    public_id: `subtitle_${videoId}_${subtitle.name}`,
+                });
+
+                // Retorna un objeto actualizado para este subtítulo
+                return {
+                    name: subtitle.name,
+                    url: cloudinaryResponse.secure_url,
+                };
+            }));
+
+            await Video.findByIdAndUpdate(videoId, {
+                subtitles: updatedSubtitles,
+            });
+
+            res.status(200).json(savedVideo);
+        } catch (err) {
+            console.error("Error al añadir video:", err);
+            next(err);
+        }
+
+    } else {
+
+        try {
+            const newVideo = new Video({ userId, privacy, ...videoData });
+            const savedVideo = await newVideo.save();
+
+            const videoId = savedVideo._id;
+
+            // Actualiza los URLs de los subtítulos en el documento de Video
+            const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
+                // Sube el archivo de subtítulos a Cloudinary
+                const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
+                    resource_type: 'raw', // Indica que el recurso no es una imagen
+                    public_id: `subtitle_${videoId}_${subtitle.name}`,
+                });
+
+                // Retorna un objeto actualizado para este subtítulo
+                return {
+                    name: subtitle.name,
+                    url: cloudinaryResponse.secure_url,
+                };
+            }));
+
+            await Video.findByIdAndUpdate(videoId, {
+                subtitles: updatedSubtitles,
+            });
+
+
+            res.status(200).json(savedVideo);
+
+        } catch (err) {
+            console.error("Error al añadir video:", err);
+            next(err);
+        }
     }
+
 };
 
 export const updateVideo = async (req, res, next) => {

@@ -12,7 +12,10 @@ import PublicIcon from "../assets/PublicIcon.png"
 import PrivateIcon from "../assets/PrivateIcon.png"
 import UnlistedIcon from "../assets/UnlistedIcon.png"
 import AddIcon from "../assets/AddIcon.png"
+import SharePrivateIcon from "../assets/AllowUserIcon.png";
 import { useLanguage } from '../utils/LanguageContext';
+import { useSelector } from 'react-redux';
+import SharePrivatePlaylistComp from "./SharePrivatePlaylistComp";
 
 const MainContainer = styled.div`
   position: relative;
@@ -337,7 +340,7 @@ const UploadImageNewPlaylist = styled.label`
 
 const ContainerSelectPrivacy = styled.div`
   display: flex;
-  gap: 50px;
+  gap: 65px;
 `;
 
 const DivSelectPrivacy = styled.div`
@@ -410,6 +413,32 @@ const CustomCheckbox = styled.input`
   }
 `;
 
+
+const SharePrivatePlaylistButton = styled.div`
+    display: flex;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica; 
+    color: white;
+    width: max-content;
+    height: max-content;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 5px 5px;
+    margin-top: 9px;
+    border-radius: 5px;
+    margin-left: -59px;
+    margin-right: -36px;
+`;
+
+const SharePrivatePlaylistImg = styled.img`
+    width: 20px;
+    height: 20px;
+`;
+
+
 const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
   const { language, setLanguage } = useLanguage();
   const [playlists, setPlaylists] = useState([]);
@@ -420,12 +449,29 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
   const [img, setImg] = useState(undefined);
   const [imgPerc, setImgPerc] = useState(0);
   const [playlistnameError, setPlaylistNameError] = useState(false);
+  const [SharePrivatePlaylist, setSharePrivatePlaylist] = useState([]);
+  const [showSharePrivatePlaylist, setshowSharePrivatePlaylist] = useState(false);
+  const [savedEmailsPlaylist, setSavedEmailsPlaylist] = useState([]);
+  const { currentUser } = useSelector((state) => state.user);
+
+  const handleSharePrivatePlaylist = () => {
+    setshowSharePrivatePlaylist(!showSharePrivatePlaylist);
+  };
+
+
+  const handleSharePrivatePlaylistChange = (emails) => {
+    setSavedEmailsPlaylist(emails);
+    setInputs((prev) => {
+      return { ...prev, allowedUsersPlaylist: emails };
+    });
+  }
 
   const resetNewPlaylistState = () => {
     setInputs({});
     setImg(undefined);
     setImgPerc(0);
     setPlaylistNameError(false);
+    setSavedEmailsPlaylist([]);
   };
 
   const translations = {
@@ -532,27 +578,22 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
 
   const handleDoneNewPlaylist = async (e) => {
     e.preventDefault();
+    const userEmail = currentUser?.email;
     try {
-
       if (inputs.name === undefined || inputs.name === "") {
-
         setPlaylistNameError(true);
-
       } else {
-
-        await axios.post(`/users/${userId}/playlists`, { ...inputs });
+        // Usa directamente el estado actualizado
+        await axios.post(`/users/${userId}/playlists`, { ...inputs, email: userEmail });
 
         setNewPlaylistPopup(!NewPlaylistPopup);
         resetNewPlaylistState();
         setPlaylistsLoaded(false);
-
       }
-
     } catch (error) {
       console.error("Error creating new playlist:", error);
     }
   };
-
 
   return (
     <MainContainer>
@@ -586,7 +627,10 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
                       <PlaylistImg src={PublicIcon} />
                     )}
                     {playlist.privacy === "private" && (
+
                       <PlaylistImg src={PrivateIcon} />
+
+
                     )}
                     {playlist.privacy === "unlisted" && (
                       <PlaylistImg src={UnlistedIcon} />
@@ -671,7 +715,16 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
                     selected={inputs.privacy === "private"}
                   >
                     <PlaylistImgNewPlaylist src={PrivateIcon} selected={inputs.privacy === "private"} />Private
+
+
+
                   </DivSelectPrivacy>
+
+                  {inputs.privacy === "private" && (
+                    <SharePrivatePlaylistButton onClick={handleSharePrivatePlaylist}>
+                      <SharePrivatePlaylistImg src={SharePrivateIcon} />
+                    </SharePrivatePlaylistButton>
+                  )}
 
                   <DivSelectPrivacy
                     onClick={() => handlePrivacyClick("unlisted")}
@@ -691,6 +744,11 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
 
         </>
       )}
+
+      {showSharePrivatePlaylist && (
+        <SharePrivatePlaylistComp SharePrivatePlaylist={SharePrivatePlaylist} onInviteChange={handleSharePrivatePlaylistChange} togglePopup={handleSharePrivatePlaylist} savedEmailsPlaylist={savedEmailsPlaylist} />
+      )}
+
     </MainContainer>
 
 

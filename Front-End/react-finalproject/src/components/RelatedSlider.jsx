@@ -65,16 +65,16 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
   position: absolute;
   height: 47%;
   font-size: 30px;
-  width: 33px;
-  right:0px;
+  width: max-content;
+  right: 0px;
   border: none;
   background: transparent;
   cursor: pointer;
   color: white;
   border-radius: 10px;
   line-height: 40%;
-  padding: 0 7px;
   transition: background-color 0.3s;
+  right: 0px;
 
   &:hover {
     background: rgba(158, 16, 90, 0.5);
@@ -83,10 +83,12 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
 
   const StyledRightArrow = styled(StyledArrow)`
   top: 0%;
+  padding: 0px 5px 0px 7px;
 `;
 
   const StyledLeftArrow = styled(StyledArrow)`
   top: 53%;
+  padding: 0px 7px 0px 5px;
 `;
 
 
@@ -109,7 +111,7 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
   );
 
   const StyledCarousel = styled(Carousel)`
-    margin-left: -7px;
+    margin-left: -10px;
   `;
 
 

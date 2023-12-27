@@ -6,7 +6,7 @@ import styled from "styled-components";
 const TitleOverlay = styled.h1`
   position: absolute;
   top: 50%;
-  left: 60%;
+  left: 50%;
   transform: translate(-50%, -50%);
   font-size: 14px;
   font-family: "Roboto Condensed", Helvetica;
@@ -22,21 +22,22 @@ const TitleOverlay = styled.h1`
 `;
 
 const Image = styled.img`
-  poistion: absolute;
   background-color: #999;
   flex: 1;
   border-radius: 13px;
   filter: grayscale(100%) blur(3px) brightness(0.5);
   transition: filter 0.4s;
+  object-fit: cover; 
+  width: 100%;
 
 `;
 
 const Container = styled.div`
   position: relative;
   display: flex;
-  width: 160px;
+  width: 200px;
   height: 115px;
-  margin-left: 7px;
+  margin-left: 5px;
 
   &:hover {
     ${TitleOverlay} {

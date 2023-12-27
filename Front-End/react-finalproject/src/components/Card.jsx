@@ -9,7 +9,7 @@ import "moment/locale/es";
 
 const Container = styled.div`
   width: 360px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 `;
 
 const ImageContainer = styled.div`

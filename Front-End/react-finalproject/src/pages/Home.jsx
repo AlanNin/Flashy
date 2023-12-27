@@ -73,7 +73,7 @@ const Container = styled.div`
   justify-content: flex-start; 
   flex-wrap: wrap;
   z-index: 1;
-  gap: 118px;
+  gap: 107px;
 `;
 
 const Wrapper = styled.div`

@@ -156,10 +156,7 @@ const Search = styled.div`
       ? "rgba(28, 28, 28, 0.9)"
       : "rgba(28, 28, 28, 0.9)"};
 
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-    width: 190px;
-  }
+
 `;
 
 const Input = styled.input`
@@ -184,10 +181,7 @@ const FollowDiv = styled.div`
   flexDirection: 'row';
   margin-left: 35.5px;
   margin-right: 10px;
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-  display: none;
-}
+
 `;
 
 const Follow = styled.h1`
@@ -196,10 +190,7 @@ const Follow = styled.h1`
   font-weight: 400;
   color: #C6C6C6;
   white-space: nowrap;
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-  display: none;
-}
+
 `;
 
 const ImgRedes = styled.img`
@@ -207,10 +198,7 @@ const ImgRedes = styled.img`
   width: 40px;
   margin-bottom: 5px;
   cursor: pointer;
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-  display: none;
-}
+
 `;
 
 const UserContainer = styled.div`

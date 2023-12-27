@@ -219,7 +219,7 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
   useEffect(() => {
     const fetchChannel = async () => {
       try {
-        const res = await axios.get(`/users/find/${video.userId}`);
+        const res = await axios.get(`/users/find/${video?.userId}`);
         setChannel(res.data);
       } catch (error) {
         console.error("Error fetching channel information:", error);
@@ -246,8 +246,9 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
           <EstiloIconos src={SubtitleIcono} />
           <EstiloTextos>
             {video.subtitles && video.subtitles.length > 0
-              ? video.subtitles[0].name
+              ? video.subtitles[0].name + (video.subtitles[1] ? ', ' + video.subtitles[1].name : '') + (video.subtitles[2] ? ', ' + video.subtitles[2].name : '') + (video.subtitles[3] ? ', ' + video.subtitles[3].name : '')
               : 'No Subtitles'}
+
           </EstiloTextos>
         </ContenedorIconosTextos>
         <DescripcionDiv>
