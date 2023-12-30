@@ -179,7 +179,7 @@ const Title = styled.h1`
   text-align: center;
   font-size: 28px;
   font-family: "Roboto Condensed", Helvetica;
-  padding: ${({ step }) => (step > 0 ? "0px 0px 20px 0px" : "0px 0px 20px 0px")};
+  padding: ${({ step }) => (step > 0 ? "0px 0px 20px 0px" : "0px 0px 0px 0px")};
   border-bottom: ${({ step }) => (step > 0 ? "1px solid rgba(78, 79, 78)" : "none")};
 `;
 
@@ -599,8 +599,8 @@ const TitleAndPreview = styled.div`
 `;
 
 const TitleAndPreviewLandscape = styled.div`
-    display:flex;
-    margin-top: ${({ imgPerc, imgVerticalPerc }) => (imgPerc === 0 && imgVerticalPerc > 0 ? '30px' : '0px')}; 
+    display: flex;
+    margin-top: ${({ imgPerc, imgVerticalPerc }) => (imgPerc === 0 && imgVerticalPerc > 0 ? '30px' : '-7px')}; 
 `;
 
 const PreviewDiv = styled.div`
@@ -940,6 +940,26 @@ const YesProcessButton = styled.div`
   border-radius: 10px;
 `;
 
+const LabelFormat = styled.h1`
+    font-size: 18px;
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+    margin-left: 15px;
+    margin-top: -9px;
+    color:  red;
+`;
+
+const ThumbnailLabelFormat = styled(LabelFormat)`
+    display: ${({ formatThumbnailError }) => (formatThumbnailError ? 'block' : 'none')}; 
+`;
+
+const VerticalThumbnailLabelFormat = styled(LabelFormat)`
+    display: ${({ formatThumbnailVerticalError }) => (formatThumbnailVerticalError ? 'block' : 'none')}; 
+`;
+
+const LandscapeThumbnailLabelFormat = styled(LabelFormat)`
+    display: ${({ formatThumbnailLandscapeError }) => (formatThumbnailLandscapeError ? 'block' : 'none')}; 
+`;
 
 const Upload = ({ setOpen }) => {
     const [img, setImg] = useState(undefined);
@@ -981,6 +1001,9 @@ const Upload = ({ setOpen }) => {
     const [UploadingVideo, setUploadingVideo] = useState(false);
     const [ProcessConfirmPopup, setProcessConfirmPopup] = useState(false);
     const [renderingVideo, setRenderingVideo] = useState(false);
+    const [formatThumbnailError, setFormatThumbnailError] = useState(false);
+    const [formatThumbnailVerticalError, setFormatThumbnailVerticalError] = useState(false);
+    const [formatThumbnailLandscapeError, setFormatThumbnailLandscapeError] = useState(false);
 
     const handleLanguageChange = (language) => {
         setEmptyLanguageError(false);
@@ -1163,7 +1186,6 @@ const Upload = ({ setOpen }) => {
             contentRef.current.scrollTop = 0;
         }
     };
-
 
     const isLastStep = step === steps.length - 1;
 
@@ -1388,18 +1410,72 @@ const Upload = ({ setOpen }) => {
         inputs.imgUrl = undefined;
         setImg(undefined);
         setImgPerc(0);
+        setFormatThumbnailError(false);
     };
 
     const resetVerticalThumbnail = () => {
         inputs.imgUrlVertical = undefined;
         setImgVertical(undefined);
         setImgVerticalPerc(0);
+        setFormatThumbnailVerticalError(false);
     };
 
     const resetLandscapeThumbnail = () => {
         inputs.imgUrlLandscape = undefined;
         setImgLandscape(undefined);
         setImgLandscapePerc(0);
+        setFormatThumbnailLandscapeError(false);
+    };
+
+    const handleThumbnailFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+
+        if (selectedFile) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            if (allowedTypes.includes(selectedFile.type)) {
+                setImg(selectedFile);
+                setFormatThumbnailError(false);
+                setEmptyThumbnailError(false);
+
+            } else {
+                setFormatThumbnailError(true);
+            }
+        }
+    };
+
+    const handleVerticalFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+
+        if (selectedFile) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            if (allowedTypes.includes(selectedFile.type)) {
+                setImgVertical(e.target.files[0]);
+                setFormatThumbnailVerticalError(false);
+                setEmptyThumbnailVerticalError(false);
+
+            } else {
+                setFormatThumbnailVerticalError(true);
+            }
+        }
+    };
+
+    const handleLandscapeFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+
+        if (selectedFile) {
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            if (allowedTypes.includes(selectedFile.type)) {
+                setImgLandscape(e.target.files[0]);
+                setFormatThumbnailLandscapeError(false);
+                setEmptyThumbnailLandscapeError(false);
+
+            } else {
+                setFormatThumbnailLandscapeError(true);
+            }
+        }
     };
 
     return (
@@ -1499,7 +1575,7 @@ const Upload = ({ setOpen }) => {
                             )}
                             {step === 1 && (
                                 <>
-                                    <Label> Details </Label>
+                                    <Label style={{ marginTop: '0px' }}> Details </Label>
                                     <SubLabel> Provide the details of your video </SubLabel>
 
                                     <InputContainer>
@@ -1575,28 +1651,30 @@ const Upload = ({ setOpen }) => {
 
                                     {imgPerc > 0 ? (
                                         imgPerc < 100 ? (
-                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                            <div style={{ display: 'flex', marginBottom: '2px' }}>
                                                 <UploadImage imgPerc={imgPerc}>Uploading: {imgPerc}%</UploadImage>
                                             </div>
                                         ) : (
-                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                            <div style={{ display: 'flex', marginBottom: '2px' }}>
                                                 <UploadImage imgPerc={imgPerc}>Thumbnail uploaded successfully!</UploadImage>
                                                 <SideDropdownImg src={ResetIcon} onClick={resetThumbnail} />
                                             </div>
 
                                         )
                                     ) : (
-                                        <div>
+                                        <div style={{ display: 'flex', marginTop: '2px' }}>
                                             <InputImage
                                                 type="file"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    setImg(e.target.files[0]);
-                                                    setEmptyThumbnailError(false);
-                                                }}
+                                                accept="image/jpeg, image/png, image/webp"
+                                                onChange={(e) => handleThumbnailFileChange(e)}
                                             />
+
+                                            <ThumbnailLabelFormat formatThumbnailError={formatThumbnailError}> This file format is not allowed, please upload an image </ThumbnailLabelFormat>
+
                                         </div>
                                     )}
+
+
                                     <TitleAndPreview>
                                         <LabelStep2VerticalThumbnail emptyThumbnailVerticalError={emptyThumbnailVerticalError}>Set a vertical thumbnail</LabelStep2VerticalThumbnail>
 
@@ -1612,25 +1690,25 @@ const Upload = ({ setOpen }) => {
 
                                     {imgVerticalPerc > 0 ? (
                                         imgVerticalPerc < 100 ? (
-                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                            <div style={{ display: 'flex', marginBottom: '9px' }}>
                                                 <UploadImage imgPerc={imgPerc}>Uploading: {imgVerticalPerc}%</UploadImage>
                                             </div>
                                         ) : (
-                                            <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                            <div style={{ display: 'flex', marginBottom: '9px' }}>
                                                 <UploadImage imgPerc={imgPerc}>Vertical thumbnail uploaded successfully!</UploadImage>
                                                 <SideDropdownImg src={ResetIcon} onClick={resetVerticalThumbnail} />
                                             </div>
                                         )
                                     ) : (
-                                        <div style={{ display: 'flex', marginBottom: '7px' }}>
+                                        <div style={{ display: 'flex', marginBottom: '7px', marginTop: '2px' }}>
                                             <InputImage
                                                 type="file"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    setImgVertical(e.target.files[0]);
-                                                    setEmptyThumbnailVerticalError(false);
-                                                }}
+                                                accept="image/jpeg, image/png, image/webp"
+                                                onChange={(e) => handleVerticalFileChange(e)}
                                             />
+
+                                            <VerticalThumbnailLabelFormat formatThumbnailVerticalError={formatThumbnailVerticalError}> This file format is not allowed, please upload an image </VerticalThumbnailLabelFormat>
+
                                         </div>
                                     )}
                                     <TitleAndPreviewLandscape imgPerc={imgPerc} imgVerticalPerc={imgVerticalPerc}>
@@ -1656,14 +1734,15 @@ const Upload = ({ setOpen }) => {
                                             </div>
                                         )
                                     ) : (
-                                        <div>
+                                        <div style={{ display: 'flex', marginTop: '6px' }}>
                                             <InputImage
                                                 type="file"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    setImgLandscape(e.target.files[0]);
-                                                    setEmptyThumbnailLandscapeError(false);
-                                                }} />
+                                                accept="image/jpeg, image/png, image/webp"
+                                                onChange={(e) => handleLandscapeFileChange(e)}
+                                            />
+
+                                            <LandscapeThumbnailLabelFormat formatThumbnailLandscapeError={formatThumbnailLandscapeError}> This file format is not allowed, please upload an image </LandscapeThumbnailLabelFormat>
+
                                         </div>
                                     )}
                                 </>
@@ -1741,7 +1820,7 @@ const Upload = ({ setOpen }) => {
                                     </SelecterAndFlags>
 
                                     <LabelStep3 style={{ marginTop: '50px' }}>Subtitles</LabelStep3>
-                                    <SubLabelStep3> Boost your audience reach with language subtitles for your video. (Optional) </SubLabelStep3>
+                                    <SubLabelStep3> Boost your audience reach with language subtitles for your video. (Optional, file format must be .vtt) </SubLabelStep3>
 
                                     <DropDownSubtitlesContainer>
 

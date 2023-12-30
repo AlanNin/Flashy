@@ -36,12 +36,12 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     en: {
       spotlight: "Spotlight",
       watchnow: "Watch Now",
-      watchlater: "Watch Later",
+      moreinfo: "More Information",
     },
     es: {
       spotlight: "Destacados",
       watchnow: "Ver Ahora",
-      watchlater: "Ver Más Tarde",
+      moreinfo: "Más Información",
     },
   };
 

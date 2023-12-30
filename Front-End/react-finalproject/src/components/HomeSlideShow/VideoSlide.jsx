@@ -4,7 +4,7 @@ import CanalIcono from "../../assets/CanalIcono.png";
 import DuracionIcono from "../../assets/DuracionIcono.png";
 import FechaIcono from "../../assets/FechaIcono.png";
 import VerAhoraIcono from "../../assets/VerAhoraIcono.png";
-import VerDespuesIcono from "../../assets/VerDespuesIcono.png";
+import InfoSlideShow from "../../assets/InfoSlideShow.png";
 import LanguageIcono from '../../assets/IdiomaIcono.png';
 import SubtitleIcono from '../../assets/SubtitleIcono.png';
 import axios from "axios";
@@ -21,7 +21,8 @@ const Contenedor = styled.div`
 
 const Destacados = styled.h1`
   margin-left: 45px;
-  margin-top: 132px;
+  margin-top: 130px;
+  margin-bottom: 5px;
   font-size: 20px;
   color: #fff500;
   font-family: 'Montserrat', sans-serif;
@@ -32,16 +33,18 @@ const Destacados = styled.h1`
 `;
 
 const Titulo = styled.h1`
-  font-size: 40px;
+  font-size: 38px;
   font-family: 'Montserrat', sans-serif;
   color: #FFFFFF;
   position: relative;
   left: 45px;
   top: 10px;
-  @media (max-width: 768px) {
-    font-size: 30px;
-    max-width: 380px;
-  }
+  max-width: 845px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const ContenedorIconosTextos = styled.div`
@@ -85,7 +88,7 @@ const DescripcionDiv = styled.div`
   position: relative;  
   display: flex;
   flex-direction: row;
-  top: 60px;
+  top: 55px;
   left: 45px;
   width: 100%;
   }
@@ -93,31 +96,25 @@ const DescripcionDiv = styled.div`
 
 const Descripcion = styled.h1`
   position: absolute;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 400;
   font-family: "Roboto Condensed", Helvetica;
-  color: #FFFFFF;
+  color: #ccc8c8;
   max-width: 800px;
-
-  @media (max-width: 768px) {
-    max-width: 380px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 `;
+
 
 const ContainerBotones = styled.div`
   position: absolute;
   display: flex;
   bottom: 40px;
   left: 45px;
-  gap: 30px;
+  gap: 25px;
 
   @media (max-width: 768px) {
     gap: 20px;
@@ -128,29 +125,29 @@ const ContainerBotones = styled.div`
 const EstiloBotones = styled.div`
   align-items: center;
   display: flex;
-  gap: 5.5px;
+  gap: 7px;
 
   cursor: pointer;
-  border-radius: 30px;
+  border-radius: 8px;
   height: 45px;
-  padding: 0px 14px;
+  padding: 0px 12px;
   `;
 
 const BotonVerAhora = styled(EstiloBotones)`
-  background-color: #8a517d;
+  background-color: rgba(105, 62, 94, 0.8);
   transition: background-color 0.5s;
 
   &:hover {
-    background-color: ${({ theme }) => theme.soft};
+    background-color: rgba(77, 44, 69, 0.6);
   }
 `;
 
 const BotonVerDespues = styled(EstiloBotones)`
-  background-color: #5d4182;
+  background-color: rgba(73, 47, 107, 0.4);
   transition: background-color 0.5s;
 
   &:hover {
-    background-color: ${({ theme }) => theme.soft};
+    background-color: rgba(73, 47, 107, 0.2);
   }
 `;
 
@@ -160,8 +157,8 @@ const EstiloImagenes = styled.img`
 `;
 
 const ImagenVerAhora = styled(EstiloImagenes)`
-width: 30px;
-height: 30px
+width: 28px;
+height: 28px
 `;
 
 const ImagenVerDespues = styled(EstiloImagenes)`
@@ -233,7 +230,7 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
     <>
       <Contenedor>
         <Destacados> #{index + 1} {translations[language].spotlight} </Destacados>
-        <Titulo> {video.title}</Titulo>
+        <Titulo> {video.title} </Titulo>
         <ContenedorIconosTextos>
           <ChannelIcon src={CanalIcono} />
           <EstiloTextos> {channel.displayname} </EstiloTextos>
@@ -262,8 +259,8 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
             </BotonVerAhora>
           </Link>
           <BotonVerDespues>
-            <ImagenVerDespues src={VerDespuesIcono} />
-            <BotonVerDespuesTexto>{translations[language].watchlater}</BotonVerDespuesTexto>
+            <ImagenVerDespues src={InfoSlideShow} />
+            <BotonVerDespuesTexto>{translations[language].moreinfo}</BotonVerDespuesTexto>
           </BotonVerDespues>
         </ContainerBotones>
       </Contenedor>

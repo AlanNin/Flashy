@@ -4,23 +4,74 @@ import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import CanalTendenciaIcono from '../assets/CanalTendenciaIcono.png';
 import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
+import CircledPlay from '../assets/CircledPlay.png';
 import { useDispatch, useSelector } from 'react-redux';
+
+const MoreInfoImg = styled.img`
+  width: 35px;
+  height: 35px;
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 3;
+  border-radius: 50%;
+  background: rgba(22, 21, 24, 0.5);
+  overflow: hidden;
+  visibility: hidden;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+`;
+
 
 const Container = styled.div`
   position: relative;
   display: flex;  
-  width: 210px;
+  width: 231px;
   height: 100%;
   margin-left: 2px;
 `;
 
 const SlideContainer = styled.div`
-  margin-left: 33px;
+  margin-left: 36px;
   width: 195px;
   height: 271px;
   position: relative;
   display: flex;
   cursor: pointer;
+
+  &:hover {
+    & ${MoreInfoImg} {
+      transition-delay: 0.15s;
+      visibility: visible;
+      animation: fadeIn 0.15s ease-in-out 0.15s forwards;
+    }
+  }
+
+  &:not(:hover) {
+    & ${MoreInfoImg} {
+      transition-delay: 0.2s;
+      visibility: hidden;
+      opacity: 0;
+      animation: fadeOut 0.2s ease-in-out forwards;
+      z-index: 1;
+    }
+  }
 `;
 
 const InfoContainer = styled.div`
@@ -43,7 +94,7 @@ const RankNumber = styled.h1`
 
 const ChannelIcon = styled.img`
   position: absolute;
-  bottom: 60px;
+  bottom: 55px;
   transform: rotate(-90deg);
   height: 24px;
   width: 24px;
@@ -53,8 +104,8 @@ const ChannelIcon = styled.img`
 
 const ChannelName = styled.h1`
   position: absolute;
-  bottom: 180px;
-  right: 25.5px;
+  bottom: 175px;
+  right: 24.5px;
   color: white;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
@@ -77,6 +128,7 @@ const LinkToChannel = styled(StyledLink)`
   left: -85px; /* Ajusta este valor según sea necesario */
   transform: rotate(0deg); /* Volvemos a la orientación original */
 `;
+
 const InsideContainer = styled.div`
   position: relative;
   display: flex;
@@ -94,13 +146,18 @@ const Title = styled.h1`
   font-weight: 700;
   z-index: 2;
   margin-left: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const ViewContainer = styled.div`
   display: flex;
   align-items: center;
   z-index: 2;
-  background-color: rgba(196, 90, 172, 0.6);
+  background-color: rgba(196, 90, 172, 0.2);
   padding: 2px 12px;
   border-radius: 20px;
   width: max-content;
@@ -144,7 +201,7 @@ const ProgressIndicator = styled.div`
   border-radius: 0px;
 `;
 
-const CardTrending = ({ type, video, index }) => {
+const CardTrending = ({ type, video, index, setIsMoreInfo, setMoreInfoInputs }) => {
   const [channel, setChannel] = useState({});
   const { currentUser } = useSelector((state) => state.user);
   const [progress, setProgress] = useState(0);
@@ -186,6 +243,17 @@ const CardTrending = ({ type, video, index }) => {
     }
   }, [video.userId, video._id]);
 
+  const SendPopupAndInputs = () => {
+    setMoreInfoInputs((prev) => {
+      return {
+        ...prev,
+        imgUrlLandscape: video.imgUrlLandscape,
+        title: video.title,
+      };
+    });
+    setIsMoreInfo(true);
+  };
+
   return (
 
     <Container>
@@ -198,27 +266,29 @@ const CardTrending = ({ type, video, index }) => {
         </Link>
         <RankNumber>{(index + 1).toString().padStart(2, '0')}</RankNumber>
       </InfoContainer>
-      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-        <SlideContainer>
-          <InsideContainer>
-            <Title> {video.title} </Title>
-            <ViewContainer>
-              <ViewIcon src={ViewsIcon} />
-              <ViewText> {formatViews(video.views)} </ViewText>
-            </ViewContainer>
-          </InsideContainer>
-          <TrendThumbnail src={video.imgUrlVertical} />
-          {currentUser && progress > 0 && (
-            <ProgressBar>
-              <ProgressIndicator progress={progress} />
-            </ProgressBar>
-          )}
-          <SlideContainerDif />
-        </SlideContainer>
-      </Link>
 
+      <SlideContainer onClick={SendPopupAndInputs}>
+        <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+          <MoreInfoImg src={CircledPlay} />
+        </Link>
 
-    </Container>
+        <InsideContainer>
+          <Title> {video.title} </Title>
+          <ViewContainer>
+            <ViewIcon src={ViewsIcon} />
+            <ViewText> {formatViews(video.views)} </ViewText>
+          </ViewContainer>
+        </InsideContainer>
+        <TrendThumbnail src={video.imgUrlVertical} />
+        {currentUser && progress > 0 && (
+          <ProgressBar>
+            <ProgressIndicator progress={progress} />
+          </ProgressBar>
+        )}
+        <SlideContainerDif />
+      </SlideContainer>
+
+    </Container >
   );
 };
 

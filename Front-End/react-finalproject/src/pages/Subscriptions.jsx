@@ -218,7 +218,7 @@ const Home = ({ type = "sub" }) => {
         </NotSubbedWrapper>
       }
 
-      {NoVideosFound &&
+      {NoVideosFound && (currentUser?.subscribedUsers.length > 0) &&
         <NotSubbedWrapper>
           <NotSubbedImg src={NotSubbedIcono} />
           <NotSubbed1>{translations[language].novideo1}</NotSubbed1>

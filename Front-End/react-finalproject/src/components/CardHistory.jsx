@@ -137,7 +137,7 @@ const InfoViews = styled.div`
   height: max-content;
   margin: auto 4px;
   color: white;
-  background: rgb(196, 90, 172, 0.3);
+  background-color: rgba(196, 90, 172, 0.2);
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
   border-radius: 8px;

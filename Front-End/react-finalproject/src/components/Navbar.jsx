@@ -37,7 +37,7 @@ const Container = styled.div`
       : `linear-gradient(to right, rgba(8, 8, 8) 40%,  rgba(8, 8, 8, 0.6), rgba(8, 8, 8, 0.4) 45%, rgba(8, 8, 8, 0.3) 50%, rgba(8, 8, 8, 0.1) 60%)`};
   height: 56px;
   width: 100%;
-  z-index: 2;
+  z-index: 3;
   transition: background 0.3s ease-in;
 `;
 

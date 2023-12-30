@@ -11,27 +11,26 @@ import { useDispatch, useSelector } from 'react-redux';
 const MainContainer = styled.div`
   position: relative;
   top: 0;
-  z-index: 1;
   margin: auto;
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
-
-  @media (max-width: 768px) {
-    width: 470px;
-  }
+  margin-bottom: 175px;
 `;
 
 const ShareContainer = styled.div`
-  position: relative;
+  position: absolute;
   display: flex;
-  margin-top: 42px;
+  margin-top: 8px;
   margin-left: 55px;
+  right: 0px;
+  margin-right: 12px;
 `;
 
 const GifH = styled.img`
-  width: 110px;
-  height: 98px;
+  width: 70px;
+  height: 58px;
+  transform: scaleX(-1); 
 `;
 
 const ShareDiv = styled.h1`
@@ -43,7 +42,7 @@ const ShareDiv = styled.h1`
 `;
 
 const Share1 = styled.h1`
-  font-size: 20px;
+  font-size: 15px;
   color: rgba(224, 175, 208, 0.8);
   margin-right: 19px;
   font-family: "Roboto Condensed", Helvetica;
@@ -51,7 +50,7 @@ const Share1 = styled.h1`
 `;
 
 const Share2 = styled.h1`
-font-size: 20px;
+font-size: 15px;
 color: white;
 font-family: "Roboto Condensed", Helvetica;
 font-weight: 500;
@@ -61,7 +60,7 @@ font-weight: 500;
 const Header = styled.h1`
 font-size: 32px;
 color: rgba(224, 175, 208);
-margin-top:60px;
+margin-top: 32px;
 margin-left: 55px;
 
 font-weight: bold;
@@ -72,12 +71,11 @@ const Container = styled.div`
   display: flex;
   justify-content: flex-start; 
   flex-wrap: wrap;
-  z-index: 1;
-  gap: 107px;
+  gap: 16px;
 `;
 
 const Wrapper = styled.div`
-  padding: 32px 55px;
+  padding: 32px 55px 32px 58px;
   background-color: rgba(15, 12, 18);
 `;
 
@@ -128,10 +126,7 @@ const Home = ({ type }) => {
 
       <HomeSlideShow />
 
-      <TrendSlider />
-
       <ShareContainer>
-        <GifH src={Gif} />
         <ShareDiv>
           <Share1>
             {translations[language].share1}
@@ -140,7 +135,11 @@ const Home = ({ type }) => {
             {translations[language].share2}
           </Share2>
         </ShareDiv>
+        <GifH src={Gif} />
       </ShareContainer>
+
+
+      <TrendSlider />
 
       <Header>{translations[language].foryou}</Header>
 
@@ -150,7 +149,6 @@ const Home = ({ type }) => {
           {videos.map((video) => (
             <Card key={video._id} video={video} />
           ))}
-
         </Container>
 
       </Wrapper>

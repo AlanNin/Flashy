@@ -100,8 +100,8 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  margin-top: 101px;
-  margin-left: ${({ NoRecommendations }) => (NoRecommendations ? '55px' : '-49px')};
+  margin-top: 95px;
+  margin-left: -253px;
   gap: 24px;
   background-color: rgba(15, 12, 18);
   display: ${({ videoLoaded }) => (videoLoaded ? 'flex' : 'none')};
@@ -112,8 +112,8 @@ const Content = styled.div`
 `;
 
 const VideoWrapper = styled.div`
-  height: 560px;
-  width: 1000px;
+  height: 720px;
+  width: 1280px;
   overflow: hidden;
   z-index: 1;
 `;
@@ -264,19 +264,19 @@ const EstiloTextos = styled.h1`
 `;
 
 const Description = styled.p`
-  width: 524px;
+  width: 800px;
   color: #c4c4c4;
   font-size: 16px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: normal;
-  padding: 0px 0px 30px 0px;
+  padding: 0px 0px 70px 0px;
   height: max-content;
   max-height: 110px;
   word-wrap: break-word;
   overflow-wrap: break-word;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   white-space: normal;
   overflow: hidden;
@@ -345,18 +345,11 @@ const TitleHeader = styled.h1`
   margin-bottom: 20px;
 `;
 
-const VideoFrame = styled.video`
-  max-height: 560px;
-  width: 1000px;
-  object-fit: cover;
-`;
-
 const RecommendationContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: auto;
   width: auto;
-  margin-right: 30px;
 `;
 
 const SuscbribeContainer = styled.div`
@@ -807,8 +800,8 @@ const VideoPage = () => {
 
   // FETCH VIDEO AND CHANNEL DATA + RESUME VIDEO
   useEffect(() => {
-
     let isMounted = true;
+
     const fetchData = async () => {
       try {
         const videoRes = await axios.get(`/videos/find/${path}`);
@@ -816,7 +809,6 @@ const VideoPage = () => {
         if (!isMounted) {
           return; // Abort the operation if the component is unmounted
         }
-
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
 
@@ -833,6 +825,7 @@ const VideoPage = () => {
 
         }
 
+        console.log("hola3");
         scrollToTop();
         setVideoLoaded(true);
 
@@ -856,36 +849,41 @@ const VideoPage = () => {
   const [UserAllowed, setUserAllowed] = useState(true);
 
   useEffect(() => {
-    axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
-      .then(response => {
-        const allowedUsersData = response.data.allowedUsers;
+    console.log("holamundo4");
+    if (videoLoaded) {
 
-        if (Array.isArray(allowedUsersData)) {
-          setAllowedUsers(allowedUsersData);
+      axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
+        .then(response => {
+          const allowedUsersData = response.data.allowedUsers;
 
-          const isUserAllowed = allowedUsers.includes(currentUser?.email);
+          if (Array.isArray(allowedUsersData)) {
+            setAllowedUsers(allowedUsersData);
 
-          if (isVideoPrivate) {
-            if (currentUser) {
-              if (isUserAllowed) {
-                setUserAllowed(true);
-              }
-              else {
+            const isUserAllowed = allowedUsers.includes(currentUser?.email);
+
+            if (isVideoPrivate) {
+              if (currentUser) {
+                if (isUserAllowed) {
+                  setUserAllowed(true);
+                }
+                else {
+                  setUserAllowed(false);
+                }
+              } else {
                 setUserAllowed(false);
               }
             } else {
-              setUserAllowed(false);
+              setUserAllowed(true);
             }
           } else {
-            setUserAllowed(true);
           }
-        } else {
-        }
-      })
-      .catch(error => {
-      });
+        })
+        .catch(error => {
+        });
 
-  }, [UserAllowed, currentVideo._id]);
+    }
+
+  }, [UserAllowed, currentVideo._id, videoLoaded]);
 
   // LIKE VIDEO
   const handleLike = async () => {
@@ -964,7 +962,9 @@ const VideoPage = () => {
 
   // SLOW TIME FOR REQUEST
   useEffect(() => {
-    currentTimeRef.current = currentTime;
+    if (videoLoaded) {
+      currentTimeRef.current = currentTime;
+    }
   }, [currentTime]);
 
   useEffect(() => {
@@ -1197,7 +1197,7 @@ const VideoPage = () => {
   }, [canPlay]);
 
   // MAP SUBTITLES TO VIDEO PLAYER
-  const subtitleTracks = currentVideo?.subtitles.map((subtitle, index) => (
+  const subtitleTracks = currentVideo?.subtitles?.map((subtitle, index) => (
     <Track
       key={index}
       src={subtitle.url}
@@ -1206,6 +1206,10 @@ const VideoPage = () => {
       lang={subtitle.name}
     />
   ));
+
+
+  // AVOID PIP ERROR
+  const canUsePictureInPicture = player?.disablePictureInPicture;
 
   return (
 
@@ -1237,6 +1241,7 @@ const VideoPage = () => {
             <VideoWrapper>
 
               <MediaPlayer
+                style={{ zIndex: '1' }}
                 playsinline
                 viewType="video"
                 title={currentVideo?.title}
@@ -1249,6 +1254,7 @@ const VideoPage = () => {
               >
                 <MediaProvider>
                   {subtitleTracks}
+
                   <Poster
                     className="vds-poster"
                     src={currentVideo?.imgUrlLandscape}
@@ -1259,7 +1265,6 @@ const VideoPage = () => {
                 <DefaultVideoLayout
                   thumbnails="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"
                   icons={defaultLayoutIcons}
-                  style={{ zIndex: '1' }}
                 />
               </MediaPlayer>
 

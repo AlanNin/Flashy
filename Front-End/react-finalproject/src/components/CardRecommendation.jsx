@@ -12,8 +12,9 @@ import "moment/locale/es";
 const Container = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
-  width: 275px;
+  flex-direction: row;
+  width: max-content;
+  height: max-content;
   margin-bottom: 45px;
   cursor: pointer;
   display: flex;
@@ -23,8 +24,8 @@ const Container = styled.div`
 
 const ImageContainer = styled.div`
   position: relative;
-  width: 100%;
-  height: 170px;
+  width: 170px;
+  height: 100px;
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -44,23 +45,17 @@ const Details = styled.div`
   gap: 15px;
   flex: 1;
   margin-left: 5px;
+  width: max-content;
 `;
 
 const Texts = styled.div``;
 
-const ChannelImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #999;
-`;
-
 const Title = styled.h1`
   font-size: 16px;
   font-family: "Roboto Condensed", Helvetica;
-  font-weight: 600;
+  font-weight: normal;
   color: ${({ theme }) => theme.text};
-  max-width: 210px; /* Puedes ajustar el valor según tu preferencia */
+  max-width: 210px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -75,50 +70,45 @@ const Title = styled.h1`
 const ChannelName = styled.h2`
   font-size: 14px;
   color: ${({ theme }) => theme.textSoft};
-  margin-top: 7px;
+  margin-top: 8px;
+  font-weight: normal;
 `;
 
-const InfoViews = styled.div`
-  position: absolute;
-  margin: 10px;
-  height: 20px;
+const ViewsAndTimeeDiv = styled.div`
   width: max-content;
-  background: rgb(36, 22, 33, 0.9);
-  border-radius: 10px;
   display: flex;
-  align-items: center;
-  padding: 3px 10px;
-  z-index: 2;
+  margin-top: 5px;
+  gap: 10px;
 `;
-
-const ImgViews = styled.img`
-  height: 15px;
-  width: 15px;
-  margin-right: 5px;
-`;
-
 
 const TxtViews = styled.h1`
-  font-size: 15px;
-  color: white;
+  font-size: 14px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
-  text-align: center;
-  margin-top: 1px;  
+  margin-top: 1px; 
+  color:  ${({ theme }) => theme.textSoft};
 `;
 
+const TxtTime = styled.h1`
+  font-size: 14px;
+  color:  ${({ theme }) => theme.textSoft};
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 400;
+  margin-top: 1px;  
+`;
 
 const InfoDuration = styled.div`
   position: absolute;
   margin: 10px;
   height: 20px;
   width: max-content;
-  background: rgb(36, 22, 33, 0.9);
+  background: rgb(36, 22, 33, 0.6);
   border-radius: 10px;
   display: flex;
   align-items: center;
   padding: 3px 10px;
   bottom: 0px;
+  gap: 2px;
 `;
 
 const ImgDuration = styled.img`
@@ -141,28 +131,20 @@ const InfoTime = styled.div`
   margin: 10px;
   height: 20px;
   width: max-content;
-  background: rgb(36, 22, 33, 0.9);
+  background: rgb(36, 22, 33, 0.6);
   border-radius: 10px;
   display: flex;
   align-items: center;
   padding: 3px 10px;
   bottom: 0px;
   right: 0px;
+  gap: 2px;
 `;
 
 const ImgTime = styled.img`
   height: 15px;
   width: 15px;
   margin-right: 5px;
-`;
-
-
-const TxtTime = styled.h1`
-  font-size: 15px;
-  color: white;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: 400;
-  margin-top: 1px;  
 `;
 
 
@@ -272,26 +254,19 @@ const CardRecommendation = ({ type, video }) => {
           <Image
             src={video?.imgUrl}
           />
-          <InfoViews>
-            <ImgViews src={ViewsIcon} />
-            <TxtViews> {formatViews(video?.views)} </TxtViews>
-          </InfoViews>
-          <InfoDuration>
-            <ImgDuration src={DuracionIcono} />
-            <TxtDuration> {formatDuration(video?.duration)} </TxtDuration>
-          </InfoDuration>
-          <InfoTime>
-            <ImgTime src={FechaIcono} />
-            <TxtTime> {timeago(video?.createdAt)} </TxtTime>
-          </InfoTime>
         </ImageContainer>
         <Details>
-          <ChannelImage src={channel?.img} />
           <Texts>
             <Title> {video?.title} </Title>
             <ChannelName> {channel?.displayname} </ChannelName>
+
+            <ViewsAndTimeeDiv>
+              <TxtViews> {formatViews(video?.views)} views </TxtViews>
+              <TxtTime> • {`\u00A0`} {timeago(video?.createdAt)} </TxtTime>
+            </ViewsAndTimeeDiv>
           </Texts>
         </Details>
+
       </Container>
     </Link>
   );

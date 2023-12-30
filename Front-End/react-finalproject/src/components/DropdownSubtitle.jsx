@@ -126,6 +126,15 @@ const SideDropdownImg = styled.img`
   cursor: pointer;
 `;
 
+const SubtitlelLabelFormat = styled.h1`
+    font-size: 18px;
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+    margin-left: 120px;
+    margin-top: 8px;
+    color:  red;
+  `;
+
 
 const subtitleOptions = [
   { code: 'EN', name: 'English (EN)' },
@@ -139,12 +148,14 @@ const subtitleOptions = [
 ];
 
 const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
+
   const [dropdowns, setDropdowns] = useState(
     selectedSubtitle.length > 0
       ? selectedSubtitle.map((subtitle, index) => ({
         selectedSubtitle: [subtitle],
         subtitleFile: subtitle.url,
         subtitleFilePerc: subtitle.url ? 100 : 0,
+        formatError: false,
       }))
       : [{ selectedSubtitle: [], subtitleFile: null, subtitleFilePerc: 0 }]
   );
@@ -243,14 +254,21 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
   };
 
   const handleFileChange = (file, dropdownIndex) => {
-
-    setDropdowns((prevDropdowns) => {
-      const updatedDropdowns = [...prevDropdowns];
-      updatedDropdowns[dropdownIndex].subtitleFile = file;
-      return updatedDropdowns;
-    });
-    // Utiliza la variable 'file' en lugar de 'subtitleFile'
-    file && uploadSubtitleFile(file, dropdownIndex);
+    if (file && file.name.endsWith('.vtt')) {
+      setDropdowns((prevDropdowns) => {
+        const updatedDropdowns = [...prevDropdowns];
+        updatedDropdowns[dropdownIndex].subtitleFile = file;
+        updatedDropdowns[dropdownIndex].formatError = false;  // Reiniciar el error de formato
+        return updatedDropdowns;
+      });
+      uploadSubtitleFile(file, dropdownIndex);
+    } else {
+      setDropdowns((prevDropdowns) => {
+        const updatedDropdowns = [...prevDropdowns];
+        updatedDropdowns[dropdownIndex].formatError = true;  // Establecer el error de formato
+        return updatedDropdowns;
+      });
+    }
   };
 
   const handleResetFirstDropdown = () => {
@@ -296,11 +314,18 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
                   <UploadSubtitleFile>Subtitle uploaded successfully!</UploadSubtitleFile>
                 )
               ) : (
-                <InputSubtitleFile
-                  type="file"
-                  accept=".srt"
-                  onChange={(e) => handleFileChange(e.target.files[0], index)}
-                />
+                <div style={{ display: 'flex' }}>
+                  <InputSubtitleFile
+                    type="file"
+                    accept=".vtt"
+                    onChange={(e) => handleFileChange(e.target.files[0], index)}
+                  />
+
+                  {dropdown.formatError && dropdown.subtitleFilePerc === 0 && (
+                    <SubtitlelLabelFormat>This file format is not allowed</SubtitlelLabelFormat>
+                  )}
+
+                </div>
               )}
             </>
           )}

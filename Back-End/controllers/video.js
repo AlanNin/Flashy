@@ -52,26 +52,41 @@ export const addVideo = async (req, res, next) => {
                 videoUrlStream: playbackId,
             });
 
-            // Actualiza los URLs de los subtítulos en el documento de Video
-            const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
-                // Sube el archivo de subtítulos a Cloudinary
-                const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
-                    resource_type: 'raw', // Indica que el recurso no es una imagen
-                    public_id: `subtitle_${videoId}_${subtitle.name}`,
-                });
 
-                // Retorna un objeto actualizado para este subtítulo
-                return {
-                    name: subtitle.name,
-                    url: cloudinaryResponse.secure_url,
-                };
-            }));
+            if (videoData.subtitles && videoData.subtitles.length > 0) {
+                const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
+                    try {
+                        // Sube el archivo de subtítulos a Cloudinary
+                        const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
+                            resource_type: 'raw', // Indica que el recurso no es una imagen
+                            public_id: `subtitle_${videoId}_${subtitle.name}`,
+                        });
 
-            await Video.findByIdAndUpdate(videoId, {
-                subtitles: updatedSubtitles,
-            });
+                        console.log(cloudinaryResponse);
+
+                        // Retorna un objeto actualizado para este subtítulo
+                        return {
+                            name: subtitle.name,
+                            url: cloudinaryResponse.secure_url,
+                        };
+                    } catch (uploadError) {
+                        console.error(`Error uploading subtitle "${subtitle.name}":`, uploadError);
+                        // Puedes manejar el error de carga de subtítulos aquí
+                        // Puedes retornar el subtítulo original sin cambios o hacer otra lógica de manejo de errores
+                        return subtitle;
+                    }
+                }));
+
+                // Actualiza solo si hay subtítulos
+                if (updatedSubtitles.length > 0) {
+                    await Video.findByIdAndUpdate(videoId, {
+                        subtitles: updatedSubtitles,
+                    });
+                }
+            }
 
             res.status(200).json(savedVideo);
+
         } catch (err) {
             console.error("Error al añadir video:", err);
             next(err);
@@ -85,25 +100,35 @@ export const addVideo = async (req, res, next) => {
 
             const videoId = savedVideo._id;
 
-            // Actualiza los URLs de los subtítulos en el documento de Video
-            const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
-                // Sube el archivo de subtítulos a Cloudinary
-                const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
-                    resource_type: 'raw', // Indica que el recurso no es una imagen
-                    public_id: `subtitle_${videoId}_${subtitle.name}`,
-                });
+            if (videoData.subtitles && videoData.subtitles.length > 0) {
+                const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
+                    try {
+                        // Sube el archivo de subtítulos a Cloudinary
+                        const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
+                            resource_type: 'raw', // Indica que el recurso no es una imagen
+                            public_id: `subtitle_${videoId}_${subtitle.name}`,
+                        });
 
-                // Retorna un objeto actualizado para este subtítulo
-                return {
-                    name: subtitle.name,
-                    url: cloudinaryResponse.secure_url,
-                };
-            }));
+                        // Retorna un objeto actualizado para este subtítulo
+                        return {
+                            name: subtitle.name,
+                            url: cloudinaryResponse.secure_url,
+                        };
+                    } catch (uploadError) {
+                        console.error(`Error uploading subtitle "${subtitle.name}":`, uploadError);
+                        // Puedes manejar el error de carga de subtítulos aquí
+                        // Puedes retornar el subtítulo original sin cambios o hacer otra lógica de manejo de errores
+                        return subtitle;
+                    }
+                }));
 
-            await Video.findByIdAndUpdate(videoId, {
-                subtitles: updatedSubtitles,
-            });
-
+                // Actualiza solo si hay subtítulos
+                if (updatedSubtitles.length > 0) {
+                    await Video.findByIdAndUpdate(videoId, {
+                        subtitles: updatedSubtitles,
+                    });
+                }
+            }
 
             res.status(200).json(savedVideo);
 
