@@ -249,6 +249,18 @@ const CardTrending = ({ type, video, index, setIsMoreInfo, setMoreInfoInputs }) 
         ...prev,
         imgUrlLandscape: video.imgUrlLandscape,
         title: video.title,
+        videoId: video._id,
+        userId: video.userId,
+        tags: video.tags,
+        subtitles: video.subtitles,
+        language: video.language,
+        likes: video.likes,
+        dislikes: video.dislikes,
+        desc: video.desc,
+        views: video.views,
+        videoUrl: video.videoUrl,
+        createdAt: video.createdAt,
+        duration: video.duration,
       };
     });
     setIsMoreInfo(true);

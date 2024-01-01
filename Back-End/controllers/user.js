@@ -325,24 +325,33 @@ export const deleteVideoFromHistory = async (req, res, next) => {
 
         const user = await User.findById(userId);
 
-        // Buscar el video en el historial del usuario
+        // Find the video in the user's history
         const videoIndex = user.videoHistory.findIndex(item => item.videoId.toString() === videoId);
 
         if (videoIndex !== -1) {
-            // Si el video está en el historial, eliminarlo
-            user.videoHistory.splice(videoIndex, 1);
+            // If the video is in the history, remove it
+            const deletedVideo = user.videoHistory.splice(videoIndex, 1)[0];
 
-            // Guardar los cambios
+            // Delete video progress
+            if (deletedVideo) {
+                const videoProgressKey = deletedVideo.videoId.toString();
+                if (user.videoProgress.has(videoProgressKey)) {
+                    user.videoProgress.delete(videoProgressKey);
+                }
+            }
+
+            // Save the changes
             await user.save();
 
-            res.status(200).json("Video eliminado del historial exitosamente.");
+            res.status(200).json("Video removed from history and progress deleted successfully.");
         } else {
-            res.status(404).json("Video no encontrado en el historial.");
+            res.status(404).json("Video not found in history.");
         }
     } catch (error) {
         next(error);
     }
 };
+
 
 // CLEAR ALL WATCH HISTORY
 export const clearAllWatchHistory = async (req, res, next) => {
@@ -355,17 +364,29 @@ export const clearAllWatchHistory = async (req, res, next) => {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
+        // Get all video ids in the user's watch history
+        const videoIdsInHistory = user.videoHistory.map(item => item.videoId.toString());
+
         // Clear all videos from the user's watch history
         user.videoHistory = [];
+
+        // Delete video progress for all videos in the watch history
+        videoIdsInHistory.forEach(videoId => {
+            const videoProgressKey = videoId.toString();
+            if (user.videoProgress.has(videoProgressKey)) {
+                user.videoProgress.delete(videoProgressKey);
+            }
+        });
 
         // Save changes
         await user.save();
 
-        res.status(200).json("Historial de videos borrado exitosamente.");
+        res.status(200).json("Historial de videos borrado exitosamente y progreso eliminado.");
     } catch (error) {
         next(error);
     }
 };
+
 
 // ADD PLAYLIST
 export const addPlaylist = async (req, res, next) => {
@@ -539,27 +560,43 @@ export const getVideosFromPlaylist = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const playlistId = req.params.playlistId;
-        const shareToken = req.query.shareToken; // Obtener el token de compartición de la consulta
 
         const user = await User.findById(userId);
 
-        // Buscar la playlist por ID
+        // Find the playlist by ID
         const playlist = user.playlists.find(p => p._id.toString() === playlistId);
 
         if (playlist) {
-            // Verificar la privacidad de la playlist
-            if (playlist.privacy === 'public' ||
-                (playlist.privacy === 'unlisted' && shareToken === playlist.shareToken)) {
-                // Consultar la información completa de cada video usando los IDs
-                const videos = await Video.find({ _id: { $in: playlist.videos } });
+            // Get video details for each video in the playlist
+            const videos = await Video.find({ _id: { $in: playlist.videos } });
 
-                res.status(200).json(videos);
-            } else {
-                // La playlist no es accesible
-                res.status(403).json({ error: "Acceso no autorizado a la playlist." });
-            }
+            res.status(200).json({ videos });
         } else {
-            res.status(404).json({ error: "Playlist no encontrada." });
+            res.status(404).json({ error: "Playlist not found." });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET VIDEO IDS FROM PLAYLIST
+export const getVideoIdsFromPlaylist = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const playlistId = req.params.playlistId;
+
+        const user = await User.findById(userId);
+
+        // Find the playlist by ID
+        const playlist = user.playlists.find(p => p._id.toString() === playlistId);
+
+        if (playlist) {
+            // Extract only the videoIds from the playlist
+            const videoIds = playlist.videos.map(videoId => videoId.toString());
+
+            res.status(200).json({ videoIds });
+        } else {
+            res.status(404).json({ error: "Playlist not found." });
         }
     } catch (error) {
         next(error);

@@ -39,9 +39,10 @@ const ReplyMenu = styled.img`
 const Container = styled.div`
   display: flex;
   gap: 17px;
+  width: 100%;
   margin: 0px 0px 15px 0px;
   border-radius: 10px;
-  padding: 10px 10px;
+  padding: 15px 10px;
   background: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'rgba(24, 19, 28)' : 'transparent')};
   &:hover {
     background: rgba(24, 19, 28);
@@ -59,6 +60,7 @@ const Avatar = styled.img`
 
 const Details = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
   color: ${({ theme }) => theme.text}
@@ -68,7 +70,7 @@ const NameDate = styled.div`
   display: flex;
   position: relative;
   align-items: center;
-  width: 850px;
+  width: 100%;
 `;
 
 const Name = styled.h1`
@@ -97,9 +99,10 @@ const Text = styled.span`
 `;
 
 const CommentOptions = styled.div`
-  display: flex;
+  display: ${({ isEditing }) => (isEditing ? 'none' : 'flex')};
   border: none;
   margin-bottom: 5px;
+  margin-top: 5px;
 `;
 
 const Replyy = styled.div`
@@ -227,11 +230,11 @@ const ReplyToReply = styled.div`
   gap: 10px;
   border: none;
   margin-bottom: 5px;
-  width: 819px;
+  width: 100%;
 `;
 const PostReply = styled.div`
   display: flex;
-  width: 826px;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
   margin-top: 0px;
@@ -324,7 +327,7 @@ const RemoveEditReportReplyImg = styled.img`
 
 const PostEdit = styled.div`
   display: flex;
-  width: 820px;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
 `;
@@ -786,6 +789,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       return;
     }
     setShowReplySection(!showReplySection);
+    setIsReplying(!isReplying);
   };
 
   // EDIT REPLY
@@ -929,6 +933,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   const [replyText, setReplyText] = useState('');
   const replyPlaceholder = `@${channel.displayname} `;
   const [user, setUser] = useState(null);
+  const [isReplying, setIsReplying] = useState(false);
 
   const handleReplySubmit = async () => {
     try {
@@ -945,6 +950,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
       setReplyText('');
       setShowReplySection(false);
+      setIsReplying(!isReplying);
 
       setCurrentReply((prevReply) => ({
         ...prevReply,
@@ -1081,7 +1087,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   }, []);
 
   return (
-    <Container isMenuDotsVisible={isMenuDotsVisible} ref={menuRef}>
+    <Container isMenuDotsVisible={isMenuDotsVisible}>
       <Avatar src={channel.img} />
       <Details>
         <NameDate>
@@ -1089,8 +1095,9 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
             {channel.displayname}
           </Name>
           <Date> • {timeago(currentReply.createdAt)} </Date>
-          {!isEditing && (
+          {!isEditing && !isReplying && (
             <ReplyMenu
+              ref={menuRef}
               src={PuntosSuspensivosIcono}
               onClick={handleReplyMenuClick}
               isMenuDotsVisible={isMenuDotsVisible} />
@@ -1382,7 +1389,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                 onChange={(e) => setEditedReplyText(e.target.value)}
                 placeholder="Edit your reply..."
               />
-              <ButtonsDiv>
+              <ButtonsDiv style={{ marginRight: '8px' }}>
                 <CloseButton onClick={handleCancelEdit}> Close </CloseButton>
                 <EditButton disabled={!editedReplyText.trim()} onClick={handleSaveEdit}>
                   Edit
@@ -1408,7 +1415,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           )}
         </Text>
 
-        <CommentOptions>
+        <CommentOptions isEditing={isEditing}>
           <Replyy onClick={handleReplyClick}>
             <ReplyImg src={RespuestaIcono} />
             <ReplyText> Reply </ReplyText>
@@ -1502,8 +1509,15 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                 value={replyPlaceholder + replyText}
                 onChange={(e) => setReplyText(e.target.value.replace(replyPlaceholder, ''))}
               />
-              <ButtonsDiv>
-                <CloseButton onClick={() => setShowReplySection(false)}>Close</CloseButton>
+              <ButtonsDiv style={{ marginRight: '2px' }}>
+                <CloseButton
+                  onClick={() => {
+                    setShowReplySection(false);
+                    setIsReplying(false);
+                  }}
+                >
+                  Close
+                </CloseButton>
                 <ReplyButton onClick={handleReplySubmit}>Reply</ReplyButton>
               </ButtonsDiv>
             </PostReply>

@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
+import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
 
 import {
   EmailShareButton,
@@ -101,7 +102,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   margin-top: 95px;
-  margin-left: -253px;
+  margin-left: ${({ anyPopup }) => (anyPopup ? '-257px' : '-253px')};
   gap: 24px;
   background-color: rgba(15, 12, 18);
   display: ${({ videoLoaded }) => (videoLoaded ? 'flex' : 'none')};
@@ -128,7 +129,7 @@ const Buttons = styled.div`
   color: ${({ theme }) => theme.text};
   margin-left: auto;
   margin-top: 0px;
-  margin-right: 17px;
+  margin-right: 5px;
   overflow: hidden;
   height: max-content;
   width: max-content;
@@ -223,8 +224,8 @@ const Title = styled.h1`
   font-weight: 400;
   top: 10px;
   color: ${({ theme }) => theme.text};
-  padding-bottom: 10px;
-  margin-bottom: 14px;
+  padding-bottom: 15px;
+  margin-bottom: 10px;
   max-width: 523px;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -238,7 +239,7 @@ const Title = styled.h1`
 
 const ContenedorIconosTextos = styled.div`
   display: flex;
-  top: 233px;
+  top: 230px;
   left: 45px;
   padding: 0px 0px 20px 0px;
 `;
@@ -730,6 +731,8 @@ const GoHomeNotAllowed = styled.button`
 const VideoPage = () => {
   const { language, setLanguage } = useLanguage();
   const [NoRecommendations, setNoRecommendations] = useState(false);
+  const [anyPopup, setAnyPopup] = useState(false);
+  const [showResumePopup, setShowResumePopup] = useState(false);
 
   const translations = {
     en: {
@@ -825,7 +828,6 @@ const VideoPage = () => {
 
         }
 
-        console.log("hola3");
         scrollToTop();
         setVideoLoaded(true);
 
@@ -843,13 +845,24 @@ const VideoPage = () => {
 
   }, [path, dispatch]);
 
+  useEffect(() => {
+    if (showResumePopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showResumePopup]);
+
   // VALIDATE PRIVACY PRIVATE
   const isVideoPrivate = currentVideo?.privacy === "private" || false;
   const [allowedUsers, setAllowedUsers] = useState([]);
   const [UserAllowed, setUserAllowed] = useState(true);
 
   useEffect(() => {
-    console.log("holamundo4");
     if (videoLoaded) {
 
       axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
@@ -927,8 +940,6 @@ const VideoPage = () => {
   // CONST DECLARATIONS
 
   const player = useRef(null);
-
-  const [showResumePopup, setShowResumePopup] = useState(false);
 
   const [resumeProgress, setResumeProgress] = useState(0);
 
@@ -1099,6 +1110,7 @@ const VideoPage = () => {
   const handleShare = () => {
     setShareLink(currentURL);
     setSharePopupVisible(!isSharePopupVisible);
+    setAnyPopup(!anyPopup);
   };
 
   const handleCopyClick = () => {
@@ -1208,8 +1220,31 @@ const VideoPage = () => {
   ));
 
 
-  // AVOID PIP ERROR
+  // AVOID PIP ERROR - PENDIENTE
   const canUsePictureInPicture = player?.disablePictureInPicture;
+
+  // SAVE VIDEO
+  const [popupSaveVideo, setPopupSaveVideo] = useState(false);
+
+  const handleSaveVideo = () => {
+    setPopupSaveVideo(!popupSaveVideo);
+    setAnyPopup(!anyPopup)
+  };
+
+  useEffect(() => {
+    // Cuando el popup se abre, deshabilitar el scroll
+    if (popupSaveVideo) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Cuando el popup se cierra, habilitar el scroll
+      document.body.style.overflow = 'auto';
+    }
+
+    // Limpiar el efecto al desmontar el componente
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [popupSaveVideo]);
 
   return (
 
@@ -1217,7 +1252,7 @@ const VideoPage = () => {
 
       {UserAllowed && (
 
-        <Wrapper videoLoaded={videoLoaded} NoRecommendations={NoRecommendations}>
+        <Wrapper videoLoaded={videoLoaded} NoRecommendations={NoRecommendations} anyPopup={anyPopup}>
 
           <Content>
 
@@ -1263,7 +1298,7 @@ const VideoPage = () => {
                 </MediaProvider>
 
                 <DefaultVideoLayout
-                  thumbnails="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"
+                  thumbnails={`https://image.mux.com/${currentVideo?.videoUrlStream}/storyboard.vtt`}
                   icons={defaultLayoutIcons}
                 />
               </MediaPlayer>
@@ -1416,7 +1451,7 @@ const VideoPage = () => {
 
                   </DislikeButton>
                 </LikeAndDislikeButtons>
-                <Button>
+                <Button onClick={handleSaveVideo}>
                   <ButtonsImg src={VideoPlaylistIcono} /> Save
                 </Button>
 
@@ -1541,6 +1576,16 @@ const VideoPage = () => {
               </ShareLinkCopyDiv>
             </ShareContainer>
           </SharePopupContainerBg>
+        )
+      }
+
+      {
+        popupSaveVideo && (
+          <PlaylistSelectBoxVideo
+            closePopup={handleSaveVideo}
+            userId={currentUser?._id}
+            videoId={currentVideo?._id}
+          />
         )
       }
 

@@ -45,8 +45,6 @@ export const addVideo = async (req, res, next) => {
             });
 
             const playbackId = MuxData.playback_ids[0].id;
-            console.log("MuxData:", MuxData);
-            console.log("playbackId:", playbackId);
 
             await Video.findByIdAndUpdate(videoId, {
                 videoUrlStream: playbackId,
@@ -61,8 +59,6 @@ export const addVideo = async (req, res, next) => {
                             resource_type: 'raw', // Indica que el recurso no es una imagen
                             public_id: `subtitle_${videoId}_${subtitle.name}`,
                         });
-
-                        console.log(cloudinaryResponse);
 
                         // Retorna un objeto actualizado para este subtítulo
                         return {

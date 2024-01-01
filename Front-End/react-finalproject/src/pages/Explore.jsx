@@ -6,11 +6,13 @@ import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
 
 const MainContainer = styled.div`
-  display: relative;
+  position: relative;
   width: 100%;
+  top: 0;
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
-  z-index: 1;
+  margin: auto;
+  max-width: 1920px;
 `;
 
 const Header = styled.h1`
@@ -26,11 +28,11 @@ const Container = styled.div`
   justify-content: flex-start;  // Ajusta la propiedad justify-content
   flex-wrap: wrap;
   z-index: 1;
-  gap: 118px;
+  gap: 16px;
 `;
 
 const Wrapper = styled.div`
-  padding: 32px 55px;
+  padding: 32px 55px 32px 58px;
 `;
 
 const NoVideosWrapper = styled.div`
@@ -44,13 +46,6 @@ const NoVideos1 = styled.h1`
   margin-top: 15px;
   font-size: 32px;
   color: rgba(224, 175, 208, 0.8);
-  font-weight: bold;
-  font-family: "Roboto Condensed", Helvetica;
-`;
-const NoVideos2 = styled.h1`
-  margin-top: 15px;
-  font-size: 32px;
-  color: white;
   font-weight: bold;
   font-family: "Roboto Condensed", Helvetica;
 `;

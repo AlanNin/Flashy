@@ -13,6 +13,7 @@ import Subscriptions from "./pages/Subscriptions";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import VideoPage from "./pages/Video";
+import Library from "./pages/Library";
 
 const Container = styled.div`
   position: relative;
@@ -44,7 +45,7 @@ const DesenfoqueWithMenu = styled.div`
   background: ${({ menuVisible, theme }) =>
     menuVisible ? theme.bgLighter : "none"};
   backdrop-filter: ${({ menuVisible }) => (menuVisible ? "blur(10px)" : "none")};
-  z-index: 3;
+  z-index: 4;
   pointer-events: ${({ menuVisible }) => (menuVisible ? "auto" : "none")};
 `;
 
@@ -105,6 +106,7 @@ function App() {
                     <Route path="signin" element={<Signin />} />
                     <Route path="explore" element={<Explore />} />
                     <Route path="search" element={<Search />} />
+                    <Route path="library" element={<Library />} />
                     <Route path="history" element={<History />} />
                     <Route path="subscriptions" element={<Subscriptions />} />
                     <Route path="signup" element={<Signup />} />

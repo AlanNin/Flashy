@@ -18,7 +18,15 @@ const TitleOverlay = styled.h1`
   transition: background-color 0.4s;
   padding: 2px 5px;
   border-radius: 8px;
-  width: max-content;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const Image = styled.img`

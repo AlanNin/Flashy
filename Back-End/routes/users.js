@@ -25,6 +25,7 @@ import {
     checkPlaylistExists,
     updatePlaylist,
     addPlaylist,
+    getVideoIdsFromPlaylist,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -96,6 +97,9 @@ router.get("/:userId/playlists/public", verifyToken, getPublicPlaylists);
 
 // GET VIDEOS FROM PLAYLIST
 router.get("/:userId/playlists/:playlistId/videos", verifyToken, getVideosFromPlaylist);
+
+// GET VIDEO IDS FROM PLAYLIST
+router.get("/:userId/playlists/:playlistId/videosId", verifyToken, getVideoIdsFromPlaylist);
 
 // UPDATE PLAYLIST
 router.put("/:userId/playlists/update", verifyToken, updatePlaylist);

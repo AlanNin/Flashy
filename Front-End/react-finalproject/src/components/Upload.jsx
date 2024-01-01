@@ -883,7 +883,7 @@ const ContainerProcessConfirm = styled.div`
     height: max-content;
     background: #1D1D1D;
     color: ${({ theme }) => theme.text};
-    padding: 20px 20px 20px 30px;
+    padding: 20px 30px 20px 30px;
     border-radius: 10px;
     overflow: hidden;
     display: flex;
@@ -1486,9 +1486,10 @@ const Upload = ({ setOpen }) => {
                     <ContainerProcessConfirm>
                         <WrapperProcessConfirm>
                             <Label style={{ marginTop: '5px', fontSize: '28px', textAlign: 'left' }}> Video Rendering </Label>
-                            <SubLabelProcessConfirm style={{ marginTop: '0px', fontSize: '16px' }}>
-                                Rendering your video will create different resolutions for the video player,
-                                but will take significantly longer to be uploaded.
+                            <SubLabelProcessConfirm style={{ marginTop: '0px', fontSize: '17px' }}>
+                                By rendering your video you will be creating different
+                                resolutions for the video player as well as preview thumbnails,
+                                but this may lead to a longer upload time.
                             </SubLabelProcessConfirm>
                             <ButtonsContainer>
                                 <NoProcessButton onClick={handleNotThisTime}> Not this time </NoProcessButton>

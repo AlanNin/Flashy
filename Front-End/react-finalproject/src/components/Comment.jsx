@@ -47,9 +47,9 @@ const CommentMenu = styled.img`
 const ContainerForComment = styled.div`
   display: flex;
   gap: 17px;
-  width: 947px;
+  width: calc(100% - 20px);
   margin: 0px 0px 0px 0px;
-  padding: 10px 10px;
+  padding: 15px 10px;
   border-radius: 10px;
   background: ${({ isMenuDotsVisible }) => (isMenuDotsVisible ? 'rgba(24, 19, 28)' : 'transparent')};
 
@@ -71,14 +71,15 @@ const Details = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  color: ${({ theme }) => theme.text}
+  color: ${({ theme }) => theme.text};
+  width: 100%;
 `;
 
 const NameDate = styled.div`
   display: flex;
   position: relative;
   align-items: center;
-  width: 900px;
+  width: 100%;
 `;
 
 const Name = styled.span`
@@ -106,7 +107,7 @@ const Text = styled.span`
 `;
 
 const CommentOptions = styled.div`
-  display: flex;
+  display: ${({ isEditing }) => (isEditing ? 'none' : 'flex')};
   border: none;
   margin-bottom: 5px;
 `;
@@ -172,7 +173,7 @@ const LikeDislikeCounter = styled.h1`
 `;
 
 const Replies = styled.div`
-  display: flex;
+  display: ${({ isEditing }) => (isEditing ? 'none' : 'flex')};
   border: none;
   cursor: pointer;
   width: max-content;
@@ -212,7 +213,7 @@ const AvatarForReply = styled.img`
 
 const PostReply = styled.div`
   display: flex;
-  width: 826px;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
   margin-top: 0px;
@@ -282,7 +283,7 @@ const ReplyContainer = styled.div`
   margin-left: 50px;
   margin-top: -10px;
   display: flex;
-  width: 917px;
+  width: calc(100% - 70px);
   color: ${({ theme }) => theme.text}
 `;
 
@@ -443,7 +444,7 @@ const Textarea = styled.textarea`
 
 const PostEdit = styled.div`
   display: flex;
-  width: 875px;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
 `;
@@ -970,11 +971,14 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
 
   // REPLIES
+  const [isReplying, setIsReplying] = useState(false);
+
   const handleReplyClick = () => {
     if (!currentUser) {
       setReplyPopupVisible(true);
       return;
     }
+    setIsReplying(!isReplying);
     setShowReplySection(!showReplySection);
   };
 
@@ -998,6 +1002,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
         onCommentsReload();
       }
 
+      setIsReplying(!isReplying);
       setShowReplySection(!showReplySection);
 
     } catch (error) {
@@ -1114,7 +1119,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
   return (
     <Container>
-      <ContainerForComment isMenuDotsVisible={isMenuDotsVisible} ref={menuRef}>
+      <ContainerForComment isMenuDotsVisible={isMenuDotsVisible}>
 
         <Avatar src={channel.img} />
         <Details>
@@ -1123,8 +1128,9 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
               {channel.displayname}
             </Name>
             <Date> • {timeago(currentComment.createdAt)} </Date>
-            {!isEditing && (
+            {!isEditing && !isReplying && (
               <CommentMenu
+                ref={menuRef}
                 src={PuntosSuspensivosIcono}
                 onClick={handleCommentMenuClick}
                 isMenuDotsVisible={isMenuDotsVisible} />
@@ -1422,7 +1428,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                   onChange={(e) => setEditedCommentText(e.target.value)}
                   placeholder="Edit your comment..."
                 />
-                <ButtonsDiv>
+                <ButtonsDiv style={{ marginRight: '8px' }}>
                   <CloseButton onClick={handleCancelEdit}> Close </CloseButton>
                   <EditButton disabled={!editedCommentText.trim()} onClick={handleSaveEdit}>
                     Edit
@@ -1433,7 +1439,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
               currentComment.desc
             )}
           </Text>
-          <CommentOptions>
+          <CommentOptions isEditing={isEditing}>
 
             <Replyy onClick={handleReplyClick}>
               <ReplyImg src={RespuestaIcono} />
@@ -1532,7 +1538,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                   value={newReplyText}
                   onChange={(e) => setNewReplyText(e.target.value)}
                 />
-                <ButtonsDiv>
+                <ButtonsDiv style={{ marginRight: '-7px' }}>
                   <CloseButton onClick={handleReplyClick}> Close </CloseButton>
                   <ReplyButton onClick={handleAddReply}> Reply </ReplyButton>
                 </ButtonsDiv>
@@ -1541,7 +1547,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
           )}
 
           {comment.replies.length > 0 && (
-            <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)}>
+            <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)} isEditing={isEditing}>
               <ArrowViewReplies> {showReplies ? '▲' : '▼'} </ArrowViewReplies>
               <ViewReplies>View {comment.replies.length} replies</ViewReplies>
             </Replies>

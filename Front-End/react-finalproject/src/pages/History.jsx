@@ -16,7 +16,6 @@ const MainContainer = styled.div`
     width: 100%;
     min-height: 100vh;
     background-color: rgba(15, 12, 18);
-    z-index: 1;
     max-width: 1920px;
     margin: auto;
 `;
@@ -74,7 +73,8 @@ const Header = styled.h1`
 const CardsContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 20px;
+    width: 64%;
 `;
 
 const SearchContainer = styled.div`
@@ -177,15 +177,18 @@ const ClearHistoryPopupWrapper = styled.div`
 `;
 
 const ClearHistoryPopupTitle = styled.h1`
-  font-weight: bold;
-  font-size: 24px;
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Roboto Condensed", Helvetica;
 `;
 
 const ClearHistoryPopupTxt = styled.h1`
-  font-weight: normal;
-  font-size: 16px;
-  margin-bottom: 15px;
-  color: ${({ theme }) => theme.textSoft};
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: normal;
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: ${({ theme }) => theme.textSoft};
+    max-width: 350px;
 `;
 
 const OptionsClearCancel = styled.div`
@@ -196,22 +199,26 @@ const OptionsClearCancel = styled.div`
 `;
 
 const ClearHistoryCancel = styled.div`
-  margin-right: 10px;
-  cursor: pointer;
-  &:hover {
+    margin-right: 10px;
+    cursor: pointer;
+    &:hover {
     background: rgba(45, 45, 45);
-  }
-  padding: 8px 10px;
-  border-radius: 15px;
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
 `;
 
 const ClearHistoryClear = styled.div`
-  cursor: pointer;
-  &:hover {
+    cursor: pointer;
+    &:hover {
     background: rgba(45, 45, 45);
-  }
-  padding: 8px 10px;
-  border-radius: 15px;
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
 `;
 
 const ItemLogin = styled.div`
@@ -281,6 +288,7 @@ const History = () => {
     const { language, setLanguage } = useLanguage();
     const [historyLoaded, setHistoryLoaded] = useState(false);
     const [searchInput, setSearchInput] = useState('');
+    const [isHistoryUpdated, setIsHistoryUpdated] = useState(false);
 
     // TRANSLATIONS
     const translations = {
@@ -309,6 +317,7 @@ const History = () => {
     // FETCH VIDEOS HISTORY
     useEffect(() => {
         setHistoryLoaded(false);
+        setIsHistoryUpdated(false);
 
         const fetchHistory = async () => {
             try {
@@ -341,7 +350,7 @@ const History = () => {
         if (currentUser) {
             fetchHistory();
         }
-    }, [currentUser]);
+    }, [currentUser, isHistoryUpdated]);
 
     // SEARCH WHEN ENTER IS PRESSED
     const handleKeyPress = async (e) => {
@@ -430,13 +439,24 @@ const History = () => {
         if (confirmed) {
             try {
                 await axios.delete(`/users/${currentUser?._id}/history/clear`);
-                window.location.reload();
+                setIsHistoryUpdated(true);
             } catch (error) {
-                console.error('Error deleting comment:', error);
+                console.error('Error deleting history:', error);
             }
         }
     };
 
+    useEffect(() => {
+        if (isClearHistoryPopupOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [isClearHistoryPopupOpen]);
 
     return (
         <MainContainer>
@@ -478,7 +498,7 @@ const History = () => {
                             ) : (
                                 <CardsContainer>
                                     {videos.map(video => (
-                                        <CardHistory key={video._id} video={video} />
+                                        <CardHistory key={video._id} video={video} setIsHistoryUpdated={setIsHistoryUpdated} />
                                     ))}
                                 </CardsContainer>
                             )
@@ -531,7 +551,7 @@ const History = () => {
                         ) : (
                             <ClearHistoryPopupWrapper>
                                 <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
-                                <ClearHistoryPopupTxt> Your watch history will be completely cleared. </ClearHistoryPopupTxt>
+                                <ClearHistoryPopupTxt> Your watch history will be completely cleared as well as the watch progress of these videos. </ClearHistoryPopupTxt>
                                 <OptionsClearCancel>
                                     <ClearHistoryCancel onClick={() => handleDeleteConfirmation(false)}>
                                         Cancel

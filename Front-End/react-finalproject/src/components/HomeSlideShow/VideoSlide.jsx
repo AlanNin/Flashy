@@ -188,7 +188,7 @@ const BotonVerDespuesTexto = styled(EstiloTextoBotones)`
 `;
 
 
-const VideoSlide = ({ type, video, translations, language, index }) => {
+const VideoSlide = ({ type, video, translations, language, index, setIsMoreInfo, setMoreInfoInputs }) => {
 
   const formatDuration = (durationInSeconds) => {
     const hours = Math.floor(durationInSeconds / 3600);
@@ -226,6 +226,29 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
     fetchChannel();
   }, [video.userId]);
 
+  const SendPopupAndInputs = () => {
+    setMoreInfoInputs((prev) => {
+      return {
+        ...prev,
+        imgUrlLandscape: video.imgUrlLandscape,
+        title: video.title,
+        videoId: video._id,
+        userId: video.userId,
+        tags: video.tags,
+        subtitles: video.subtitles,
+        language: video.language,
+        likes: video.likes,
+        dislikes: video.dislikes,
+        desc: video.desc,
+        views: video.views,
+        videoUrl: video.videoUrl,
+        createdAt: video.createdAt,
+        duration: video.duration,
+      };
+    });
+    setIsMoreInfo(true);
+  };
+
   return (
     <>
       <Contenedor>
@@ -258,7 +281,7 @@ const VideoSlide = ({ type, video, translations, language, index }) => {
               <BotonVerAhoraTexto>{translations[language].watchnow}</BotonVerAhoraTexto>
             </BotonVerAhora>
           </Link>
-          <BotonVerDespues>
+          <BotonVerDespues onClick={SendPopupAndInputs}>
             <ImagenVerDespues src={InfoSlideShow} />
             <BotonVerDespuesTexto>{translations[language].moreinfo}</BotonVerDespuesTexto>
           </BotonVerDespues>

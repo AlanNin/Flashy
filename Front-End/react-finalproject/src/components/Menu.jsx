@@ -34,7 +34,7 @@ const Container = styled.div`
   height: 100%;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-  z-index: 3;
+  z-index: 4;
   transition: transform 0.2s ease;
   border-right: 1px solid ${({ theme }) => theme.borderColor};
 
@@ -358,6 +358,7 @@ const ButtonLoginText = styled.h3`
   font-weight: 700px;
   letter-spacing: 0;
   margin-right: 6px;
+  margin-left: ${({ currentUser }) => (currentUser ? '5px' : '0px')};
   line-height: normal;
   color: ${({ theme }) => theme.text};
   @media only screen and (max-width: 980px),
@@ -665,7 +666,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
                 (<ImgLogin src={InicioSesionIcono2} />)
 
             }
-            <ButtonLoginText>
+            <ButtonLoginText currentUser={currentUser}>
               {currentUser ? currentUser.displayname.split(' ')[0] : 'Sign in'}
             </ButtonLoginText>
 

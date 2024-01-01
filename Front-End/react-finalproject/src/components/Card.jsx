@@ -26,8 +26,10 @@ import SubtitleIconoG from '../assets/SubtitleIconoG.png';
 import VideoShareIcono from "../assets/VideoShareIconoPopup.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CopyIcono from "../assets/CopyIcono.png";
-import CloseXGr from "../assets/CloseXGr.png"
+import CloseXGr from "../assets/CloseXGr.png";
 import ReactPlayer from 'react-player';
+import Card4CardPopup from "./Card4CardPopup";
+import PlaylistSelectBoxVideo from "./PlaylistSelectBoxVideo";
 
 import {
   EmailShareButton,
@@ -322,6 +324,15 @@ const ChannelName = styled.h2`
   cursor: pointer;
   margin-right: 5px;
   font-family: "Roboto Condensed", Helvetica;
+  max-width: 75px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const DetailContainer = styled.div`
@@ -372,9 +383,19 @@ const PopupContainerBg = styled.div`
     left: 0;
     background-color: ${({ closing }) => (closing ? 'transparent' : '#000000b9')}; 
     display: flex;
+    padding-top: 30px;
     align-items: center;
     justify-content: center;
     z-index: 4;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 7px;
+    }
+        
+    &::-webkit-scrollbar-thumb {
+        border-radius: 15px;
+    }
 `;
 
 const popUpAnimation = keyframes`
@@ -402,7 +423,9 @@ const popDownAnimation = keyframes`
 const PopupContainer = styled.div`
   position: relative;
   width: 48%;
-  height: 95%;
+  height: auto;
+  margin-top: auto;
+  margin-bottom: ${({ filteredVideosLenght }) => (filteredVideosLenght === 0 ? '10%' : '0px')};
   background: rgba(24, 24, 24);
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
@@ -410,6 +433,7 @@ const PopupContainer = styled.div`
   display: flex;
   flex-direction: column;
   animation: ${popUpAnimation} 0.3s ease-in-out forwards;
+
 
     ${props => props.closing && css`
       animation: ${popDownAnimation} 0.5s ease-in-out forwards;
@@ -427,7 +451,7 @@ const PopupWrapper = styled.div`
 const PopupImageVideoContainer = styled.div`
     position: relative;
     width: 100%;
-    height: 1200px;
+    height: 511px;
     border-radius: 11px 11px 0px 0px;
     overflow: hidden;
     display: flex;
@@ -457,7 +481,7 @@ const PopupImageGradientOverlay = styled.div`
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 20%;
+  height: 60%;
   background: linear-gradient(to bottom,
     transparent,
     rgba(25, 25, 25, 0.001),
@@ -579,7 +603,7 @@ const VideoTitle = styled.h1`
     width: max-content;
     max-width: 450px;
     height: max-content;
-    bottom: 140px;
+    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '170px' : '140px')};  
     left: 50px;
     z-index: 2;
     color: white;
@@ -664,7 +688,7 @@ const SaveImg = styled.img`
 const PopupBelowContent = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
+  height: max-content;
   display: flex;
   padding: 20px 50px;
   gap: 50px;
@@ -673,7 +697,7 @@ const PopupBelowContent = styled.div`
 const PopupBelowDivColumn = styled.div`
   position: relative;
   width: max-content;
-  height: 100%;
+  height: max-content;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -747,7 +771,7 @@ const VideoDescPopup = styled.h1`
   display: flex;
   height: max-content;
   width: max-content;
-  max-width: 450px;
+  max-width: 500px;
   margin-top: 12px;
 `;
 
@@ -952,6 +976,117 @@ const SharePopupContent = styled.p`
   margin: 0;
 `;
 
+const RecommendationsContainer = styled.div`
+  position: relative;
+  width: calc(100% - 100px);
+  height: max-content;
+  display: flex;
+  left: 50px;
+  flex-direction: column;
+  gap: 15px;
+  margin-right: auto;
+  margin-top: 55px;
+`;
+
+// RECOMMENDED CONTENT
+const LabelRecommendation = styled.label`
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const ContainerRecommendation = styled.div`
+  flex: 2;
+  margin-top: 10px;
+  margin-bottom: 70px;
+  width: 100%;
+`;
+
+const CardContainerRecommendation = styled.h1`
+    position: relative; 
+    border-radius: 5px;
+    border-top: 1px solid rgba(118, 118, 118, 0.5);
+    width: 100%;
+`;
+
+const rotate = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-top: 50px;
+  padding-left: 10px;
+`;
+
+const LoadingCircle = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #7932a8;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${rotate} 1s linear infinite;
+`;
+
+// PROGRESS POP UP
+
+
+const ProgressContainerPopup = styled.div`
+  postition: relative;  
+  display: flex;
+  align-items: center;
+  width: 450px;
+  bottom: 0px;
+  margin-top: 355px;
+  margin-left: -345px;
+  z-index: 2;
+  height: max-content;
+`;
+
+const ProgressBarPopup = styled.div`
+  width: 72%;
+  height: 2px;
+  background-color: rgba(36, 35, 35, 0.8);
+  border-radius: 1px;
+  bottom: 0px;
+  z-index: 2;
+  display: flex;
+`;
+
+const ProgressIndicatorPopup = styled.div`
+  height: 100%;
+  width: ${(props) => `${props.progress}%`};
+  background-color: rgba(145, 1, 111);
+  border-radius: 1px;
+`;
+
+const ProgressTxtPopup = styled.div`
+  font-size: 17px;
+  color: rgba(219, 219, 217);
+  margin-left: 20px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: bold;
+  opacity: 0.8;
+`;
+
+// FOOTER
+
+const LabelFooter = styled.h1`
+    position: relative;
+    display: flex;
+    font-size: 16px;
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+    color: ${({ theme }) => theme.textSoft};
+    margin-top: 40px;
+    align-items: center;
+    justify-content: center;
+`;
 
 
 const Card = ({ video }) => {
@@ -975,20 +1110,28 @@ const Card = ({ video }) => {
   const [shareLink, setShareLink] = useState('');
   const [isSharePopupVisible, setSharePopupVisible] = useState(false);
   const shareRef = useRef(null);
+  const shareRefBg = useRef(null);
   const buttonShareRef = useRef(null);
-  const currentURL = window.location.href + video._id;
+  const currentURL = window.location.href + 'video/' + video._id;
   const [isPopUpShareVisible, setIsPopUpShareVisible] = useState(false);
+  const [videoTimerTick, setVideoTimerTick] = useState(0);
+
+  // VIDEO TICK TIMER TO TRACK VIDEO SIZE
+  const handleVideoTimerTick = (state) => {
+    const playedPercentage = state.played * 100;
+    setVideoTimerTick(playedPercentage);
+  };
 
   // SET VIDEO POPUP SIZE
   useEffect(() => {
     if (windowWidth <= 2000 && windowHeight <= 1200) {
-      setPlayerWidth(925)
-      setPlayerHeight(520)
+      setPlayerWidth(910)
+      setPlayerHeight(530)
     } else {
       setPlayerWidth(1240)
       setPlayerHeight(700)
     }
-  }, []);
+  }, [videoTimerTick, isMoreInfo]);
 
   // SHOW POPUP MORE INFO
   const handleShowMoreInfo = () => {
@@ -1022,26 +1165,18 @@ const Card = ({ video }) => {
     setIsTransitionExpanded(false);
   };
 
-  // STOP SCROLL ON POPUP MORE INFO
-  useEffect(() => {
-    if (isMoreInfo) {
-      document.body.style.overflow = 'hidden';
-    }
-    else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isMoreInfo]);
-
-  // CLOSE POPUP MORE INFO ON CLICK OUTSIDE
+  // CLOSE POPUP MORE INFO ON CLICK OUTSIDE 
   useEffect(() => {
     const handleClickOutsidePopupMoreInfo = (event) => {
+      const isScrollbarClick = event.clientX >= document.documentElement.clientWidth - 7;
+
       if (
         moreInfoRef.current &&
         !moreInfoRef.current.contains(event.target) &&
-        !(shareRef.current && shareRef.current.contains(event.target))
+        !(shareRef.current && shareRef.current.contains(event.target)) &&
+        !(shareRefBg.current && shareRefBg.current.contains(event.target)) &&
+        !(saveRef.current && saveRef.current.contains(event.target)) &&
+        !isScrollbarClick
       ) {
         handleCloseMoreInfo();
       }
@@ -1198,13 +1333,65 @@ const Card = ({ video }) => {
     };
   }, []);
 
+  // FETCH RECOMMENDATIONS
+  const [videos, setVideos] = useState([]);
+  const [cardLoaded, setCardLoaded] = useState(false);
+  const videoId = video._id;
+  const filteredVideos = videos.filter((video) => video._id !== videoId);
+
+  useEffect(() => {
+    setCardLoaded(false);
+    const fetchVideos = async () => {
+      const res = await axios.get(`/videos/tags?tags=${video.tags}`);
+      setVideos(res.data);
+      setCardLoaded(true);
+    };
+    fetchVideos();
+
+  }, [video.tags]);
+
+  // SAVE VIDEO
+  const [popupSaveVideo, setPopupSaveVideo] = useState(false);
+  const saveRef = useRef(null);
+
+  const handleSaveVideo = () => {
+    setPopupSaveVideo(!popupSaveVideo);
+  };
+
+  useEffect(() => {
+    // Cuando el popup se abre, deshabilitar el scroll
+    if (popupSaveVideo) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Cuando el popup se cierra, habilitar el scroll
+      document.body.style.overflow = 'auto';
+    }
+
+    // Limpiar el efecto al desmontar el componente
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [popupSaveVideo]);
+
+  // STOP SCROLL ON POPUP MORE INFO
+  useEffect(() => {
+    if (isMoreInfo) {
+      document.body.style.overflow = 'hidden';
+    }
+    else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMoreInfo, popupSaveVideo]);
 
   return (
     <div>
 
       {isMoreInfo && (
         <PopupContainerBg closing={isMoreInfoClosing}>
-          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef}>
+          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef} filteredVideosLenght={filteredVideos.length}>
             <PopupImageVideoContainer>
 
               <VideoWrapper videoPopupEnded={videoPopupEnded}>
@@ -1218,8 +1405,9 @@ const Card = ({ video }) => {
                     muted={isVideoMuted}
                     width={`${playerWidth}px`}
                     height={`${playerHeight}px`}
+                    onProgress={handleVideoTimerTick}
                     onEnded={handleVideoPopupEnded}
-                    style={{ cursor: 'pointer', marginTop: '-10px' }}
+                    style={{ cursor: 'pointer', marginTop: '-10px', background: 'black' }}
                   />
                 </Link>
               </VideoWrapper>
@@ -1241,8 +1429,23 @@ const Card = ({ video }) => {
               </MuteButtonDiv>
 
               <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-                <VideoTitle>{video.title}</VideoTitle>
+                <VideoTitle progress={progress} currentUser={currentUser}>{video.title}</VideoTitle>
               </Link>
+
+              {currentUser && progress > 0 && (
+
+                <ProgressContainerPopup>
+                  <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', display: 'inherit', position: 'inherit', width: 'inherit', height: 'inherit', alignItems: 'inherit' }}>
+
+                    <ProgressBarPopup>
+                      <ProgressIndicatorPopup progress={progress} />
+                    </ProgressBarPopup>
+
+                    <ProgressTxtPopup> {formatDurationProgress(progress)} of {formatDurationProgress(video.duration)} </ProgressTxtPopup>
+                  </Link>
+
+                </ProgressContainerPopup>
+              )}
 
               <WatchNowSaveDiv>
                 <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
@@ -1251,7 +1454,7 @@ const Card = ({ video }) => {
                   </WatchNowPopupDiv>
                 </Link>
 
-                <SaveButtonDiv>
+                <SaveButtonDiv onClick={handleSaveVideo}>
                   <SaveImg src={Save4Popup} />
                 </SaveButtonDiv>
 
@@ -1312,6 +1515,7 @@ const Card = ({ video }) => {
                     {video.desc}
                   </VideoDescPopup>
                 </PopupBelowDivColumn>
+
                 <PopupBelowDivColumn style={{ marginRight: '100px' }}>
                   <RightItemsDiv>
 
@@ -1331,10 +1535,39 @@ const Card = ({ video }) => {
                   )}
                 </PopupBelowDivColumn>
               </PopupBelowContent>
+
+              <RecommendationsContainer>
+                <LabelRecommendation> You might also like </LabelRecommendation>
+
+                <ContainerRecommendation>
+                  {cardLoaded ? (
+                    filteredVideos.length === 0 ? (
+                      <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
+                        No recommended videos found.
+                      </p>
+                    ) : (
+                      <CardContainerRecommendation>
+                        {filteredVideos.map((video) => (
+                          <Card4CardPopup type="sm" key={video._id} video={video} />
+                        ))}
+                        <LabelFooter> @Flashy_Content </LabelFooter>
+                      </CardContainerRecommendation>
+                    )
+                  ) : (
+                    <LoadingContainer>
+                      <LoadingCircle />
+                    </LoadingContainer>
+                  )}
+
+                </ContainerRecommendation>
+
+              </RecommendationsContainer>
+
             </PopupWrapper>
           </PopupContainer>
-        </PopupContainerBg>
-      )}
+        </PopupContainerBg >
+      )
+      }
 
       <Container
         onMouseEnter={() => {
@@ -1403,15 +1636,18 @@ const Card = ({ video }) => {
           </Details>
 
           <DetailTagContainer>
-            {video.tags.slice(0, 5).map((tag, index) => (
+            {video.tags.slice(0, 4).map((tag, index) => (
               <React.Fragment key={index}>
                 <TagContainer>
                   {tag.charAt(0).toUpperCase() + tag.slice(1)}
                 </TagContainer>
-                {index < video.tags.length - 1 && <span style={{ color: 'gray', fontSize: '12px' }}> • </span>}
+                {index < video.tags.slice(0, 4).length - 1 && (
+                  <span style={{ color: 'gray', fontSize: '12px' }}> • </span>
+                )}
               </React.Fragment>
             ))}
           </DetailTagContainer>
+
 
 
           {currentUser && progress > 0 && (
@@ -1428,8 +1664,20 @@ const Card = ({ video }) => {
       </Container >
 
       {
+        popupSaveVideo && (
+          <div ref={saveRef}>
+            <PlaylistSelectBoxVideo
+              closePopup={handleSaveVideo}
+              userId={currentUser?._id}
+              videoId={video?._id}
+            />
+          </div>
+        )
+      }
+
+      {
         isSharePopupVisible && (
-          <SharePopupContainerBg>
+          <SharePopupContainerBg ref={shareRefBg}>
             <ShareContainer ref={shareRef}>
               <ShareLabel> Share </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
@@ -1520,7 +1768,7 @@ const Card = ({ video }) => {
           </SharePopupContainer>
         )
       }
-    </div>
+    </div >
   );
 };
 

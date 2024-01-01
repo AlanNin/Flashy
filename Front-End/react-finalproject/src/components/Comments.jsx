@@ -6,6 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 
 const Container = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 100px;
 `;
 
 const TitleHeader = styled.h1`
@@ -33,7 +38,7 @@ const NewComment = styled.div`
 
 const PostComment = styled.div`
   display: flex;
-  width: 90%;
+  width: 100%;
   flex-direction: column;
   gap: 10px;
   margin-top: 0px;
@@ -71,7 +76,7 @@ const Textarea = styled.textarea`
   background-color: #3d4245;
   outline: none;
   padding: 10px;
-  width: 98%;
+  width: calc(98% + 5px);
   height: 50px;
   resize: none;
 `;
@@ -121,7 +126,7 @@ const CloseButton = styled.button`
 `;
 
 const CommentContainer = styled.div`
-  width: 905px;
+  width: 100%;
 `;
 
 const Comments = ({ videoId, UserUploader }) => {
@@ -141,7 +146,6 @@ const Comments = ({ videoId, UserUploader }) => {
 
   const handleComment = async () => {
     try {
-      console.log(newCommentText);
       const response = await axios.post('/comments', {
         videoId,
         desc: newCommentText,

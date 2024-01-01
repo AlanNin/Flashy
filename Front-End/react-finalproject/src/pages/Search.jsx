@@ -7,17 +7,20 @@ import Card from "../components/Card";
 import { useLanguage } from '../utils/LanguageContext';
 
 const MainContainer = styled.div`
-  display: relative;
-  width: 100%;
+  position: relative;
+  top: 0;
+  margin: auto;
   min-height: 100vh;
+  width: 100%;
   background-color: rgba(15, 12, 18);
-  z-index: 1;
+  max-width: 1920px;
+  margin-bottom: 175px;
 `;
 
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 118px;
+  gap: 16px;
 `;
 
 const Header = styled.h1`
@@ -37,7 +40,7 @@ font-family: "Roboto Condensed", Helvetica;
 `;
 
 const Wrapper = styled.div`
-  padding: 32px 55px;
+    padding: 32px 55px 32px 58px;
 `;
 
 const NoVideosWrapper = styled.div`

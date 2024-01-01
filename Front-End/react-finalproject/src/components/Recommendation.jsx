@@ -67,7 +67,7 @@ const Recommendation = ({ tags, currentVideoId, NoRecommendations, setNoRecommen
                     </p>
                 ) : (
                     <CardContainer>
-                        {filteredVideos.map((video) => (
+                        {filteredVideos.slice(0, 18).map((video) => (
                             <CardRecommendation type="sm" key={video._id} video={video} />
                         ))}
                     </CardContainer>
