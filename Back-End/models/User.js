@@ -20,18 +20,38 @@ const PlaylistSchema = new mongoose.Schema({
     image: {
         type: String,
     },
+    description: {
+        type: String,
+        required: false,
+    },
+    creatorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    creator: {
+        type: String,
+    },
     videos: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Video',
     }],
+    followers: {
+        type: [String],
+        default: [],
+    },
     privacy: {
         type: String,
         enum: ['public', 'private', 'unlisted'],
         default: 'public',
     },
-    allowedUsersPlaylist: {
-        type: [String],
-        default: [],
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    lastUpdated: {
+        type: Date,
+        default: Date.now,
     },
 });
 
@@ -76,15 +96,27 @@ const UserSchema = new mongoose.Schema({
     playlists: {
         type: [PlaylistSchema],
         default: function () {
-            const userEmail = this.parent().email;
+            const userName = this.parent().displayname;
+            const userId = this.parent()._id;
             return [{
                 name: "Watch Later",
                 videos: [],
                 privacy: "private",
-                allowedUsersPlaylist: [userEmail],
+                creatorId: userId,
+                creator: userName,
+                createdAt: new Date(),
             }];
         },
     },
+    followedPlaylists: [{
+        playlistId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Playlist',
+        },
+        followDate: {
+            type: Date
+        },
+    }],
 }, { timestamps: true }
 );
 

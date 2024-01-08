@@ -120,6 +120,19 @@ const Home = ({ type }) => {
     fetchVideos();
   }, [type, currentUser]);
 
+  // STOP SCROLL WHEN ADDING TO PLAYLIST 
+  const [addingToPlaylist, setAddingToPlaylist] = useState(false);
+
+  useEffect(() => {
+    if (addingToPlaylist) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [addingToPlaylist]);
 
   return (
     <MainContainer>
@@ -147,7 +160,7 @@ const Home = ({ type }) => {
 
         <Container>
           {videos.map((video) => (
-            <Card key={video._id} video={video} />
+            <Card key={video._id} video={video} setAddingToPlaylist={setAddingToPlaylist} addingToPlaylist={addingToPlaylist} />
           ))}
         </Container>
 

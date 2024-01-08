@@ -96,8 +96,6 @@ top: 53%;
 
 // POP UP MORE INFO
 
-// POP UP MORE INFO
-
 const PopupContainerBg = styled.div`
     position: fixed;
     width: 100%;
@@ -149,7 +147,9 @@ const PopupContainer = styled.div`
   height: auto;
   margin-top: auto;
   margin-bottom: ${({ filteredVideosLenght }) => (filteredVideosLenght === 0 ? '10%' : '0px')};
-  background: rgba(24, 24, 24);
+  background: linear-gradient(#0b090d, #0f0d12, #121014, #121112, #17141a 99%);
+  border: 1px solid rgba(2, 1, 3, 0.3);
+  box-shadow: 0px 4px 3px 5px rgba(0, 0, 0, 0.4);
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   overflow: hidden;
@@ -326,7 +326,7 @@ const VideoTitle = styled.h1`
     width: max-content;
     max-width: 450px;
     height: max-content;
-    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '170px' : '140px')}; 
+    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '150px' : '120px')};  
     left: 50px;
     z-index: 2;
     color: white;
@@ -346,7 +346,7 @@ const WatchNowSaveDiv = styled.div`
     width: max-content;
     height: max-content;
     align-items: center;
-    bottom: 75px;
+    bottom: 55px;
     left: 50px;
     z-index: 2;
     gap: 15px;
@@ -764,7 +764,7 @@ const ProgressContainerPopup = styled.div`
   align-items: center;
   width: 450px;
   bottom: 0px;
-  margin-top: 355px;
+  margin-top: 375px;
   margin-left: -345px;
   z-index: 2;
   height: max-content;

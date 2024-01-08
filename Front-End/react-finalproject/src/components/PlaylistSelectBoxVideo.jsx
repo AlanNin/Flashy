@@ -8,9 +8,9 @@ import {
 import app from "../firebase";
 import axios from "axios";
 import styled, { keyframes } from "styled-components";
-import PublicIcon from "../assets/PublicIcon.png"
-import PrivateIcon from "../assets/PrivateIcon.png"
-import UnlistedIcon from "../assets/UnlistedIcon.png"
+import PublicIcon from "../assets/PublicIcon.png";
+import PrivateIcon from "../assets/PrivateIcon.png";
+import UnlistedIcon from "../assets/UnlistedIcon.png";
 import AddIcon from "../assets/AddIcon.png"
 import SharePrivateIcon from "../assets/AllowUserIcon.png";
 import { useLanguage } from '../utils/LanguageContext';
@@ -387,7 +387,7 @@ const UploadImageNewPlaylist = styled.label`
 
 const ContainerSelectPrivacy = styled.div`
   display: flex;
-  gap: 65px;
+  gap: 35px;
 `;
 
 const DivSelectPrivacy = styled.div`
@@ -398,7 +398,7 @@ const DivSelectPrivacy = styled.div`
   padding: 12px 22px;
   width: 60px;
   cursor: pointer;
-  transition: font-size 0.3s ease; 
+  transition: font-size 0.3s ease;
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -410,9 +410,9 @@ const DivSelectPrivacy = styled.div`
   }
 
   ${({ selected }) => selected && `
-    background: #5b3391;
-    font-size: 17px;
-    font-weight: bold;
+    background: #5b3391 !important;
+    font-size: 17px !important;
+    font-weight: bold !important;
   `}
 `;
 
@@ -492,13 +492,10 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
   const [playlistsLoaded, setPlaylistsLoaded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [NewPlaylistPopup, setNewPlaylistPopup] = useState(false);
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState({ privacy: 'public' });
   const [img, setImg] = useState(undefined);
   const [imgPerc, setImgPerc] = useState(0);
   const [playlistnameError, setPlaylistNameError] = useState(false);
-  const [SharePrivatePlaylist, setSharePrivatePlaylist] = useState([]);
-  const [showSharePrivatePlaylist, setshowSharePrivatePlaylist] = useState(false);
-  const [savedEmailsPlaylist, setSavedEmailsPlaylist] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
 
@@ -506,23 +503,11 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
     closePopup();
   };
 
-  const handleSharePrivatePlaylist = () => {
-    setshowSharePrivatePlaylist(!showSharePrivatePlaylist);
-  };
-
-  const handleSharePrivatePlaylistChange = (emails) => {
-    setSavedEmailsPlaylist(emails);
-    setInputs((prev) => {
-      return { ...prev, allowedUsersPlaylist: emails };
-    });
-  }
-
   const resetNewPlaylistState = () => {
-    setInputs({});
+    setInputs({ privacy: 'public' });
     setImg(undefined);
     setImgPerc(0);
     setPlaylistNameError(false);
-    setSavedEmailsPlaylist([]);
   };
 
   const translations = {
@@ -588,7 +573,7 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
         });
       } else {
         // Remove video from the playlist
-        await axios.delete(`/users/${userId}/playlists/${playlistId}/videos/${videoId}`);
+        await axios.delete(`/users/playlists/${playlistId}/videos/${videoId}/delete`);
       }
 
       // Update the state after the API call is successful
@@ -622,9 +607,14 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
   };
 
   const handleInputChange = (e) => {
-    setInputs((prev) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
+
+    const { value } = e.target;
+
+    if (value.length <= 100) {
+      setInputs((prev) => {
+        return { ...prev, [e.target.name]: e.target.value };
+      });
+    }
   };
 
   const uploadImage = (file, urlType) => {
@@ -676,13 +666,13 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
 
   const handleDoneNewPlaylist = async (e) => {
     e.preventDefault();
-    const userEmail = currentUser?.email;
+    const creatorName = currentUser?.displayname;
     try {
       if (inputs.name === undefined || inputs.name === "") {
         setPlaylistNameError(true);
       } else {
         // Usa directamente el estado actualizado
-        await axios.post(`/users/${userId}/playlists`, { ...inputs, email: userEmail });
+        await axios.post(`/users/${userId}/playlists`, { ...inputs, creator: creatorName });
 
         setNewPlaylistPopup(!NewPlaylistPopup);
         resetNewPlaylistState();
@@ -726,10 +716,7 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
                         <PlaylistImg src={PublicIcon} />
                       )}
                       {playlist.privacy === "private" && (
-
                         <PlaylistImg src={PrivateIcon} />
-
-
                       )}
                       {playlist.privacy === "unlisted" && (
                         <PlaylistImg src={UnlistedIcon} />
@@ -809,26 +796,17 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("public")}
-                      selected={inputs.privacy === "public"}
+                      selected={inputs.privacy === 'public'}
                     >
                       <PlaylistImgNewPlaylist src={PublicIcon} selected={inputs.privacy === "public"} />Public
                     </DivSelectPrivacy>
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("private")}
-                      selected={inputs.privacy === "private"}
+                      selected={inputs.privacy === 'private'}
                     >
                       <PlaylistImgNewPlaylist src={PrivateIcon} selected={inputs.privacy === "private"} />Private
-
-
-
                     </DivSelectPrivacy>
-
-                    {inputs.privacy === "private" && (
-                      <SharePrivatePlaylistButton onClick={handleSharePrivatePlaylist}>
-                        <SharePrivatePlaylistImg src={SharePrivateIcon} />
-                      </SharePrivatePlaylistButton>
-                    )}
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("unlisted")}
@@ -849,9 +827,6 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
           </>
         )}
 
-        {showSharePrivatePlaylist && (
-          <SharePrivatePlaylistComp SharePrivatePlaylist={SharePrivatePlaylist} onInviteChange={handleSharePrivatePlaylistChange} togglePopup={handleSharePrivatePlaylist} savedEmailsPlaylist={savedEmailsPlaylist} />
-        )}
 
       </MainContainer>
     </ContainerBg>

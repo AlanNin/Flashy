@@ -14,6 +14,7 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import VideoPage from "./pages/Video";
 import Library from "./pages/Library";
+import SharedPlaylist from "./pages/SharedPlaylist";
 
 const Container = styled.div`
   position: relative;
@@ -115,6 +116,12 @@ function App() {
                       element={<VideoPage />}
                     >
                       <Route path=":id" element={<VideoPage />} />
+                    </Route>
+                    <Route
+                      path="playlist"
+                      element={<SharedPlaylist />}
+                    >
+                      <Route path=":id" element={<SharedPlaylist />} />
                     </Route>
                   </Route>
                 </Routes>

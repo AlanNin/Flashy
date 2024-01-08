@@ -426,14 +426,15 @@ const PopupContainer = styled.div`
   height: auto;
   margin-top: auto;
   margin-bottom: ${({ filteredVideosLenght }) => (filteredVideosLenght === 0 ? '10%' : '0px')};
-  background: rgba(24, 24, 24);
+  background: linear-gradient(#0b090d, #0f0d12, #121014, #121112, #17141a 99%);
+  border: 1px solid rgba(2, 1, 3, 0.3);
+  box-shadow: 0px 4px 3px 5px rgba(0, 0, 0, 0.4);
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   animation: ${popUpAnimation} 0.3s ease-in-out forwards;
-
 
     ${props => props.closing && css`
       animation: ${popDownAnimation} 0.5s ease-in-out forwards;
@@ -603,7 +604,7 @@ const VideoTitle = styled.h1`
     width: max-content;
     max-width: 450px;
     height: max-content;
-    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '170px' : '140px')};  
+    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '150px' : '120px')};  
     left: 50px;
     z-index: 2;
     color: white;
@@ -623,7 +624,7 @@ const WatchNowSaveDiv = styled.div`
     width: max-content;
     height: max-content;
     align-items: center;
-    bottom: 75px;
+    bottom: 55px;
     left: 50px;
     z-index: 2;
     gap: 15px;
@@ -1042,7 +1043,7 @@ const ProgressContainerPopup = styled.div`
   align-items: center;
   width: 450px;
   bottom: 0px;
-  margin-top: 355px;
+  margin-top: 375px;
   margin-left: -345px;
   z-index: 2;
   height: max-content;
@@ -1089,7 +1090,7 @@ const LabelFooter = styled.h1`
 `;
 
 
-const Card = ({ video }) => {
+const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
@@ -1112,7 +1113,7 @@ const Card = ({ video }) => {
   const shareRef = useRef(null);
   const shareRefBg = useRef(null);
   const buttonShareRef = useRef(null);
-  const currentURL = window.location.href + 'video/' + video._id;
+  const currentURL = window.location.href + 'video/' + video?._id;
   const [isPopUpShareVisible, setIsPopUpShareVisible] = useState(false);
   const [videoTimerTick, setVideoTimerTick] = useState(0);
 
@@ -1158,7 +1159,7 @@ const Card = ({ video }) => {
   // SHOW POPUP MORE INFO FROM IMAGE CONTAINER
   const handleShowMoreInfoFromImage = () => {
     if (isTransitionExpanded) {
-      navigate(`/video/${video._id}`);
+      navigate(`/video/${video?._id}`);
     } else {
       setIsMoreInfo(true);
     }
@@ -1272,7 +1273,7 @@ const Card = ({ video }) => {
 
     const fetchProgress = async () => {
       if (currentUser) {
-        const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
+        const userProgressRes = await axios.get(`/videos/userProgress/${video?._id}`);
         setProgress(userProgressRes.data.progress);
       }
     };
@@ -1283,7 +1284,7 @@ const Card = ({ video }) => {
       fetchProgress();
     }
 
-  }, [video.userId, video._id]);
+  }, [video.userId, video?._id]);
 
   // REDIRECTS
 
@@ -1336,8 +1337,8 @@ const Card = ({ video }) => {
   // FETCH RECOMMENDATIONS
   const [videos, setVideos] = useState([]);
   const [cardLoaded, setCardLoaded] = useState(false);
-  const videoId = video._id;
-  const filteredVideos = videos.filter((video) => video._id !== videoId);
+  const videoId = video?._id;
+  const filteredVideos = videos.filter((video) => video?._id !== videoId);
 
   useEffect(() => {
     setCardLoaded(false);
@@ -1356,18 +1357,15 @@ const Card = ({ video }) => {
 
   const handleSaveVideo = () => {
     setPopupSaveVideo(!popupSaveVideo);
+    setAddingToPlaylist(!addingToPlaylist);
   };
 
   useEffect(() => {
-    // Cuando el popup se abre, deshabilitar el scroll
     if (popupSaveVideo) {
       document.body.style.overflow = 'hidden';
     } else {
-      // Cuando el popup se cierra, habilitar el scroll
       document.body.style.overflow = 'auto';
     }
-
-    // Limpiar el efecto al desmontar el componente
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -1395,7 +1393,7 @@ const Card = ({ video }) => {
             <PopupImageVideoContainer>
 
               <VideoWrapper videoPopupEnded={videoPopupEnded}>
-                <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                   <ReactPlayer
                     ref={videoPlayer}
                     url={video.videoUrl}
@@ -1412,11 +1410,11 @@ const Card = ({ video }) => {
                 </Link>
               </VideoWrapper>
 
-              <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                 <PopupImage src={video.imgUrlLandscape} videoPopupEnded={videoPopupEnded} />
               </Link>
 
-              <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                 <PopupImageGradientOverlay />
               </Link>
 
@@ -1428,14 +1426,14 @@ const Card = ({ video }) => {
                 <MuteImg src={isVideoMuted ? MuteIcono : NoMuteIcono} />
               </MuteButtonDiv>
 
-              <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                 <VideoTitle progress={progress} currentUser={currentUser}>{video.title}</VideoTitle>
               </Link>
 
               {currentUser && progress > 0 && (
 
                 <ProgressContainerPopup>
-                  <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', display: 'inherit', position: 'inherit', width: 'inherit', height: 'inherit', alignItems: 'inherit' }}>
+                  <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', display: 'inherit', position: 'inherit', width: 'inherit', height: 'inherit', alignItems: 'inherit' }}>
 
                     <ProgressBarPopup>
                       <ProgressIndicatorPopup progress={progress} />
@@ -1448,7 +1446,7 @@ const Card = ({ video }) => {
               )}
 
               <WatchNowSaveDiv>
-                <Link to={`/video/${video._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
+                <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
                   <WatchNowPopupDiv>
                     <WatchNowPopupImg src={WatchNowIcono} /> Watch Now
                   </WatchNowPopupDiv>
@@ -1548,7 +1546,7 @@ const Card = ({ video }) => {
                     ) : (
                       <CardContainerRecommendation>
                         {filteredVideos.map((video) => (
-                          <Card4CardPopup type="sm" key={video._id} video={video} />
+                          <Card4CardPopup type="sm" key={video?._id} video={video} />
                         ))}
                         <LabelFooter> @Flashy_Content </LabelFooter>
                       </CardContainerRecommendation>
@@ -1607,13 +1605,13 @@ const Card = ({ video }) => {
         <ContainerHoverInfo>
           <ButtonsContainer>
 
-            <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+            <Link to={`/video/${video?._id}`} style={{ textDecoration: "none" }}>
               <PlayButtonDiv>
                 <PlayButtonImg src={PlayButton} />
               </PlayButtonDiv>
             </Link>
 
-            <ButtonDivStyles>
+            <ButtonDivStyles onClick={handleSaveVideo}>
               <ButtonImgStyles src={Save4Card} />
             </ButtonDivStyles>
 

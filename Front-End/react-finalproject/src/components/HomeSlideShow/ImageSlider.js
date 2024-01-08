@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 
 const slideStyles = {
     width: '100%',
@@ -70,6 +69,7 @@ const ArrowStyles = styled.div`
     right: ${(props) => props.right || '0'};
     font-size: 35px;
     color: #fff;
+    user-select: none;
 `;
 
 const sliderStyles = {

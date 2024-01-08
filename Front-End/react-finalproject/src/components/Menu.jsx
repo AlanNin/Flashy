@@ -493,7 +493,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
           }}
         >
           <ItemForMini onClick={toggleMenu}>
-            <Img src={SuscripcionesIcono} />
+            <Img src={SuscripcionesIcono} style={{ height: '25px' }} />
             <ButtonText> {translations[language].subscriptions} </ButtonText>
           </ItemForMini>
         </Link>
@@ -523,7 +523,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
           }}
         >
           <Item onClick={toggleMenu}>
-            <Img src={LibreriaIcono} />
+            <Img src={LibreriaIcono} style={{ height: '25px' }} />
             <ButtonText> {translations[language].library} </ButtonText>
           </Item>
         </Link>
@@ -540,7 +540,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
           }}
         >
           <Item onClick={toggleMenu}>
-            <Img src={MusicaIcono} />
+            <Img src={MusicaIcono} style={{ height: '25px' }} />
             <ButtonText> {translations[language].music} </ButtonText>
           </Item>
         </Link>

@@ -323,7 +323,6 @@ const ErrorMessage = ({ children }) => (
   <div style={{ color: 'red', marginTop: '5px', marginRight: 'auto', fontFamily: '"Roboto Condensed", Helvetica' }}>{children}</div>
 );
 
-
 const Signup = () => {
   const [name, setName] = useState("");
   const [displayname, setDisplayName] = useState("");
@@ -532,9 +531,6 @@ const Signup = () => {
       setEmptyFieldsError(true);
     }
   };
-
-
-
 
   const onHCaptchaVerify = async (token) => {
     // Verifica si el token hCaptcha se recibió con éxito

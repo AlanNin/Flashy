@@ -422,37 +422,61 @@ export const TrendingSub = async (req, res, next) => {
 
 export const getByLikes = async (req, res, next) => {
     try {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        // Calculate the date a month ago
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
+        // Aggregate to find the top videos based on likes and dislikes within the last month
         const videos = await Video.aggregate([
             {
                 $match: {
-                    privacy: 'public', // Filtrar por privacidad pública
-                    createdAt: {
-                        $gte: startOfMonth,
-                        $lte: endOfMonth,
-                    },
+                    createdAt: { $gte: oneMonthAgo }, // Videos within the last month
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    userId: 1,
+                    title: 1,
+                    desc: 1,
+                    imgUrl: 1,
+                    imgUrlVertical: 1,
+                    imgUrlLandscape: 1,
+                    videoUrl: 1,
+                    duration: 1,
+                    views: 1,
+                    tags: 1,
+                    likes: 1,
+                    dislikes: 1,
+                    privacy: 1,
+                    allowedUsers: 1,
+                    language: 1,
+                    subtitles: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    __v: 1,
                 },
             },
             {
                 $addFields: {
-                    likesCount: { $size: "$likes" },
-                    dislikesCount: { $size: "$dislikes" },
+                    likesCount: { $size: "$likes" }, // Count likes
+                    dislikesCount: { $size: "$dislikes" }, // Count dislikes
                 },
             },
             {
                 $sort: {
-                    likesCount: -1,
-                    dislikesCount: 1, // Ordenar por menos dislikes
+                    likesCount: -1, // Sort by most likes
+                    dislikesCount: 1, // Secondary sort by least dislikes
                 },
+            },
+            {
+                $limit: 10, // Get the top 10 videos
             },
         ]);
 
         res.status(200).json(videos);
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 

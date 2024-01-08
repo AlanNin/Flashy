@@ -90,6 +90,17 @@ const Date = styled.span`
   margin-left: 8px;
 `;
 
+const EditedLabel = styled.span`
+  font-size: 11px;
+  font-weight: 400;
+  font-family: "Roboto", Helvetica;
+  color: ${({ theme }) => theme.textSoft};
+  margin-left: 8px;
+  background: rgba(168, 62, 103, 0.3);
+  border-radius: 10px;
+  padding: 1px 6px;
+`;
+
 const Text = styled.span`
   font-size: 14px;
   font-weight: normal;
@@ -824,6 +835,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       }
 
       setIsEditing(false);
+      setIsMenuDotsVisible(false);
 
       if (onCommentsReload) {
         onCommentsReload();
@@ -1095,6 +1107,9 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
             {channel.displayname}
           </Name>
           <Date> • {timeago(currentReply.createdAt)} </Date>
+          {reply.edited && (
+            <EditedLabel> Edited </EditedLabel>
+          )}
           {!isEditing && !isReplying && (
             <ReplyMenu
               ref={menuRef}

@@ -20,12 +20,17 @@ import {
     deletePlaylist,
     deleteVideoFromPlaylist,
     getVideosFromPlaylist,
-    getAllPlaylists,
+    getAllUserPlaylists,
+    getAllUserPlaylistsAndFollowed,
     getPublicPlaylists,
     checkPlaylistExists,
     updatePlaylist,
+    deletePlaylistDescription,
     addPlaylist,
     getVideoIdsFromPlaylist,
+    followPlaylist,
+    unfollowPlaylist,
+    getPlaylistById,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -84,28 +89,42 @@ router.post("/:userId/playlists", verifyToken, addPlaylist);
 router.put("/:userId/playlists/videos/:videoId", verifyToken, addVideoToPlaylist);
 
 // DELETE PLAYLIST
-router.delete("/:userId/playlists/:playlistId", verifyToken, deletePlaylist);
+router.delete("/playlists/:playlistId/delete", verifyToken, deletePlaylist);
 
 // DELETE VIDEO FROM PLAYLIST
-router.delete("/:userId/playlists/:playlistId/videos/:videoId", verifyToken, deleteVideoFromPlaylist);
+router.delete("/playlists/:playlistId/videos/:videoId/delete", verifyToken, deleteVideoFromPlaylist);
 
-// GET ALL PLAYLISTS
-router.get("/:userId/playlists", verifyToken, getAllPlaylists);
+// GET PLAYLISTS BY ID
+router.get('/playlists/:playlistId', getPlaylistById);
+
+// GET ALL PLAYLISTS CREATED BY USER AND FOLLOWED
+router.get("/:userId/playlists", verifyToken, getAllUserPlaylists);
+
+// GET ALL PLAYLISTS CREATED BY USER AND FOLLOWED
+router.get("/:userId/playlists-followed", verifyToken, getAllUserPlaylistsAndFollowed);
 
 // GET PUBLIC PLAYLISTS
 router.get("/:userId/playlists/public", verifyToken, getPublicPlaylists);
 
 // GET VIDEOS FROM PLAYLIST
-router.get("/:userId/playlists/:playlistId/videos", verifyToken, getVideosFromPlaylist);
+router.get("/:userId/playlists/:playlistId/videos", getVideosFromPlaylist);
 
 // GET VIDEO IDS FROM PLAYLIST
 router.get("/:userId/playlists/:playlistId/videosId", verifyToken, getVideoIdsFromPlaylist);
 
 // UPDATE PLAYLIST
-router.put("/:userId/playlists/update", verifyToken, updatePlaylist);
+router.put("/playlists/:playlistId/update", verifyToken, updatePlaylist);
+
+// DELETE PLAYLIST DESCRIPTION
+router.delete('/playlists/:playlistId/delete-description', verifyToken, deletePlaylistDescription);
+
+// FOLLOW A PLAYLIST
+router.post('/playlists/follow/:playlistId/', verifyToken, followPlaylist);
+
+// UNFOLLOW A PLAYLIST
+router.delete("/playlists/unfollow/:playlistId", verifyToken, unfollowPlaylist);
 
 // CHECK IF PLAYLIST EXISTS
 router.post("/:userId/playlists/check/:name", verifyToken, checkPlaylistExists);
-
 
 export default router;

@@ -103,6 +103,7 @@ const Image = styled.img`
   height: 100%;
   background-color: #999;
   flex: 1;
+  object-fit: cover; 
 `;
 
 const ProgressBar = styled.div`
@@ -273,8 +274,8 @@ const CommentOption = styled.button`
   &:hover {
     background: rgba(45, 45, 45);
   }
-  font-size: 16px;
-  font-family: "Roboto", Helvetica;
+  font-size: 17px;
+  font-family: "Roboto Condensed", Helvetica;
 `;
 
 
@@ -350,55 +351,6 @@ const DeleteFromHistoryDelete = styled.div`
 `;
 
 // SHARE
-const ShareButton = styled.div`
-  display: flex;
-  font-size: 18px;
-  width: max-content;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: normal;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  user-select: none; 
-  background: rgba(15, 15, 15);
-  padding: 8px 12px;
-  border-radius: 10px;
-  &:hover {
-    background: rgba(54, 54, 51);
-  }
-  margin-left: auto;
-`;
-
-const ShareButtonImg = styled.img`
-    width: 25px;
-    height: 25px;
-    margin-right: 3px;
-`;
-
-const ShareButtonNoTag = styled.div`
-  display: flex;
-  font-size: 16px;
-  width: max-content;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: normal;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  user-select: none; 
-  background: rgba(15, 15, 15);
-  padding: 6px 10px;
-  border-radius: 10px;
-  &:hover {
-    background: rgba(54, 54, 51);
-  }
-`;
-
-const ShareButtonImgNoTag = styled.img`
-    width: 20px;
-    height: 20px;
-    margin-right: 3px;
-`;
-
 const ShareContainer = styled.div`
   display: flex;
   position: absolute;
@@ -721,7 +673,6 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
 
   // SAVE VIDEO
   const [popupSaveVideo, setPopupSaveVideo] = useState(false);
-  const saveRef = useRef(null);
 
   const handleSaveVideo = () => {
     setPopupSaveVideo(!popupSaveVideo);
@@ -772,11 +723,11 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
         {isMenuOpen && (
           <HistoryMenuOptions className="HistoryMenuOptions">
             <CommentOption onClick={handleSaveVideo}>
-              <CommentOptionImg src={VideoPlaylistIcono} />
+              <CommentOptionImg src={VideoPlaylistIcono} style={{ height: '25px' }} />
               Save
             </CommentOption>
             <CommentOption onClick={handleShare} >
-              <CommentOptionImg src={VideoShareIconoOutline} />
+              <CommentOptionImg src={VideoShareIconoOutline} style={{ height: '23px' }} />
               Share
             </CommentOption>
           </HistoryMenuOptions>

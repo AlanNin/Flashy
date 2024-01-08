@@ -1,0 +1,724 @@
+import React, { useState, useEffect, useRef, useContext } from "react";
+import styled, { css, keyframes } from "styled-components";
+import { useDispatch, useSelector } from 'react-redux';
+import { useLanguage } from '../utils/LanguageContext';
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import PublicIcon from "../assets/PublicIcon.png";
+import PrivateIcon from "../assets/PrivateIcon.png";
+import UnlistedIcon from "../assets/UnlistedIcon.png";
+import PlaylistShareIcono from "../assets/SharePlaylist.png";
+import FollowIcon from "../assets/FollowIcon.png";
+import FollowingIcon from "../assets/FollowingIcon.png";
+import CopyIcono from "../assets/CopyIcono.png";
+import WhatsappIcon from "../assets/WhatsappIcon.png";
+import CloseXGr from "../assets/CloseXGr.png";
+import CardLibraryShared from "../components/CardLibraryShared";
+import moment from "moment";
+import "moment/locale/es";
+
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  RedditShareButton,
+  TelegramShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+} from "react-share";
+import {
+  EmailIcon,
+  FacebookIcon,
+  RedditIcon,
+  TelegramIcon,
+  XIcon,
+} from "react-share";
+
+
+// MAIN
+const MainContainer = styled.div`
+  position: relative;
+  width: 100%;
+  top: 0;
+  margin: auto;
+  min-height: 100vh;
+  background-color: rgba(15, 12, 18);
+  max-width: 1920px;
+`;
+
+// PLAYLIST INFO
+const PlaylistInfoContainer = styled.div`
+  position: fixed;
+  display: flex;
+  margin-top: 86px;
+  flex-direction: column;
+  height: calc(100% - 86px);
+  width: 375px;
+  margin-left: 175px;
+  border-radius: 15px 15px 0px 0px;
+  background: rgba(0, 0, 0, 0.6);
+`;
+
+const PlaylistInfoBackground = styled.img`
+  width: 100%;
+  height: 100%;
+  filter: blur(10px) brightness(0.3);
+  object-fit: cover;
+  position: absolute;
+  border: none;
+`;
+
+const PlaylistInfoWrapper = styled.div`
+  padding: 30px 30px 30px 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const PlaylistInfoImgContainer = styled.div`
+  width: 100%;
+  height: 210px;
+  border-radius: 10px;
+`;
+
+const PlaylistInfoImg = styled.img`
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 10px;
+`;
+
+const PlaylistInfoShadowDiv = styled.div`
+  width: 100%;
+  height: max-content;
+  padding: 0px 0px 20px 0px;
+  position: relative;
+  border-radius: 10px; 
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const PlaylistInfoNameDiv = styled.div`
+  margin-top: 10px;
+  margin-bottom: 9px;
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const PlaylistInfoName = styled.h1`
+  font-size: ${({ name }) => (name?.length > 20 ? '22px' : '30px')}; 
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 0px 10px 0px 10px;
+  max-width: ${({ editable }) => (editable ? '78%' : '')}; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+`;
+
+const PlaylistInfoCreator = styled.h1`
+  font-size: 16px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 0px 10px;
+  margin-bottom: 10px;
+`;
+
+const PlaylistInfoPrivacyDiv = styled.div`
+  font-size: 18px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 0px 10px;
+  width: max-content;
+  height: max-content;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+const PlaylistInfoPrivacyImg = styled.img`
+  width: 18px;
+  height: 18px;
+  margin-top: -1px;
+`;
+
+
+const PlaylistInfoLengthAndFollowers = styled.h1`
+  font-size: 15px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 0px 10px;
+  margin-bottom: 10px;
+`;
+
+const PlaylistInfoLastUpdated = styled.h1`
+  font-size: 16px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 0px 10px;
+  margin-bottom: 10px;
+`;
+
+const PlaylistInfoActionButtonsDiv = styled.div`
+  position: relative;
+  display: flex;
+  width: calc(100% - 20px);
+  height: max-content;
+  padding: 0px 10px;
+  margin-bottom: 20px;
+  gap: 12px;
+`;
+
+const PlaylistInfoActionButtonsImg = styled.img`
+  position: relative;
+  display: flex;
+  height: 25px;
+  width: 25px;
+  background: rgba(225, 227, 225, 0.1);
+  border-radius: 50%;
+  padding: 7px;
+  cursor: pointer;
+  transition: background 0.3s ease; 
+  &:hover {
+    background: rgba(225, 227, 225, 0.2);
+  }
+`;
+
+
+const ShareContainer = styled.div`
+  display: flex;
+  position: absolute;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: max-content;
+  background-color: rgba(20, 13, 20);
+  width: auto;
+  border-radius: 10px;
+  padding: 20px 20px 30px 20px;
+  z-index: 2;
+  cursor: normal;
+`;
+
+const CloseShare = styled.img`
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+`;
+
+const ShareLabel = styled.label`
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    margin-right: auto;
+    margin-left: 5px;
+    margin-bottom: 15px;
+`;
+
+const ShareLinkCopyDiv = styled.div`
+  postition: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center; 
+`;
+
+const ShareExternalButtons = styled.div`
+  display: flex;
+  gap: 28px;
+  margin-right: auto;
+  padding-top: 10px;
+`;
+
+const ShareExternalButtonsTxt = styled.h1`
+  color: white;
+  padding: 8px 5px 0px 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 30px;
+`;
+
+
+const ShareLink = styled.h1`
+  background: rgba(36, 35, 35, 0.8);
+  border-radius: 8px;
+  color: white;
+  padding: 10px 15px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 16px;
+  font-weight: normal;
+`;
+
+const ShareCopyLink = styled.img`
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+  margin-left 8px;
+`;
+
+const fadeOut = keyframes`
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+`;
+
+const SharePopupContainerBg = styled.div`
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
+const SharePopupContainer = styled.div`
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(86, 48, 120);
+  color: white;
+  text-align: center;
+  padding: 16px;
+  border-radius: 8px;
+  opacity: ${({ isPopUpShareVisible }) => (isPopUpShareVisible ? 1 : 0)};
+  animation: ${fadeOut} 4s ease-in-out;
+  z-index: 9;
+`;
+
+const SharePopupContent = styled.p`
+  margin: 0;
+`;
+
+const PlaylistInfoDescriptionDiv = styled.div`
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: max-content;
+`;
+
+const PlaylistInfoDescription = styled.div`
+  font-size: 16px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: #bababa;
+  padding: 0px 10px;
+  max-width: ${({ editable }) => (editable ? '78%' : '')}; 
+  white-space: pre-line; 
+  z-index: 1;
+  line-height: 1.25;
+  overflow: hidden;
+`;
+
+// PLAYLIST VIDEOS
+const VideosContainer = styled.div`
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 620px);
+  margin-left: 560px;
+  height: 100%;
+  background: transparent;
+  padding: 0px 30px;
+  overflow: hidden;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
+      
+  &::-webkit-scrollbar-thumb {
+      border-radius: 15px;
+  }
+`;
+
+const VideosContainerHideTop = styled.div`
+  position: absolute;
+  display: flex;
+  width: calc(100% - 691px);
+  min-height: 56px;
+  background: rgba(15, 12, 18);
+  z-index: 2;
+  right: 7px;
+`;
+
+const VideosContainerCards = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 110px;
+  height: calc(100% - 110px);
+  background: transparent;
+`;
+
+const VideosContainerNoVideoText = styled.h1`
+  font-size: 24px; 
+  font-weight: normal;
+  font-family: "Roboto Condensed", Helvetica;
+  color: ${({ theme }) => theme.text};
+  padding: 126px 360px;
+`;
+
+const SharedPlaylist = () => {
+  // CURRENT USER INFO
+  const { currentUser } = useSelector((state) => state.user);
+
+  // TRANSLATION
+  const { language, setLanguage } = useLanguage();
+
+  const translations = {
+    en: {
+      explore: "Library",
+    },
+    es: {
+      explore: "Librería",
+    },
+  };
+
+  // UPDATE FETCHED DATA
+  const [wasFetchedDataUpdated, setWasFetchedDataUpdated] = useState(false);
+  const handleUpdateFetchedData = () => {
+    setWasFetchedDataUpdated(true);
+  };
+
+  // FETCH PLAYLISTS
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const path = useLocation().pathname.split("/")[2];
+
+  useEffect(() => {
+    setWasFetchedDataUpdated(false);
+    const Request = async () => {
+      try {
+        const response = await axios.get(`/users/playlists/${path}`);
+        const fetchedPlaylists = response.data;
+        setSelectedPlaylist(fetchedPlaylists);
+      } catch (error) {
+        console.error("Error fetching playlists:", error);
+      }
+    };
+
+    Request();
+  }, [wasFetchedDataUpdated]);
+
+  // SHARE PLAYLIST
+  const [shareLink, setShareLink] = useState('');
+  const [isSharePopupVisible, setSharePopupVisible] = useState(false);
+  const shareRef = useRef(null);
+  const buttonShareRef = useRef(null);
+  const currentURL = 'http://localhost:3000' + '/playlist/' + selectedPlaylist?._id;
+  const [isPopUpShareVisible, setIsPopUpShareVisible] = useState(false);
+
+  const handleShare = () => {
+    setShareLink(currentURL);
+    setSharePopupVisible(!isSharePopupVisible);
+  };
+
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(shareLink)
+      .then(() => {
+        setIsPopUpShareVisible(true);
+
+        const timeout = setTimeout(() => {
+          setIsPopUpShareVisible(false);
+        }, 4000);
+
+        return () => clearTimeout(timeout);
+      })
+      .catch((err) => {
+        console.error('Error al copiar el URL', err);
+      });
+  };
+
+  useEffect(() => {
+    const handleClickOutsideShare = (event) => {
+      // Verificar si el clic ocurrió dentro del botón
+      const isClickInsideButton = buttonShareRef.current && buttonShareRef.current.contains(event.target);
+
+      // Si el clic fue fuera del componente pero dentro del botón, no ocultar el popup
+      if (shareRef.current && !shareRef.current.contains(event.target) && !isClickInsideButton) {
+        setSharePopupVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideShare);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideShare);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Cuando el popup se abre, deshabilitar el scroll
+    if (isSharePopupVisible) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Cuando el popup se cierra, habilitar el scroll
+      document.body.style.overflow = 'auto';
+    }
+
+    // Limpiar el efecto al desmontar el componente
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isSharePopupVisible]);
+
+  // FOLLOW PLAYLIST
+  const handleFollow = async () => {
+    try {
+      await axios.post(`/users/playlists/follow/${selectedPlaylist?._id}/`);
+      handleUpdateFetchedData();
+    } catch (error) {
+      console.error("Error updating playlist:", error);
+    }
+  };
+
+  // UNFOLLOW PLAYLIST
+  const handleUnfollow = async () => {
+    try {
+      await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
+      handleUpdateFetchedData();
+    } catch (error) {
+      console.error("Error updating playlist:", error);
+    }
+  };
+
+  // FETCH PLAYLIST VIDEOS
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const res = await axios.get(`/users/${selectedPlaylist.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
+        setVideos(res.data);
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      }
+    };
+    fetchVideos();
+  }, [selectedPlaylist]);
+
+  // FORMATS PLAYLIST
+  const timeago = timestamp => {
+    const relativeTime = moment(timestamp).fromNow();
+    return relativeTime.charAt(0).toLowerCase() + relativeTime.slice(1).toLowerCase();
+  };
+
+  return (
+    <MainContainer>
+
+      <PlaylistInfoContainer>
+        {selectedPlaylist?.image && (
+          <PlaylistInfoBackground src={selectedPlaylist?.image} />
+        )}
+        <PlaylistInfoWrapper>
+          <PlaylistInfoImgContainer>
+            <PlaylistInfoImg src={selectedPlaylist?.image} />
+          </PlaylistInfoImgContainer>
+
+          <PlaylistInfoShadowDiv>
+
+            <PlaylistInfoNameDiv>
+              <PlaylistInfoName name={selectedPlaylist?.name} editable={selectedPlaylist?.creatorId === currentUser?._id}> {selectedPlaylist?.name} </PlaylistInfoName>
+            </PlaylistInfoNameDiv>
+
+            <PlaylistInfoCreator> {selectedPlaylist?.creator} </PlaylistInfoCreator>
+
+            <PlaylistInfoPrivacyDiv>
+              <PlaylistInfoPrivacyImg
+                src={
+                  selectedPlaylist?.privacy === 'public'
+                    ? PublicIcon
+                    : selectedPlaylist?.privacy === 'private'
+                      ? PrivateIcon
+                      : UnlistedIcon
+                }
+              />
+              {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+            </PlaylistInfoPrivacyDiv>
+
+            <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0} followers </PlaylistInfoLengthAndFollowers>
+
+            <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
+
+            {selectedPlaylist?.privacy !== 'private' && (
+              <PlaylistInfoActionButtonsDiv>
+                <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
+
+                {selectedPlaylist?.followers?.includes(currentUser?._id) ? (
+                  <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollow} />
+                ) : (
+                  <PlaylistInfoActionButtonsImg src={FollowIcon} onClick={handleFollow} />
+                )}
+
+              </PlaylistInfoActionButtonsDiv>
+            )}
+
+
+            {selectedPlaylist?.name !== 'Watch Later' && (
+              <PlaylistInfoDescriptionDiv>
+                <PlaylistInfoDescription editable={selectedPlaylist?.creatorId === currentUser?._id}>
+                  {selectedPlaylist?.description ? (
+                    selectedPlaylist?.description
+                  ) : (
+                    <>
+                      No description
+                    </>
+                  )}
+                </PlaylistInfoDescription>
+              </PlaylistInfoDescriptionDiv>
+            )}
+
+          </PlaylistInfoShadowDiv>
+
+        </PlaylistInfoWrapper>
+      </PlaylistInfoContainer>
+
+      <VideosContainerHideTop />
+
+      <VideosContainer>
+
+        {videos.videos?.length === 0 ? (
+          <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
+        ) : (
+          <>
+            <VideosContainerCards>
+              {videos.videos?.map((video, index) => (
+                <div key={video?._id}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <CardLibraryShared video={video} index={index + 1} />
+                  </div>
+                </div>
+              ))}
+            </VideosContainerCards>
+
+          </>
+        )}
+      </VideosContainer>
+
+      {
+        isSharePopupVisible && (
+          <SharePopupContainerBg>
+            <ShareContainer ref={shareRef}>
+              <ShareLabel> Share Playlist </ShareLabel>
+              <CloseShare onClick={handleShare} src={CloseXGr} />
+
+              <ShareExternalButtons>
+                <FacebookShareButton
+                  url={shareLink}
+                  quote={'Hey There, Watch This Awesome Playlist Now!'}
+                  hashtag="#Flashy"
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                  <FacebookIcon size={48} round />
+                  <ShareExternalButtonsTxt>
+                    Facebook
+                  </ShareExternalButtonsTxt>
+                </FacebookShareButton>
+
+                <WhatsappShareButton url={shareLink} title={'Watch This Awesome Playlist at Flashy'}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <div style={{ cursor: 'pointer' }}>
+                    <img src={WhatsappIcon} alt="Compartir en WhatsApp" width="48" height="48" />
+                  </div>
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Whatsapp
+                  </ShareExternalButtonsTxt>
+                </WhatsappShareButton>
+
+                <TwitterShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Playlist at Flashy'}
+                  hashtags={['Flashy', 'Video', 'Playlist']}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <XIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '2px' }}>
+                    X
+                  </ShareExternalButtonsTxt>
+                </TwitterShareButton>
+
+                <TelegramShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Playlist at Flashy'}
+                >
+                  <TelegramIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Telegram
+                  </ShareExternalButtonsTxt>
+                </TelegramShareButton>
+
+                <RedditShareButton
+                  url={shareLink}
+                  title={'Watch This Awesome Playlist at Flashy'}
+                >
+                  <RedditIcon size={48} round />
+                  <ShareExternalButtonsTxt style={{ marginTop: '-4px' }}>
+                    Reddit
+                  </ShareExternalButtonsTxt>
+                </RedditShareButton>
+
+                <EmailShareButton
+                  url={shareLink}
+                  subject={'Flashy Playlist'}
+                  body={'Watch This Awesome Playlist at Flashy'}
+                  separator={'\n\n'}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <EmailIcon size={48} round />
+                  <ShareExternalButtonsTxt>
+                    Email
+                  </ShareExternalButtonsTxt>
+                </EmailShareButton>
+              </ShareExternalButtons>
+
+              <ShareLinkCopyDiv>
+                <ShareLink> {shareLink} </ShareLink>
+                <ShareCopyLink src={CopyIcono} onClick={handleCopyClick} />
+              </ShareLinkCopyDiv>
+            </ShareContainer>
+          </SharePopupContainerBg>
+        )
+      }
+
+      {
+        isPopUpShareVisible && (
+          <SharePopupContainer>
+            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
+          </SharePopupContainer>
+        )
+      }
+
+    </MainContainer>
+
+  );
+};
+
+export default SharedPlaylist;

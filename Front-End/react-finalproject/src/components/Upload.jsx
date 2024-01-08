@@ -383,7 +383,7 @@ const SelectFilesButton = styled.input`
         transition: background-color 0.3s ease;
     }
     &:hover:before {
-        background: #7958a6; /* Cambia el color de fondo al pasar el ratón por encima */
+        background: #7958a6;
     }
 `;
 
@@ -1068,7 +1068,6 @@ const Upload = ({ setOpen }) => {
         if (e.target.name === "title") {
             setTitleText(e.target.value);
         }
-
     };
 
     // CHAR COUNTER VALIDATIONS
@@ -1254,7 +1253,7 @@ const Upload = ({ setOpen }) => {
         setUploadingVideo(true);
         try {
             // Subir el video y obtener la respuesta
-            if (inputs.title === undefined) {
+            if (inputs.title === undefined || inputs.title === "") {
                 inputs.title = defaultTitle;
             }
 

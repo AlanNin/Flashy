@@ -1,3 +1,5 @@
+// SIN USO ACTUALMENTE, DEPRECATED
+
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import RemoveEmailIcon from "../assets/RemoveEmailIcon.png";

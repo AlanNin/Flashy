@@ -392,34 +392,22 @@ export const clearAllWatchHistory = async (req, res, next) => {
 export const addPlaylist = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const userEmail = req.body.email;
         const playlistData = req.body;
+        const creatorName = req.body.creator;
         const playlistName = playlistData.name;
         const playlistImageURL = playlistData.image;
         const privacy = playlistData.privacy;
-        const allowedUsersPlaylist = playlistData.allowedUsersPlaylist || [];
 
         const user = await User.findById(userId);
-
-        // Verificar si ya existe una playlist con el mismo nombre
-        const playlistExists = user.playlists.some(p => p.name === playlistName);
-
-        if (playlistExists) {
-            return res.status(400).json({ error: "Ya existe una playlist con el mismo nombre." });
-        }
-
-        // Agregar el email del usuario que hace la solicitud al array
-        if (!allowedUsersPlaylist.includes(userEmail)) {
-            allowedUsersPlaylist.push(userEmail);
-        }
 
         // Crear la nueva playlist sin agregar video
         const newPlaylist = {
             name: playlistName,
             image: playlistImageURL,
             videos: [],
+            creatorId: userId,
+            creator: creatorName,
             privacy: privacy,
-            allowedUsersPlaylist: allowedUsersPlaylist,
         };
 
         user.playlists.push(newPlaylist);
@@ -450,6 +438,9 @@ export const addVideoToPlaylist = async (req, res, next) => {
         if (playlist) {
             // Si la playlist existe, agregar el video
             playlist.videos.push(videoId);
+
+            // Actualizar el campo lastUpdated de la playlist
+            playlist.lastUpdated = new Date();
 
             // Guardar los cambios
             await user.save();
@@ -502,6 +493,9 @@ export const deleteVideoFromPlaylist = async (req, res, next) => {
             // Filtrar los videos para excluir el que se desea eliminar
             playlist.videos = playlist.videos.filter(v => v.toString() !== videoId);
 
+            // Actualizar el campo lastUpdated de la playlist
+            playlist.lastUpdated = new Date();
+
             // Guardar los cambios
             await user.save();
 
@@ -518,37 +512,87 @@ export const deleteVideoFromPlaylist = async (req, res, next) => {
 export const updatePlaylist = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const { playlistId, name, privacy, image } = req.body;
+        const playlistId = req.params.playlistId;
+        const { name, privacy, image, description } = req.body;
 
         const user = await User.findById(userId);
 
         // Buscar la playlist por ID
-        const playlistToUpdate = user.playlists.find(p => p._id.toString() === playlistId);
+        const playlistToUpdate = user.playlists.find(
+            (p) => p._id.toString() === playlistId
+        );
 
         if (playlistToUpdate) {
             // Validar el valor de privacy
             const validPrivacyOptions = ['public', 'private', 'unlisted']; // Opciones válidas
             if (privacy && !validPrivacyOptions.includes(privacy)) {
-                return res.status(400).json({ error: "La privacidad ingresada no es válida." });
+                return res
+                    .status(400)
+                    .json({ error: 'La privacidad ingresada no es válida.' });
             }
 
-            // Actualizar los datos de la playlist si se proporcionan
-            if (name) {
-                playlistToUpdate.name = name;
-            }
-            if (privacy) {
-                playlistToUpdate.privacy = privacy;
-            }
-            if (image) {
-                playlistToUpdate.image = image;
-            }
+            // Actualizar los datos de la playlist
+            updateName(playlistToUpdate, name);
+            updatePrivacy(playlistToUpdate, privacy);
+            updateImage(playlistToUpdate, image);
+            updateDescription(playlistToUpdate, description);
 
             // Guardar los cambios
             await user.save();
 
-            res.status(200).json({ message: "Playlist actualizada exitosamente." });
+            res.status(200).json({ message: 'Playlist actualizada exitosamente.' });
         } else {
-            res.status(404).json({ error: "Playlist no encontrada." });
+            res.status(404).json({ error: 'Playlist no encontrada.' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateName = (playlist, name) => {
+    if (name) {
+        playlist.name = name;
+    }
+};
+
+const updatePrivacy = (playlist, privacy) => {
+    if (privacy) {
+        playlist.privacy = privacy;
+    }
+};
+
+const updateImage = (playlist, image) => {
+    if (image) {
+        playlist.image = image;
+    }
+};
+
+const updateDescription = (playlist, description) => {
+    if (description) {
+        playlist.description = description;
+    }
+};
+
+// DELETE PLAYLIST DESCRIPTION
+export const deletePlaylistDescription = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const playlistId = req.params.playlistId;
+
+        const user = await User.findById(userId);
+
+        // Buscar la playlist en las playlists del usuario
+        const playlistIndex = user.playlists.findIndex(playlist => playlist._id.equals(playlistId));
+
+        if (playlistIndex !== -1) {
+            // Eliminar la descripción de la playlist
+            user.playlists[playlistIndex].description = undefined;
+
+            await user.save();
+
+            res.status(200).json({ message: 'Playlist description deleted successfully.' });
+        } else {
+            res.status(404).json({ error: 'Playlist not found.' });
         }
     } catch (error) {
         next(error);
@@ -558,7 +602,7 @@ export const updatePlaylist = async (req, res, next) => {
 // GET VIDEOS FROM PLAYLIST
 export const getVideosFromPlaylist = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = req.params.userId;
         const playlistId = req.params.playlistId;
 
         const user = await User.findById(userId);
@@ -574,6 +618,55 @@ export const getVideosFromPlaylist = async (req, res, next) => {
         } else {
             res.status(404).json({ error: "Playlist not found." });
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET PLAYLIST BY ID
+export const getPlaylistById = async (req, res, next) => {
+    try {
+        const playlistId = req.params.playlistId;
+
+        // Buscar la playlist por su ID
+        const playlist = await User.findOne({ "playlists._id": playlistId })
+            .select(`playlists.$`)
+            .exec();
+
+        if (!playlist) {
+            return res.status(404).json({ error: "Playlist not found." });
+        }
+
+        const foundPlaylist = playlist.playlists[0];
+
+        // Verificar si la privacidad de la playlist no es "privada"
+        if (foundPlaylist.privacy === 'private') {
+            return res.status(403).json({ error: "Access denied. Playlist is private." });
+        }
+
+        // Obtener información completa de los videos en la playlist
+        const videos = await Video.find({ _id: { $in: foundPlaylist.videos } });
+        const videosLength = videos.length;
+        const lastVideo = videos[videos.length - 1];
+        const defaultImage = lastVideo ? lastVideo.imgUrl : null;
+
+        const playlistImage = foundPlaylist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+        const playlistDetails = {
+            _id: foundPlaylist._id,
+            name: foundPlaylist.name,
+            image: playlistImage,
+            privacy: foundPlaylist.privacy,
+            description: foundPlaylist.description,
+            followers: foundPlaylist.followers,
+            creatorId: foundPlaylist.creatorId,
+            creator: foundPlaylist.creator,
+            createdAt: foundPlaylist.createdAt,
+            lastUpdated: foundPlaylist.lastUpdated,
+            videosLength,
+        };
+
+        res.status(200).json(playlistDetails);
     } catch (error) {
         next(error);
     }
@@ -603,9 +696,8 @@ export const getVideoIdsFromPlaylist = async (req, res, next) => {
     }
 };
 
-
-// GET ALL PLAYLISTS
-export const getAllPlaylists = async (req, res, next) => {
+// GET ALL PLAYLISTS CREATED BY USER
+export const getAllUserPlaylists = async (req, res, next) => {
     try {
         const userId = req.user.id;
 
@@ -620,16 +712,104 @@ export const getAllPlaylists = async (req, res, next) => {
             const lastVideo = videos[videos.length - 1];
             const defaultImage = lastVideo ? lastVideo.imgUrl : null;
 
+            const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
             return {
                 _id: playlist._id,
                 name: playlist.name,
-                image: playlist.image || defaultImage,
+                image: playlistImage,
                 privacy: playlist.privacy,
+                description: playlist.description,
+                followers: playlist.followers,
+                creatorId: userId,
+                creator: playlist.creator,
+                createdAt: playlist.createdAt,
+                lastUpdated: playlist.lastUpdated,
                 videosLength,
             };
         }));
 
         res.status(200).json(playlistsWithDetails);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET ALL PLAYLISTS OF A USER, INCLUDING FOLLOWED
+export const getAllUserPlaylistsAndFollowed = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+
+        // Obtener información completa de las playlists del usuario
+        const userPlaylists = await Promise.all(user.playlists.map(async (playlist) => {
+            const videos = await Video.find({ _id: { $in: playlist.videos } });
+            const videosLength = videos.length;
+            const lastVideo = videos[videos.length - 1];
+            const defaultImage = lastVideo ? lastVideo.imgUrl : null;
+
+            const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+            return {
+                _id: playlist._id,
+                name: playlist.name,
+                image: playlistImage,
+                privacy: playlist.privacy,
+                description: playlist.description,
+                followers: playlist.followers,
+                creatorId: userId,
+                creator: playlist.creator,
+                createdAt: playlist.createdAt,
+                lastUpdated: playlist.lastUpdated,
+                videosLength,
+            };
+        }));
+
+        // Obtener información completa de las playlists seguidas por el usuario
+        const followedPlaylists = await Promise.all(user.followedPlaylists.map(async (followedPlaylist) => {
+            const playlistId = followedPlaylist.playlistId;
+
+            const foundUser = await User.findOne({ "playlists._id": playlistId })
+                .select(`playlists.$`)
+                .exec();
+
+            if (!foundUser) {
+                return null;
+            }
+
+            const foundPlaylist = foundUser.playlists[0];
+            const videos = await Video.find({ _id: { $in: foundPlaylist.videos } });
+            const videosLength = videos.length;
+            const lastVideo = videos[videos.length - 1];
+            const defaultImage = lastVideo ? lastVideo.imgUrl : null;
+
+            const playlistImage = foundPlaylist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+            return {
+                _id: foundPlaylist._id,
+                name: foundPlaylist.name,
+                image: playlistImage,
+                privacy: foundPlaylist.privacy,
+                description: foundPlaylist.description,
+                followers: foundPlaylist.followers,
+                creatorId: foundPlaylist.creatorId,
+                creator: foundPlaylist.creator,
+                createdAt: followedPlaylist.followDate,
+                lastUpdated: foundPlaylist.lastUpdated,
+                videosLength,
+            };
+        }));
+
+        // Filtrar las playlists nulas (caso en el que la playlist seguida no existe)
+        const validFollowedPlaylists = followedPlaylists.filter((playlist) => playlist !== null);
+
+        // Combinar las playlists del usuario y las seguidas
+        const allPlaylists = [...userPlaylists, ...validFollowedPlaylists];
+
+        allPlaylists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        res.status(200).json(allPlaylists);
     } catch (error) {
         next(error);
     }
@@ -664,6 +844,91 @@ export const getPublicPlaylists = async (req, res, next) => {
         }));
 
         res.status(200).json(playlistsWithDetails);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// FOLLOW A PLAYLIST
+export const followPlaylist = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const playlistId = req.params.playlistId;
+        const playlistOwner = await User.findOne({ "playlists._id": playlistId });
+        const playlistToFollow = playlistOwner.playlists.id(playlistId);
+        const user = await User.findById(userId);
+
+
+        if (!playlistOwner) {
+            return res.status(404).json({ error: "Playlist owner not found." });
+        }
+        if (userId === playlistOwner._id.toString()) {
+            return res.status(400).json({ error: "Cannot follow your own playlist." });
+        }
+        if (!playlistToFollow) {
+            return res.status(404).json({ error: "Playlist not found." });
+        }
+        if (user.followedPlaylists.some(entry => entry.playlistId.equals(playlistId))) {
+            return res.status(400).json({ error: "Already following this playlist." });
+        }
+
+        // Añadir la playlist a las seguidas por el usuario con followDate
+        user.followedPlaylists.push({
+            playlistId: playlistId,
+            followDate: new Date(),
+        });
+
+        await user.save();
+
+        playlistToFollow.followers.push(userId);
+        await playlistOwner.save();
+
+        res.status(200).json({ message: "Playlist followed successfully." });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// UNFOLLOW A PLAYLIST
+export const unfollowPlaylist = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const playlistId = req.params.playlistId;
+
+        const user = await User.findById(userId);
+
+        // Buscar la entrada de la playlist que el usuario está siguiendo
+        const playlistEntry = user.followedPlaylists.find(entry => entry.playlistId.equals(playlistId));
+
+        if (!playlistEntry) {
+            return res.status(400).json({ error: "Not following this playlist." });
+        }
+
+        // Eliminar la playlist de las seguidas por el usuario
+        user.followedPlaylists = user.followedPlaylists.filter(entry => !entry.playlistId.equals(playlistId));
+        await user.save();
+
+        // Encuentra al propietario de la playlist
+        const playlistOwner = await User.findOne({ "playlists._id": playlistId });
+
+        if (!playlistOwner) {
+            return res.status(404).json({ error: "Playlist owner not found." });
+        }
+
+        // Encuentra la playlist específica dentro del propietario
+        const playlistToUnfollow = playlistOwner.playlists.id(playlistId);
+
+        if (!playlistToUnfollow) {
+            return res.status(404).json({ error: "Playlist not found." });
+        }
+
+        // Eliminar el ID del usuario del array de seguidores de la playlist
+        playlistToUnfollow.followers = playlistToUnfollow.followers.filter(followerId => followerId !== userId);
+
+        // Guarda los cambios en el propietario de la playlist
+        await playlistOwner.save();
+
+        res.status(200).json({ message: "Playlist unfollowed successfully." });
     } catch (error) {
         next(error);
     }

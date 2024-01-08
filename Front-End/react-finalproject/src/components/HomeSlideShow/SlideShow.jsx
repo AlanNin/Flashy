@@ -8,13 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
-import ViewsIcon from '../../assets/ViewsTedenciaIcono.png';
-import PlayButton from "../../assets/VerAhoraIcono.png";
-import Save4Card from "../../assets/Save4Card.png";
-import ArrowDown from "../../assets/ArrowDown.png";
-import FechaIcono from "../../assets/FechaIconoG.png"
-import DuracionIcono from "../../assets/DuracionIconoG.png"
-import LanguageIcono from '../../assets/IdiomaIconoG.png';
 import CloseX from "../../assets/CloseX.png";
 import MuteIcono from "../../assets/MuteIcono.png";
 import NoMuteIcono from "../../assets/NoMuteIcono.png";
@@ -113,7 +106,9 @@ const PopupContainer = styled.div`
   height: auto;
   margin-top: auto;
   margin-bottom: ${({ filteredVideosLenght }) => (filteredVideosLenght === 0 ? '10%' : '0px')};
-  background: rgba(24, 24, 24);
+  background: linear-gradient(#0b090d, #0f0d12, #121014, #121112, #17141a 99%);
+  border: 1px solid rgba(2, 1, 3, 0.3);
+  box-shadow: 0px 4px 3px 5px rgba(0, 0, 0, 0.4);
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   overflow: hidden;
@@ -291,7 +286,7 @@ const VideoTitle = styled.h1`
     width: max-content;
     max-width: 450px;
     height: max-content;
-    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '170px' : '140px')};  
+    bottom: ${({ progress, currentUser }) => (progress > 0 && currentUser ? '150px' : '120px')};  
     left: 50px;
     z-index: 2;
     color: white;
@@ -311,7 +306,7 @@ const WatchNowSaveDiv = styled.div`
     width: max-content;
     height: max-content;
     align-items: center;
-    bottom: 75px;
+    bottom: 55px;
     left: 50px;
     z-index: 2;
     gap: 15px;
@@ -730,11 +725,12 @@ const ProgressContainerPopup = styled.div`
   align-items: center;
   width: 450px;
   bottom: 0px;
-  margin-top: 355px;
+  margin-top: 375px;
   margin-left: -345px;
   z-index: 2;
   height: max-content;
 `;
+
 
 const ProgressBarPopup = styled.div`
   width: 72%;
@@ -1029,6 +1025,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
       try {
         const res = await axios.get(`/videos/${type}`);
         setVideos(res.data);
+
       } catch (error) {
         console.error("Error fetching videos:", error);
       }
@@ -1190,9 +1187,9 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                       src={channel.img}
                       onClick={() => handleGoToChannel(channelId)}
                     />
-                    <ChannelNamePopup onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelNamePopup>
+                    <ChannelNamePopup onClick={() => handleGoToChannel(channelId)} > {channel?.displayname} </ChannelNamePopup>
 
-                    {MoreInfoInputs.tags.length === 0 && (
+                    {MoreInfoInputs.tags?.length === 0 && (
                       <ShareButtonNoTag onClick={handleShare} ref={buttonShareRef}>
                         <ShareButtonImgNoTag src={VideoShareIcono} /> Share
                       </ShareButtonNoTag>
@@ -1205,40 +1202,40 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                     </VideoDate>
 
                     <InfoItem>
-                      <InfoElementImg src={ViewsIconG} /> {formatViews(MoreInfoInputs?.views)}
+                      <InfoElementImg src={ViewsIconG} /> {MoreInfoInputs?.views}
                     </InfoItem>
 
 
                     <InfoItem>
-                      <InfoElementImg src={VideoLikeIcono} /> {MoreInfoInputs.likes.length}
+                      <InfoElementImg src={VideoLikeIcono} /> {MoreInfoInputs.likes?.length}
                     </InfoItem>
 
                     <InfoItem>
-                      <InfoElementImg src={VideoDislikeIcono} /> {MoreInfoInputs.dislikes.length}
+                      <InfoElementImg src={VideoDislikeIcono} /> {MoreInfoInputs.dislikes?.length}
                     </InfoItem>
 
                     <InfoItem>
-                      <InfoElementImg src={LanguageIconoG} /> {MoreInfoInputs.language}
+                      <InfoElementImg src={LanguageIconoG} /> {MoreInfoInputs?.language}
                     </InfoItem>
 
                     <InfoItem>
                       <InfoElementImg src={SubtitleIconoG} />
-                      {MoreInfoInputs.subtitles && MoreInfoInputs.subtitles.length > 0
-                        ? MoreInfoInputs.subtitles[0].name + (MoreInfoInputs.subtitles[1] ? ', ' + MoreInfoInputs.subtitles[1].name : '') + (MoreInfoInputs.subtitles[2] ? ', ' + MoreInfoInputs.subtitles[2].name : '') + (MoreInfoInputs.subtitles[3] ? ', ' + MoreInfoInputs.subtitles[3].name : '')
+                      {MoreInfoInputs?.subtitles && MoreInfoInputs.subtitles?.length > 0
+                        ? MoreInfoInputs?.subtitles[0].name + (MoreInfoInputs?.subtitles[1] ? ', ' + MoreInfoInputs.subtitles[1]?.name : '') + (MoreInfoInputs.subtitles[2] ? ', ' + MoreInfoInputs.subtitles[2].name : '') + (MoreInfoInputs.subtitles[3] ? ', ' + MoreInfoInputs.subtitles[3].name : '')
                         : 'No Subtitles'}
                     </InfoItem>
 
                   </InfoDiv>
 
                   <VideoDescPopup>
-                    {MoreInfoInputs.desc}
+                    {MoreInfoInputs?.desc}
                   </VideoDescPopup>
                 </PopupBelowDivColumn>
 
                 <PopupBelowDivColumn style={{ marginRight: '100px' }}>
                   <RightItemsDiv>
 
-                    {MoreInfoInputs.tags.length > 0 && (
+                    {MoreInfoInputs.tags?.length > 0 && (
                       <TagsDiv>
                         <TagsLabel style={{ color: 'tu-color-aquí' }}>Tags:&nbsp;</TagsLabel>
                         {MoreInfoInputs.tags.map((tag, index) => (
@@ -1247,7 +1244,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                       </TagsDiv>
                     )}
                   </RightItemsDiv>
-                  {MoreInfoInputs.tags.length > 0 && (
+                  {MoreInfoInputs.tags?.length > 0 && (
                     <ShareButton onClick={handleShare} ref={buttonShareRef}>
                       <ShareButtonImg src={VideoShareIcono} /> Share
                     </ShareButton>
@@ -1286,6 +1283,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
           </PopupContainer>
         </PopupContainerBg>
       )}
+
 
       <SlideShowContainer>
         <ImageSlider slides={slides} parentWidth={parentWidth} />

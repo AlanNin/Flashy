@@ -30,47 +30,16 @@ import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
 import {
   EmailShareButton,
   FacebookShareButton,
-  GabShareButton,
-  HatenaShareButton,
-  InstapaperShareButton,
-  LineShareButton,
-  LinkedinShareButton,
-  LivejournalShareButton,
-  MailruShareButton,
-  OKShareButton,
-  PinterestShareButton,
-  PocketShareButton,
   RedditShareButton,
   TelegramShareButton,
-  TumblrShareButton,
   TwitterShareButton,
-  ViberShareButton,
-  VKShareButton,
   WhatsappShareButton,
-  WorkplaceShareButton,
 } from "react-share";
 import {
   EmailIcon,
   FacebookIcon,
-  FacebookMessengerIcon,
-  GabIcon,
-  HatenaIcon,
-  InstapaperIcon,
-  LineIcon,
-  LinkedinIcon,
-  LivejournalIcon,
-  MailruIcon,
-  OKIcon,
-  PinterestIcon,
-  PocketIcon,
   RedditIcon,
   TelegramIcon,
-  TumblrIcon,
-  TwitterIcon,
-  ViberIcon,
-  VKIcon,
-  WeiboIcon,
-  WorkplaceIcon,
   XIcon,
 } from "react-share";
 
@@ -290,7 +259,7 @@ const Subscribe = styled.button`
   font-family: "Roboto", Helvetica;
   color: white;
   border: none;
-  border-radius: 18px;
+  border-radius: 5px;
   height: max-content;
   padding: ${({ isSubscribed }) => (isSubscribed ? '8px 18px 10px 20px' : '10px 20px')};
   cursor: pointer;
@@ -817,7 +786,7 @@ const VideoPage = () => {
 
         if (currentUser) {
 
-          const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data._id}`);
+          const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data?._id}`);
           const userProgress = userProgressRes.data.progress || 0;
 
           if (userProgress > 3) {
@@ -896,7 +865,7 @@ const VideoPage = () => {
 
     }
 
-  }, [UserAllowed, currentVideo._id, videoLoaded]);
+  }, [UserAllowed, currentVideo?._id, videoLoaded]);
 
   // LIKE VIDEO
   const handleLike = async () => {
@@ -907,7 +876,7 @@ const VideoPage = () => {
     }
 
     await axios.put(`/users/like/${currentVideo?._id}`);
-    dispatch(like(currentUser._id));
+    dispatch(like(currentUser?._id));
   };
 
   // DISLIKE VIDEO
@@ -919,7 +888,7 @@ const VideoPage = () => {
     }
 
     await axios.put(`/users/dislike/${currentVideo?._id}`);
-    dispatch(dislike(currentUser._id));
+    dispatch(dislike(currentUser?._id));
   };
 
   // SUBSCRIBE CHANNEL
@@ -1025,9 +994,11 @@ const VideoPage = () => {
     setShowResumePopup(false);
     const videoPlayer = player.current;
     if (videoLoaded) {
-      if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
-        videoPlayer.currentTime = (resumeProgress / 100) * videoDuration;
-        videoPlayer.play();
+      if (currentUser && resumeProgress > 0) {
+        if (!isNaN(resumeProgress) && !isNaN(videoDuration)) {
+          videoPlayer.currentTime = (resumeProgress / 100) * videoDuration;
+          videoPlayer.play();
+        }
       }
     }
   };
@@ -1040,7 +1011,9 @@ const VideoPage = () => {
 
     const videoPlayer = player.current;
     videoPlayer.currentTime = 0;
-    videoPlayer.play();
+    if (currentUser && resumeProgress > 0) {
+      videoPlayer.play();
+    }
   };
 
   // POP UP SUSCRIBE NOT LOGGED

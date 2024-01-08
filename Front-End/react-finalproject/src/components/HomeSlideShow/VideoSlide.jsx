@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 
 const Contenedor = styled.div`
   position: relative;
-  z-index:2;
+  z-index: 2;
   width: 100%;
   height: 100%;
   display: flex;
