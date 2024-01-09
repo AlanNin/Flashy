@@ -7,6 +7,7 @@ import {
 } from "firebase/storage";
 import app from "../firebase";
 import styled, { css, keyframes } from "styled-components";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
@@ -22,6 +23,8 @@ import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png";
 import FollowingIcon from "../assets/FollowingIcon.png";
+import EmptyWatchHistoryIcon from "../assets/NotSubbedIcono.png";
+import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import CardLibrary from "../components/CardLibrary";
 import CreateNewPlaylist from "../components/CreateNewPlaylist";
 import moment from "moment";
@@ -52,6 +55,7 @@ const MainContainer = styled.div`
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
+  display: flex;
 `;
 
 // PLAYLISTS
@@ -926,6 +930,70 @@ const VideosContainerNoVideoText = styled.h1`
   padding: 126px 330px;
 `;
 
+// USER VALIDATION
+const EmptyHistoryMessageContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: auto;
+    margin-top: 318px;
+`;
+
+const EmptyHistoryImg = styled.img`
+    height: 96px;
+    width: 96px;
+    padding: 20 px;
+`;
+
+const EmptyHistoryMessage1 = styled.span`
+    margin-top: 10px;  
+    color: rgba(224, 175, 208, 0.8);
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 30px;
+`;
+
+const EmptyHistoryMessage2 = styled.span`
+    margin-top: 10px;    
+    color: ${({ theme }) => theme.text};
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 30px;
+`;
+
+const ItemLogin = styled.div`
+  margin-top: 20px;
+  display: flex;
+  padding: 0px 12px;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: 40px;
+  transition: background-color 0.5s;
+  cursor: pointer;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.loginbg};
+  &:hover {
+    background-color: ${({ theme }) => theme.softloginbg};
+  }
+`;
+
+const ImgLogin = styled.img`
+  height: 30px;
+  width: 30px;
+`;
+
+const ButtonLoginText = styled.h3`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 24px;
+  font-weight: normal;
+  color: ${({ theme }) => theme.text};
+  margin-bottom: 3px;
+`;
+
+
 const Library = () => {
   // CURRENT USER INFO
   const { currentUser } = useSelector((state) => state.user);
@@ -935,10 +1003,14 @@ const Library = () => {
 
   const translations = {
     en: {
-      explore: "Library",
+      emptyHistoryMessage1userless: "Seems like you currently are not logged in as a user :(",
+      emptyHistoryMessage2userless: "Log in to enjoy your personalized playlists and save the videos that you love!",
+      signin: "Sign in",
     },
     es: {
-      explore: "Librería",
+      emptyHistoryMessage1userless: "Parece que aún no has iniciado sesión como usuario :(",
+      emptyHistoryMessage2userless: "Inicia sesión para disfrutar de tus listas de reproducción personalizadas!",
+      signin: "Iniciar Sesión",
     },
   };
 
@@ -1322,257 +1394,280 @@ const Library = () => {
 
   return (
     <MainContainer>
+      {currentUser ? (
+        <>
 
-      <PlaylistsContainer>
+          <PlaylistsContainer>
 
-        <PlaylistsWrapper>
+            <PlaylistsWrapper>
 
-          <PlaylistsHeader> Your Playlists </PlaylistsHeader>
+              <PlaylistsHeader> Your Playlists </PlaylistsHeader>
 
-          {playlists && playlists.map((playlist, index) => (
-            <PlaylistsItem
-              key={index}
-              onClick={() => handlePlaylistClick(playlist, index)}
-              style={{ background: selectedPlaylist === playlist ? 'rgba(115, 20, 74, 0.7)' : '' }}
-            >
-              {playlist.name}
-            </PlaylistsItem>
-          ))}
+              {playlists && playlists.map((playlist, index) => (
+                <PlaylistsItem
+                  key={index}
+                  onClick={() => handlePlaylistClick(playlist, index)}
+                  style={{ background: selectedPlaylist === playlist ? 'rgba(115, 20, 74, 0.7)' : '' }}
+                >
+                  {playlist.name}
+                </PlaylistsItem>
+              ))}
 
-          <NewPlaylsitItem onClick={handleCreateNewPlaylist}>
-            <AddNewPlaylistImg src={AddNewPlaylist} />
-            New Playlist
-          </NewPlaylsitItem>
+              <NewPlaylsitItem onClick={handleCreateNewPlaylist}>
+                <AddNewPlaylistImg src={AddNewPlaylist} />
+                New Playlist
+              </NewPlaylsitItem>
 
-        </PlaylistsWrapper>
+            </PlaylistsWrapper>
 
-      </PlaylistsContainer>
+          </PlaylistsContainer>
 
-      <PlaylistInfoContainer>
-        {selectedPlaylist?.image && (
-          <PlaylistInfoBackground src={selectedPlaylist?.image} />
-        )}
-        <PlaylistInfoWrapper>
-
-          <PlaylistInfoImgContainer>
-            <PlaylistInfoImg src={selectedPlaylist?.image} />
-
-            {selectedPlaylist?.creatorId === currentUser?._id && (
-              <>
-                <InputImageNewPlaylist
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImg(e.target.files[0])}
-                  title=""
-                />
-                <EditPlaylistInfoImg src={EditPlaylist} />
-              </>
+          <PlaylistInfoContainer>
+            {selectedPlaylist?.image && (
+              <PlaylistInfoBackground src={selectedPlaylist?.image} />
             )}
-          </PlaylistInfoImgContainer>
+            <PlaylistInfoWrapper>
 
-          <PlaylistInfoShadowDiv>
+              <PlaylistInfoImgContainer>
+                <PlaylistInfoImg src={selectedPlaylist?.image} />
 
-            <PlaylistInfoNameDiv>
-              {isEditingPlaylistName ? (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <EditPlaylistInfoName
-                    type="text"
-                    name="playlistname"
-                    placeholder={selectedPlaylist?.name}
-                    value={inputs.playlistname !== undefined ? inputs.playlistname : selectedPlaylist?.name}
-                    onChange={handleChangeName}
-                  />
-                  <EditPlaylistInfoNameCharCounter>{inputs.playlistname !== undefined ? inputs.playlistname.length : selectedPlaylist?.name.length}/100</EditPlaylistInfoNameCharCounter>
-                  <EditPlaylistInfoNameButtons>
-                    <EditPlaylistInfoNameCancel onClick={handleEditPlaylistName}> Cancel </EditPlaylistInfoNameCancel>
-                    <EditPlaylistInfoNameSave onClick={handleSavePlaylistName}> Save </EditPlaylistInfoNameSave>
-                  </EditPlaylistInfoNameButtons>
-                </div>
-              ) : (
-                <>
-                  <PlaylistInfoName name={selectedPlaylist?.name} editable={selectedPlaylist?.creatorId === currentUser?._id}> {selectedPlaylist?.name} </PlaylistInfoName>
-                  {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' && (
-                    <EditPlaylistInfoNameImg src={EditPlaylist} onClick={handleEditPlaylistName} />
-                  )}
-                </>
-              )}
-            </PlaylistInfoNameDiv>
-
-            <PlaylistInfoCreator> {selectedPlaylist?.creator} </PlaylistInfoCreator>
-
-            {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' ? (
-              <PlaylistInfoPrivacyDiv style={{ cursor: 'pointer' }} onClick={handleEditPlaylistPrivacy}>
-                <PlaylistInfoPrivacyImg
-                  src={
-                    selectedPlaylist?.privacy === 'public'
-                      ? PublicIcon
-                      : selectedPlaylist?.privacy === 'private'
-                        ? PrivateIcon
-                        : UnlistedIcon
-                  }
-                />
-                {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
-                <EditPlaylistInfoPrivacyImg src={ArrowDown} />
-
-                {isEditingPlaylistPrivacy && (
-                  <EditPlaylistInfoPrivacyPopup>
-
-                    <EditPlaylistInfoPrivacyButton
-                      onClick={() => handleEditPlaylistPrivacyClick("public")}
-                      style={{ background: selectedPlaylist.privacy === 'public' ? 'rgba(115, 20, 74, 0.4)' : '' }}
-                    >
-                      <EditPlaylistInfoPrivacyButtonImg src={PublicIcon} />
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
-                        <EditPlaylistInfoPrivacyButtonText>
-                          Public
-                        </EditPlaylistInfoPrivacyButtonText>
-                        <EditPlaylistInfoPrivacyButtonSubText>
-                          Every user is allowed to search and view your playlist
-                        </EditPlaylistInfoPrivacyButtonSubText>
-                      </div>
-                    </EditPlaylistInfoPrivacyButton>
-
-                    <EditPlaylistInfoPrivacyButton
-                      onClick={() => handleEditPlaylistPrivacyClick("private")}
-                      style={{ background: selectedPlaylist.privacy === 'private' ? 'rgba(115, 20, 74, 0.4)' : '' }}
-                    >
-                      <EditPlaylistInfoPrivacyButtonImg src={PrivateIcon} />
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
-                        <EditPlaylistInfoPrivacyButtonText>
-                          Private
-                        </EditPlaylistInfoPrivacyButtonText>
-                        <EditPlaylistInfoPrivacyButtonSubText>
-                          Only you are allowed to view your playlist
-                        </EditPlaylistInfoPrivacyButtonSubText>
-                      </div>
-                    </EditPlaylistInfoPrivacyButton>
-
-                    <EditPlaylistInfoPrivacyButton
-                      onClick={() => handleEditPlaylistPrivacyClick("unlisted")}
-                      style={{ background: selectedPlaylist.privacy === 'unlisted' ? 'rgba(115, 20, 74, 0.4)' : '' }}
-                    >
-                      <EditPlaylistInfoPrivacyButtonImg src={UnlistedIcon} />
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
-                        <EditPlaylistInfoPrivacyButtonText>
-                          Unlisted
-                        </EditPlaylistInfoPrivacyButtonText>
-                        <EditPlaylistInfoPrivacyButtonSubText>
-                          Every user is allowed to view your playlist with the share link
-                        </EditPlaylistInfoPrivacyButtonSubText>
-                      </div>
-                    </EditPlaylistInfoPrivacyButton>
-                  </EditPlaylistInfoPrivacyPopup>
-                )}
-              </PlaylistInfoPrivacyDiv>
-            ) : (
-              <PlaylistInfoPrivacyDiv>
-                <PlaylistInfoPrivacyImg
-                  src={
-                    selectedPlaylist?.privacy === 'public'
-                      ? PublicIcon
-                      : selectedPlaylist?.privacy === 'private'
-                        ? PrivateIcon
-                        : UnlistedIcon
-                  }
-                />
-                {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
-              </PlaylistInfoPrivacyDiv>
-            )}
-
-            <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0}  followers </PlaylistInfoLengthAndFollowers>
-
-            <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
-
-            {selectedPlaylist?.name !== 'Watch Later' && (
-              <PlaylistInfoActionButtonsDiv>
-                {selectedPlaylist?.privacy !== 'private' && (
-                  <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
-                )}
-                {selectedPlaylist?.name !== 'Watch Later' && selectedPlaylist?.creatorId === currentUser?._id && (
-                  <PlaylistInfoActionButtonsImg src={RemoveTrashcan} onClick={handleDeletePlaylist} />
-                )}
-
-                {selectedPlaylist?.followers?.includes(currentUser?._id) && (
-                  <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
-                )}
-
-              </PlaylistInfoActionButtonsDiv>
-            )}
-
-            {selectedPlaylist?.name !== 'Watch Later' && (
-              <PlaylistInfoDescriptionDiv>
-                {isEditingPlaylistDescription ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: 'max-content' }}>
-                    <EditPlaylistInfoDescription
-                      type="text"
-                      name="description"
-                      placeholder={selectedPlaylist?.description === undefined || selectedPlaylist?.description === ''
-                        ? 'Add a description to your playlist'
-                        : selectedPlaylist?.description}
-                      value={inputs?.description !== undefined ? inputs.description : selectedPlaylist?.description}
-                      onChange={handleChangeDescription}
-                      descriptionTxt={selectedPlaylist?.description}
-                    />
-                    <EditPlaylistInfoDescriptionCharCounter>
-                      {inputs?.description !== undefined ? inputs?.description?.length : (selectedPlaylist?.description ? selectedPlaylist?.description.length : 0)}/300
-                    </EditPlaylistInfoDescriptionCharCounter>
-                    <EditPlaylistInfoDescriptionButtons>
-                      <EditPlaylistInfoDescriptionCancel onClick={handleEditPlaylistDescription}> Cancel </EditPlaylistInfoDescriptionCancel>
-                      <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylisDescription}> Save </EditPlaylistInfoDescriptionSave>
-                    </EditPlaylistInfoDescriptionButtons>
-                  </div>
-                ) : (
+                {selectedPlaylist?.creatorId === currentUser?._id && (
                   <>
-                    <PlaylistInfoDescription editable={selectedPlaylist?.creatorId === currentUser?._id}>
-                      {selectedPlaylist?.description ? (
-                        selectedPlaylist?.description
-                      ) : (
-                        selectedPlaylist?.creatorId === currentUser?._id ? (
-                          <>
-                            Add a description to your playlist
-                          </>
-                        ) : (
-                          <>
-                            No description
-                          </>
-                        )
-                      )}
-                    </PlaylistInfoDescription>
-                    {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' && (
-                      <EditPlaylistInfoDescriptionImg src={EditPlaylist} onClick={handleEditPlaylistDescription} />
-                    )}
+                    <InputImageNewPlaylist
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImg(e.target.files[0])}
+                      title=""
+                    />
+                    <EditPlaylistInfoImg src={EditPlaylist} />
                   </>
                 )}
-              </PlaylistInfoDescriptionDiv>
+              </PlaylistInfoImgContainer>
+
+              <PlaylistInfoShadowDiv>
+
+                <PlaylistInfoNameDiv>
+                  {isEditingPlaylistName ? (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <EditPlaylistInfoName
+                        type="text"
+                        name="playlistname"
+                        placeholder={selectedPlaylist?.name}
+                        value={inputs.playlistname !== undefined ? inputs.playlistname : selectedPlaylist?.name}
+                        onChange={handleChangeName}
+                      />
+                      <EditPlaylistInfoNameCharCounter>{inputs.playlistname !== undefined ? inputs.playlistname.length : selectedPlaylist?.name.length}/100</EditPlaylistInfoNameCharCounter>
+                      <EditPlaylistInfoNameButtons>
+                        <EditPlaylistInfoNameCancel onClick={handleEditPlaylistName}> Cancel </EditPlaylistInfoNameCancel>
+                        <EditPlaylistInfoNameSave onClick={handleSavePlaylistName}> Save </EditPlaylistInfoNameSave>
+                      </EditPlaylistInfoNameButtons>
+                    </div>
+                  ) : (
+                    <>
+                      <PlaylistInfoName name={selectedPlaylist?.name} editable={selectedPlaylist?.creatorId === currentUser?._id}> {selectedPlaylist?.name} </PlaylistInfoName>
+                      {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' && (
+                        <EditPlaylistInfoNameImg src={EditPlaylist} onClick={handleEditPlaylistName} />
+                      )}
+                    </>
+                  )}
+                </PlaylistInfoNameDiv>
+
+                <PlaylistInfoCreator> {selectedPlaylist?.creator} </PlaylistInfoCreator>
+
+                {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' ? (
+                  <PlaylistInfoPrivacyDiv style={{ cursor: 'pointer' }} onClick={handleEditPlaylistPrivacy}>
+                    <PlaylistInfoPrivacyImg
+                      src={
+                        selectedPlaylist?.privacy === 'public'
+                          ? PublicIcon
+                          : selectedPlaylist?.privacy === 'private'
+                            ? PrivateIcon
+                            : UnlistedIcon
+                      }
+                    />
+                    {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+                    <EditPlaylistInfoPrivacyImg src={ArrowDown} />
+
+                    {isEditingPlaylistPrivacy && (
+                      <EditPlaylistInfoPrivacyPopup>
+
+                        <EditPlaylistInfoPrivacyButton
+                          onClick={() => handleEditPlaylistPrivacyClick("public")}
+                          style={{ background: selectedPlaylist.privacy === 'public' ? 'rgba(115, 20, 74, 0.4)' : '' }}
+                        >
+                          <EditPlaylistInfoPrivacyButtonImg src={PublicIcon} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
+                            <EditPlaylistInfoPrivacyButtonText>
+                              Public
+                            </EditPlaylistInfoPrivacyButtonText>
+                            <EditPlaylistInfoPrivacyButtonSubText>
+                              Every user is allowed to search and view your playlist
+                            </EditPlaylistInfoPrivacyButtonSubText>
+                          </div>
+                        </EditPlaylistInfoPrivacyButton>
+
+                        <EditPlaylistInfoPrivacyButton
+                          onClick={() => handleEditPlaylistPrivacyClick("private")}
+                          style={{ background: selectedPlaylist.privacy === 'private' ? 'rgba(115, 20, 74, 0.4)' : '' }}
+                        >
+                          <EditPlaylistInfoPrivacyButtonImg src={PrivateIcon} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
+                            <EditPlaylistInfoPrivacyButtonText>
+                              Private
+                            </EditPlaylistInfoPrivacyButtonText>
+                            <EditPlaylistInfoPrivacyButtonSubText>
+                              Only you are allowed to view your playlist
+                            </EditPlaylistInfoPrivacyButtonSubText>
+                          </div>
+                        </EditPlaylistInfoPrivacyButton>
+
+                        <EditPlaylistInfoPrivacyButton
+                          onClick={() => handleEditPlaylistPrivacyClick("unlisted")}
+                          style={{ background: selectedPlaylist.privacy === 'unlisted' ? 'rgba(115, 20, 74, 0.4)' : '' }}
+                        >
+                          <EditPlaylistInfoPrivacyButtonImg src={UnlistedIcon} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
+                            <EditPlaylistInfoPrivacyButtonText>
+                              Unlisted
+                            </EditPlaylistInfoPrivacyButtonText>
+                            <EditPlaylistInfoPrivacyButtonSubText>
+                              Every user is allowed to view your playlist with the share link
+                            </EditPlaylistInfoPrivacyButtonSubText>
+                          </div>
+                        </EditPlaylistInfoPrivacyButton>
+                      </EditPlaylistInfoPrivacyPopup>
+                    )}
+                  </PlaylistInfoPrivacyDiv>
+                ) : (
+                  <PlaylistInfoPrivacyDiv>
+                    <PlaylistInfoPrivacyImg
+                      src={
+                        selectedPlaylist?.privacy === 'public'
+                          ? PublicIcon
+                          : selectedPlaylist?.privacy === 'private'
+                            ? PrivateIcon
+                            : UnlistedIcon
+                      }
+                    />
+                    {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+                  </PlaylistInfoPrivacyDiv>
+                )}
+
+                <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0}  followers </PlaylistInfoLengthAndFollowers>
+
+                <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
+
+                {selectedPlaylist?.name !== 'Watch Later' && (
+                  <PlaylistInfoActionButtonsDiv>
+                    {selectedPlaylist?.privacy !== 'private' && (
+                      <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
+                    )}
+                    {selectedPlaylist?.name !== 'Watch Later' && selectedPlaylist?.creatorId === currentUser?._id && (
+                      <PlaylistInfoActionButtonsImg src={RemoveTrashcan} onClick={handleDeletePlaylist} />
+                    )}
+
+                    {selectedPlaylist?.followers?.includes(currentUser?._id) && (
+                      <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
+                    )}
+
+                  </PlaylistInfoActionButtonsDiv>
+                )}
+
+                {selectedPlaylist?.name !== 'Watch Later' && (
+                  <PlaylistInfoDescriptionDiv>
+                    {isEditingPlaylistDescription ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: 'max-content' }}>
+                        <EditPlaylistInfoDescription
+                          type="text"
+                          name="description"
+                          placeholder={selectedPlaylist?.description === undefined || selectedPlaylist?.description === ''
+                            ? 'Add a description to your playlist'
+                            : selectedPlaylist?.description}
+                          value={inputs?.description !== undefined ? inputs.description : selectedPlaylist?.description}
+                          onChange={handleChangeDescription}
+                          descriptionTxt={selectedPlaylist?.description}
+                        />
+                        <EditPlaylistInfoDescriptionCharCounter>
+                          {inputs?.description !== undefined ? inputs?.description?.length : (selectedPlaylist?.description ? selectedPlaylist?.description.length : 0)}/300
+                        </EditPlaylistInfoDescriptionCharCounter>
+                        <EditPlaylistInfoDescriptionButtons>
+                          <EditPlaylistInfoDescriptionCancel onClick={handleEditPlaylistDescription}> Cancel </EditPlaylistInfoDescriptionCancel>
+                          <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylisDescription}> Save </EditPlaylistInfoDescriptionSave>
+                        </EditPlaylistInfoDescriptionButtons>
+                      </div>
+                    ) : (
+                      <>
+                        <PlaylistInfoDescription editable={selectedPlaylist?.creatorId === currentUser?._id}>
+                          {selectedPlaylist?.description ? (
+                            selectedPlaylist?.description
+                          ) : (
+                            selectedPlaylist?.creatorId === currentUser?._id ? (
+                              <>
+                                Add a description to your playlist
+                              </>
+                            ) : (
+                              <>
+                                No description
+                              </>
+                            )
+                          )}
+                        </PlaylistInfoDescription>
+                        {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' && (
+                          <EditPlaylistInfoDescriptionImg src={EditPlaylist} onClick={handleEditPlaylistDescription} />
+                        )}
+                      </>
+                    )}
+                  </PlaylistInfoDescriptionDiv>
+                )}
+
+              </PlaylistInfoShadowDiv>
+
+            </PlaylistInfoWrapper>
+
+          </PlaylistInfoContainer>
+
+          <VideosContainerHideTop />
+
+          <VideosContainer>
+
+            {videos.videos?.length === 0 ? (
+              <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
+            ) : (
+              <>
+                <VideosContainerCards>
+                  {videos.videos?.map((video, index) => (
+                    <div key={video?._id}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <CardLibrary video={video} index={index + 1} setWasPlaylistVideosUpdated={setWasPlaylistVideosUpdated} selectedPlaylist={selectedPlaylist} handleUpdate={handleUpdate} />
+                      </div>
+                    </div>
+                  ))}
+                </VideosContainerCards>
+
+              </>
             )}
+          </VideosContainer>
 
-          </PlaylistInfoShadowDiv>
-
-        </PlaylistInfoWrapper>
-
-      </PlaylistInfoContainer>
-
-      <VideosContainerHideTop />
-
-      <VideosContainer>
-
-        {videos.videos?.length === 0 ? (
-          <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
-        ) : (
-          <>
-            <VideosContainerCards>
-              {videos.videos?.map((video, index) => (
-                <div key={video?._id}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <CardLibrary video={video} index={index + 1} setWasPlaylistVideosUpdated={setWasPlaylistVideosUpdated} selectedPlaylist={selectedPlaylist} handleUpdate={handleUpdate} />
-                  </div>
-                </div>
-              ))}
-            </VideosContainerCards>
-
-          </>
-        )}
-      </VideosContainer>
+        </>
+      ) : (
+        <EmptyHistoryMessageContainer>
+          <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
+          <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
+          <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
+          <Link
+            to="../signin"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <ItemLogin>
+              <ImgLogin src={InicioSesionIcono2} />
+              <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+            </ItemLogin>
+          </Link>
+        </EmptyHistoryMessageContainer>
+      )}
 
       {popupNewPlaylist && (
         <CreateNewPlaylist userId={userIDP} handleCreateNewPlaylist={handleCreateNewPlaylist} handleCreated={handleCreated} />

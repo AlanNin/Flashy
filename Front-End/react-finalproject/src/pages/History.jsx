@@ -28,7 +28,6 @@ const Wrapper = styled.div`
 `;
 
 const EmptyHistoryMessageContainer = styled.div`
-    margin-top: 100px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -36,6 +35,8 @@ const EmptyHistoryMessageContainer = styled.div`
     justify-content: center;
     text-align: center;
     width: 930px;
+    margin: auto;
+    margin-top: 150px;
 `;
 
 const EmptyHistoryImg = styled.img`
@@ -249,11 +250,6 @@ const ButtonLoginText = styled.h3`
   font-weight: normal;
   color: ${({ theme }) => theme.text};
   margin-bottom: 3px;
-  
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-  display: none;
-  }
 `;
 
 const rotate = keyframes`
@@ -298,7 +294,7 @@ const History = () => {
             clearhistory: "Clear Watch History",
             emptyHistoryMessage1: "Seems like you haven't watch any video recently :(",
             emptyHistoryMessage2: "Don't miss any Flashy Videos, Watch Now!",
-            emptyHistoryMessage1userless: "Seems like you currently logged in as a user :(",
+            emptyHistoryMessage1userless: "Seems like you currently are not logged in as a user :(",
             emptyHistoryMessage2userless: "Keep track of your recently watched videos, sign in now!",
             signin: "Sign in",
         },
@@ -462,74 +458,70 @@ const History = () => {
         <MainContainer>
             <Header> {translations[language].history} </Header>
 
-            <Wrapper>
-                {historyLoaded && (
-                    <>
-                        {
-                            videos.length === 0 ? (
-                                <EmptyHistoryMessageContainer>
-                                    <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
 
-                                    {currentUser ? (
-                                        <>
-                                            <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
-                                            <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
-                                            <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
-                                            <Link
-                                                to="../signin"
-                                                style={{
-                                                    textDecoration: "none",
-                                                    color: "inherit",
-                                                }}
-                                            >
-                                                <ItemLogin>
-                                                    <ImgLogin src={InicioSesionIcono2} />
-                                                    <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                                                </ItemLogin>
-                                            </Link>
-                                        </>
-                                    )}
+            {currentUser ? (
+                <Wrapper>
 
-                                </EmptyHistoryMessageContainer>
-                            ) : (
-                                <CardsContainer>
-                                    {videos.map(video => (
-                                        <CardHistory key={video._id} video={video} setIsHistoryUpdated={setIsHistoryUpdated} />
-                                    ))}
-                                </CardsContainer>
-                            )
-                        }
-                    </>
-                )}
+                    {historyLoaded ? (
+                        <>
+                            {
+                                videos.length === 0 ? (
+                                    <EmptyHistoryMessageContainer>
+                                        <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
 
-                {
-                    !historyLoaded && (
+                                        <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1}</EmptyHistoryMessage1>
+                                        <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2}</EmptyHistoryMessage2>
+
+                                    </EmptyHistoryMessageContainer>
+                                ) : (
+                                    <CardsContainer>
+                                        {videos.map(video => (
+                                            <CardHistory key={video._id} video={video} setIsHistoryUpdated={setIsHistoryUpdated} />
+                                        ))}
+                                    </CardsContainer>
+                                )
+                            }
+                        </>
+                    ) : (
                         <LoadingContainer>
                             <LoadingCircle />
                         </LoadingContainer>
-                    )
-                }
+                    )}
 
-                <SearchContainer historyLoaded={historyLoaded}>
-                    <Search>
-                        <ImgBuscar onClick={handleSearch} src={BuscarIcono} />
-                        <Input
-                            placeholder={translations[language].search}
-                            onChange={(e) => [setSearchInput(e.target.value)]}
-                            onKeyPress={handleKeyPress} />
-                    </Search>
+                    <SearchContainer historyLoaded={historyLoaded}>
+                        <Search>
+                            <ImgBuscar onClick={handleSearch} src={BuscarIcono} />
+                            <Input
+                                placeholder={translations[language].search}
+                                onChange={(e) => [setSearchInput(e.target.value)]}
+                                onKeyPress={handleKeyPress} />
+                        </Search>
 
-                    <ItemClearHistory onClick={handleClearHistory}>
-                        <ImgClearHistory src={ClearHistory} />
-                        <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
-                    </ItemClearHistory>
-                </SearchContainer>
-            </Wrapper>
-
+                        <ItemClearHistory onClick={handleClearHistory}>
+                            <ImgClearHistory src={ClearHistory} />
+                            <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
+                        </ItemClearHistory>
+                    </SearchContainer>
+                </Wrapper>
+            ) : (
+                <EmptyHistoryMessageContainer>
+                    <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
+                    <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
+                    <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
+                    <Link
+                        to="../signin"
+                        style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                        }}
+                    >
+                        <ItemLogin>
+                            <ImgLogin src={InicioSesionIcono2} />
+                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                        </ItemLogin>
+                    </Link>
+                </EmptyHistoryMessageContainer>
+            )}
 
 
             {

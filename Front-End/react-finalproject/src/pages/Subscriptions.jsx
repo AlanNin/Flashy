@@ -19,7 +19,7 @@ const MainContainer = styled.div`
 `;
 
 const Header = styled.h1`
-font-size: 32px;
+font-size: 40px;
 color: rgba(224, 175, 208);
 padding :100px 55px 20px 55px;
 font-weight: bold;
@@ -43,8 +43,10 @@ const NotAuthWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center; // Alineación del texto
+  text-align: center;
+  margin-top: 100px;
 `;
+
 const NotAuth = styled.h1`
   margin-top: 5px;
   font-size: 32px;
@@ -87,11 +89,6 @@ const ButtonLoginText = styled.h3`
   font-weight: normal;
   color: ${({ theme }) => theme.text};
   margin-bottom: 3px;
-  
-  @media only screen and (max-width: 980px),
-  only screen and (max-height: 910px) {
-  display: none;
-  }
 `;
 
 const NotSubbedWrapper = styled.div`
@@ -99,8 +96,10 @@ const NotSubbedWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center; // Alineación del texto
+  text-align: center;
+  margin-top: 100px;
 `;
+
 const NotSubbed1 = styled.h1`
   margin-top: 15px;
   font-size: 32px;
