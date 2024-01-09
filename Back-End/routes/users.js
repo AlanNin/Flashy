@@ -125,6 +125,6 @@ router.post('/playlists/follow/:playlistId/', verifyToken, followPlaylist);
 router.delete("/playlists/unfollow/:playlistId", verifyToken, unfollowPlaylist);
 
 // CHECK IF PLAYLIST EXISTS
-router.post("/:userId/playlists/check/:name", verifyToken, checkPlaylistExists);
+router.post("/:userId/playlists/check/:playlistId", verifyToken, checkPlaylistExists);
 
 export default router;

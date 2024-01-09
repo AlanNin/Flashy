@@ -4,7 +4,7 @@ import Menu from "./components/Menu";
 import Navbar from "./components/Navbar";
 import { darkTheme, lightTheme } from "./utils/Theme";
 import { LanguageProvider } from './utils/LanguageContext';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import Search from "./pages/Search";
@@ -15,6 +15,7 @@ import Signup from "./pages/Signup";
 import VideoPage from "./pages/Video";
 import Library from "./pages/Library";
 import SharedPlaylist from "./pages/SharedPlaylist";
+import NotFound404 from "./pages/NotFound404";
 
 const Container = styled.div`
   position: relative;
@@ -81,8 +82,6 @@ function App() {
     setMenuVisible(!menuVisible);
   };
 
-
-
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <LanguageProvider>
@@ -123,6 +122,10 @@ function App() {
                     >
                       <Route path=":id" element={<SharedPlaylist />} />
                     </Route>
+
+                    {/* Manejar ingreso a ruta no definida */}
+                    <Route path="*" element={<NotFound404 />} />
+
                   </Route>
                 </Routes>
               </Main>

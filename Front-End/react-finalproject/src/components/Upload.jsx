@@ -1281,11 +1281,13 @@ const Upload = ({ setOpen }) => {
                     }
                 }
 
-                // ALLOW UPLOADER TO PRIVATE VIDEO IF ITS IS PRIVATE
-                if (inputs.privacy === 'private') {
+                // ALLOW UPLOADER TO VIDEO
+                try {
                     await axios.post(`/videos/${videoId}/allowedUsers`, {
                         email: userEmail,
                     });
+                } catch (error) {
+                    console.error("Error allowing user:", error);
                 }
 
                 // Cerrar el modal u realizar otras acciones necesarias

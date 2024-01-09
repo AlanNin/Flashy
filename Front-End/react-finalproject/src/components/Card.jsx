@@ -350,6 +350,7 @@ const EstiloIconos = styled.img`
   width: 14px;
   height: 14px;
   margin-right: 3px;
+  margin-top: -2px;
 `;
 
 const DetailTagContainer = styled.div`

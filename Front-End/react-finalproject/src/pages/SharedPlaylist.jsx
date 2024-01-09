@@ -13,7 +13,9 @@ import FollowingIcon from "../assets/FollowingIcon.png";
 import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png";
+import GIF404 from "../assets/GIF404.gif";
 import CardLibraryShared from "../components/CardLibraryShared";
+import NotFound404Component from "../components/NotFound404Component";
 import moment from "moment";
 import "moment/locale/es";
 
@@ -43,6 +45,7 @@ const MainContainer = styled.div`
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
+  z-index: ${({ playlistExists }) => (playlistExists ? '' : '5')}; 
 `;
 
 // PLAYLIST INFO
@@ -317,6 +320,86 @@ const SharePopupContent = styled.p`
   margin: 0;
 `;
 
+
+const UnfollowPlaylistPopupContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
+const UnfollowPlaylistPopupWrapper = styled.div`
+    width: max-content;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    padding: 30px 30px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+`;
+
+const UnfollowPlaylistPopupTitle = styled.h1`
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const UnfollowPlaylistPopupTxt = styled.h1`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: normal;
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: ${({ theme }) => theme.textSoft};
+    max-width: 400px;
+`;
+
+const UnfollowPlaylistPopupPlaylistName = styled.span`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: bold;
+    font-size: 17px;
+    color: ${({ theme }) => theme.textSoft};
+`;
+
+const OptionsUnfollowCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+const UnfollowPlaylistCancel = styled.div`
+    margin-right: 10px;
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
+const UnfollowPlaylistDelete = styled.div`
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
 const PlaylistInfoDescriptionDiv = styled.div`
   position: relative;
   display: flex;
@@ -387,6 +470,76 @@ const VideosContainerNoVideoText = styled.h1`
   padding: 126px 360px;
 `;
 
+// PRIVATE POP UP
+const NotAllowedContainerBg = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #000000b9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+`;
+
+const NotAllowedContainer = styled.div`
+    position: relative;
+    width: 35%;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 0px;
+`;
+
+const WrapperNotAllowed = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 60px);
+    height: 100%;
+    gap: 30px;
+    padding: 0px 30px 5px 30px;
+  `;
+
+const TitleNotAllowed = styled.h1`
+  text-align: center;
+  font-size: 28px;
+  font-family: "Roboto Condensed", Helvetica;
+  padding-bottom: 15px;
+  padding-top: 10px;
+`;
+
+const SubLabelNotAllowed = styled.label`
+    margin-top: -20px;
+    font-size: 16px;
+    padding: 0px 10px;
+    color: ${({ theme }) => theme.textSoft};
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const GoHomeNotAllowed = styled.button`
+  border: none;
+  width: max-content;;
+  height: max-content;
+  padding: 8px 18px;
+  border-radius: 3px;
+  position: relative;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Roboto Condensed", Helvetica;
+  cursor: pointer;
+  background: rgba(82, 41, 73, 0.7);
+  color: ${({ theme }) => theme.text};
+  margin-left: auto;
+  margin-right: 40px;
+  margin-top: 15px;
+`;
+
 const SharedPlaylist = () => {
   // CURRENT USER INFO
   const { currentUser } = useSelector((state) => state.user);
@@ -412,6 +565,7 @@ const SharedPlaylist = () => {
   // FETCH PLAYLISTS
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const path = useLocation().pathname.split("/")[2];
+  const [playlistExists, setPlaylistExists] = useState(true);
 
   useEffect(() => {
     setWasFetchedDataUpdated(false);
@@ -419,9 +573,10 @@ const SharedPlaylist = () => {
       try {
         const response = await axios.get(`/users/playlists/${path}`);
         const fetchedPlaylists = response.data;
+        setPlaylistExists(true);
         setSelectedPlaylist(fetchedPlaylists);
       } catch (error) {
-        console.error("Error fetching playlists:", error);
+        setPlaylistExists(false);
       }
     };
 
@@ -501,28 +656,52 @@ const SharedPlaylist = () => {
   };
 
   // UNFOLLOW PLAYLIST
-  const handleUnfollow = async () => {
-    try {
-      await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
-      handleUpdateFetchedData();
-    } catch (error) {
-      console.error("Error updating playlist:", error);
+  const [isUnfollowPlaylistPopupOpen, setIsUnfollowPlaylisPopupOpen] = useState(false);
+
+  const handleUnfollowPlaylist = async () => {
+    setIsUnfollowPlaylisPopupOpen(true);
+  };
+
+  const handleUnfollowConfirmation = async (confirmed) => {
+    setIsUnfollowPlaylisPopupOpen(false);
+
+    if (confirmed) {
+      try {
+        await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
+        handleUpdateFetchedData();
+      } catch (error) {
+        console.error('Error deleting history:', error);
+      }
     }
   };
+
+  useEffect(() => {
+    if (isUnfollowPlaylistPopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isUnfollowPlaylistPopupOpen]);
 
   // FETCH PLAYLIST VIDEOS
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const res = await axios.get(`/users/${selectedPlaylist.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
-        setVideos(res.data);
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      }
-    };
-    fetchVideos();
+    if (selectedPlaylist) {
+      const fetchVideos = async () => {
+        try {
+          const res = await axios.get(`/users/${selectedPlaylist?.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
+          setVideos(res.data);
+        } catch (error) {
+          // ignore error
+        }
+      };
+      fetchVideos();
+    }
   }, [selectedPlaylist]);
 
   // FORMATS PLAYLIST
@@ -532,96 +711,145 @@ const SharedPlaylist = () => {
   };
 
   return (
-    <MainContainer>
+    <MainContainer playlistExists={playlistExists}>
 
-      <PlaylistInfoContainer>
-        {selectedPlaylist?.image && (
-          <PlaylistInfoBackground src={selectedPlaylist?.image} />
-        )}
-        <PlaylistInfoWrapper>
-          <PlaylistInfoImgContainer>
-            <PlaylistInfoImg src={selectedPlaylist?.image} />
-          </PlaylistInfoImgContainer>
+      {playlistExists ? (
+        <>
+          {selectedPlaylist?.privacy === 'private' ? (
+            <>
+              <NotAllowedContainerBg>
+                <NotAllowedContainer>
+                  <WrapperNotAllowed>
+                    <TitleNotAllowed> Private Playlist </TitleNotAllowed>
+                    <SubLabelNotAllowed>
+                      Oops! It looks like this playlist is set to private. You don't have permission to view it. Please contact the owner for any aditional info.
+                    </SubLabelNotAllowed>
+                  </WrapperNotAllowed>
+                  <Link to={"../../"} style={{ textDecoration: "none", marginLeft: "auto" }}>
+                    <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
+                  </Link>
 
-          <PlaylistInfoShadowDiv>
-
-            <PlaylistInfoNameDiv>
-              <PlaylistInfoName name={selectedPlaylist?.name} editable={selectedPlaylist?.creatorId === currentUser?._id}> {selectedPlaylist?.name} </PlaylistInfoName>
-            </PlaylistInfoNameDiv>
-
-            <PlaylistInfoCreator> {selectedPlaylist?.creator} </PlaylistInfoCreator>
-
-            <PlaylistInfoPrivacyDiv>
-              <PlaylistInfoPrivacyImg
-                src={
-                  selectedPlaylist?.privacy === 'public'
-                    ? PublicIcon
-                    : selectedPlaylist?.privacy === 'private'
-                      ? PrivateIcon
-                      : UnlistedIcon
-                }
-              />
-              {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
-            </PlaylistInfoPrivacyDiv>
-
-            <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0} followers </PlaylistInfoLengthAndFollowers>
-
-            <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
-
-            {selectedPlaylist?.privacy !== 'private' && (
-              <PlaylistInfoActionButtonsDiv>
-                <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
-
-                {selectedPlaylist?.followers?.includes(currentUser?._id) ? (
-                  <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollow} />
-                ) : (
-                  <PlaylistInfoActionButtonsImg src={FollowIcon} onClick={handleFollow} />
+                </NotAllowedContainer>
+              </NotAllowedContainerBg>
+            </>
+          ) : (
+            <>
+              <PlaylistInfoContainer>
+                {selectedPlaylist?.image && (
+                  <PlaylistInfoBackground src={selectedPlaylist?.image} />
                 )}
+                <PlaylistInfoWrapper>
+                  <PlaylistInfoImgContainer>
+                    <PlaylistInfoImg src={selectedPlaylist?.image} />
+                  </PlaylistInfoImgContainer>
 
-              </PlaylistInfoActionButtonsDiv>
-            )}
+                  <PlaylistInfoShadowDiv>
+
+                    <PlaylistInfoNameDiv>
+                      <PlaylistInfoName name={selectedPlaylist?.name} editable={selectedPlaylist?.creatorId === currentUser?._id}> {selectedPlaylist?.name} </PlaylistInfoName>
+                    </PlaylistInfoNameDiv>
+
+                    <PlaylistInfoCreator> {selectedPlaylist?.creator} </PlaylistInfoCreator>
+
+                    <PlaylistInfoPrivacyDiv>
+                      <PlaylistInfoPrivacyImg
+                        src={
+                          selectedPlaylist?.privacy === 'public'
+                            ? PublicIcon
+                            : selectedPlaylist?.privacy === 'private'
+                              ? PrivateIcon
+                              : UnlistedIcon
+                        }
+                      />
+                      {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+                    </PlaylistInfoPrivacyDiv>
+
+                    <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0} followers </PlaylistInfoLengthAndFollowers>
+
+                    <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
+
+                    {selectedPlaylist?.privacy !== 'private' && (
+                      <PlaylistInfoActionButtonsDiv>
+                        <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
+
+                        {selectedPlaylist?.followers?.includes(currentUser?._id) ? (
+                          <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
+                        ) : (
+                          <PlaylistInfoActionButtonsImg src={FollowIcon} onClick={handleFollow} />
+                        )}
+
+                      </PlaylistInfoActionButtonsDiv>
+                    )}
 
 
-            {selectedPlaylist?.name !== 'Watch Later' && (
-              <PlaylistInfoDescriptionDiv>
-                <PlaylistInfoDescription editable={selectedPlaylist?.creatorId === currentUser?._id}>
-                  {selectedPlaylist?.description ? (
-                    selectedPlaylist?.description
-                  ) : (
-                    <>
-                      No description
-                    </>
-                  )}
-                </PlaylistInfoDescription>
-              </PlaylistInfoDescriptionDiv>
-            )}
+                    <PlaylistInfoDescriptionDiv>
+                      <PlaylistInfoDescription editable={selectedPlaylist?.creatorId === currentUser?._id}>
+                        {selectedPlaylist?.description ? (
+                          selectedPlaylist?.description
+                        ) : (
+                          <>
+                            No description
+                          </>
+                        )}
+                      </PlaylistInfoDescription>
+                    </PlaylistInfoDescriptionDiv>
 
-          </PlaylistInfoShadowDiv>
+                  </PlaylistInfoShadowDiv>
 
-        </PlaylistInfoWrapper>
-      </PlaylistInfoContainer>
+                </PlaylistInfoWrapper>
+              </PlaylistInfoContainer>
 
-      <VideosContainerHideTop />
+              <VideosContainerHideTop />
 
-      <VideosContainer>
+              <VideosContainer>
 
-        {videos.videos?.length === 0 ? (
-          <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
-        ) : (
-          <>
-            <VideosContainerCards>
-              {videos.videos?.map((video, index) => (
-                <div key={video?._id}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <CardLibraryShared video={video} index={index + 1} />
-                  </div>
-                </div>
-              ))}
-            </VideosContainerCards>
+                {videos.videos?.length === 0 ? (
+                  <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
+                ) : (
+                  <>
+                    <VideosContainerCards>
+                      {videos.videos?.map((video, index) => (
+                        <div key={video?._id}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <CardLibraryShared video={video} index={index + 1} />
+                          </div>
+                        </div>
+                      ))}
+                    </VideosContainerCards>
 
-          </>
-        )}
-      </VideosContainer>
+                  </>
+                )}
+              </VideosContainer>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <NotFound404Component />
+        </>
+      )}
+
+      {
+        isUnfollowPlaylistPopupOpen && (
+          <UnfollowPlaylistPopupContainer
+            onDeleteConfirmed={() => handleUnfollowConfirmation(true)}
+            onCancel={() => handleUnfollowConfirmation(false)}
+          >
+            <UnfollowPlaylistPopupWrapper>
+              <UnfollowPlaylistPopupTitle> Unfollow Playlist </UnfollowPlaylistPopupTitle>
+              <UnfollowPlaylistPopupTxt> Are you sure you want to unfollow <UnfollowPlaylistPopupPlaylistName>{selectedPlaylist?.name}</UnfollowPlaylistPopupPlaylistName>? </UnfollowPlaylistPopupTxt>
+              <OptionsUnfollowCancel>
+                <UnfollowPlaylistCancel onClick={() => handleUnfollowConfirmation(false)}>
+                  Cancel
+                </UnfollowPlaylistCancel>
+                <UnfollowPlaylistDelete onClick={() => handleUnfollowConfirmation(true)}>
+                  Unfollow
+                </UnfollowPlaylistDelete>
+              </OptionsUnfollowCancel>
+            </UnfollowPlaylistPopupWrapper>
+          </UnfollowPlaylistPopupContainer>
+        )
+      }
 
       {
         isSharePopupVisible && (

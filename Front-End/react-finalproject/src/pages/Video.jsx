@@ -26,6 +26,7 @@ import axios from "axios";
 import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
 import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
+import NotFound404Component from "../components/NotFound404Component";
 
 import {
   EmailShareButton,
@@ -64,9 +65,10 @@ const Container = styled.div`
   background-color: rgba(15, 12, 18);
   position: relative;
   width: 100%;
-  max-width: 1200px;
+  max-width:  ${({ videoExists }) => (videoExists ? '1200px' : '1920px')}; 
   min-height: 100vh;
   margin: auto;
+  z-index: ${({ videoExists }) => (videoExists ? '' : '5')}; 
 `;
 
 const Wrapper = styled.div`
@@ -752,7 +754,6 @@ const VideoPage = () => {
 
   // Reset Scroll
   const scrollToTop = () => {
-
     window.scrollTo(0, 0);
   };
 
@@ -762,6 +763,7 @@ const VideoPage = () => {
   const dispatch = useDispatch();
   const path = useLocation().pathname.split("/")[2];
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoExists, setVideoExists] = useState(true);
 
   // ADD TO HISTORY
   const UpdateHistory = async () => {
@@ -794,7 +796,6 @@ const VideoPage = () => {
           }
 
           setResumeProgress(userProgress);
-
         }
 
         scrollToTop();
@@ -802,7 +803,7 @@ const VideoPage = () => {
 
 
       } catch (err) {
-        console.error("Error fetching data:", err);
+        setVideoExists(false);
       }
     };
 
@@ -862,9 +863,7 @@ const VideoPage = () => {
         })
         .catch(error => {
         });
-
     }
-
   }, [UserAllowed, currentVideo?._id, videoLoaded]);
 
   // LIKE VIDEO
@@ -1174,7 +1173,7 @@ const VideoPage = () => {
 
     if (canPlay && showResumePopup === false) {
       const videoPlayer = player.current;
-      videoPlayer.play();
+      videoPlayer?.play();
     }
 
     setCanPlay(false);
@@ -1191,10 +1190,6 @@ const VideoPage = () => {
       lang={subtitle.name}
     />
   ));
-
-
-  // AVOID PIP ERROR - PENDIENTE
-  const canUsePictureInPicture = player?.disablePictureInPicture;
 
   // SAVE VIDEO
   const [popupSaveVideo, setPopupSaveVideo] = useState(false);
@@ -1221,251 +1216,272 @@ const VideoPage = () => {
 
   return (
 
-    <Container>
+    <Container videoExists={videoExists}>
 
-      {UserAllowed && (
+      {videoExists ? (
+        <>
+          {UserAllowed ? (
 
-        <Wrapper videoLoaded={videoLoaded} NoRecommendations={NoRecommendations} anyPopup={anyPopup}>
+            <Wrapper videoLoaded={videoLoaded} NoRecommendations={NoRecommendations} anyPopup={anyPopup}>
 
-          <Content>
+              <Content>
 
-            {showResumePopup && (
-              <ResumePopupContainer>
-                <ResumePopupWrapper>
-                  <ResumePopupText>
-                    Resume Video
-                  </ResumePopupText>
-                  <ResumePopupSubText>
-                    Would you like to resume this video or start over?
-                  </ResumePopupSubText>
-                  <ResumePopupButtons>
-                    <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
-                    <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
-                  </ResumePopupButtons>
-                </ResumePopupWrapper>
-              </ResumePopupContainer>
-            )}
+                {showResumePopup && (
+                  <ResumePopupContainer>
+                    <ResumePopupWrapper>
+                      <ResumePopupText>
+                        Resume Video
+                      </ResumePopupText>
+                      <ResumePopupSubText>
+                        Would you like to resume this video or start over?
+                      </ResumePopupSubText>
+                      <ResumePopupButtons>
+                        <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
+                        <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
+                      </ResumePopupButtons>
+                    </ResumePopupWrapper>
+                  </ResumePopupContainer>
+                )}
 
-            <VideoWrapper>
+                <VideoWrapper>
 
-              <MediaPlayer
-                style={{ zIndex: '1' }}
-                playsinline
-                viewType="video"
-                title={currentVideo?.title}
-                src={sources[src]}
-                ref={player}
-                onTimeUpdate={handleCurrentTimeUpdate}
-                autoPlay={showResumePopup ? true : false}
-                controls={showResumePopup ? true : false}
-                onCanPlay={handleCanPlay}
-              >
-                <MediaProvider>
-                  {subtitleTracks}
+                  <MediaPlayer
+                    style={{ zIndex: '1' }}
+                    playsinline
+                    viewType="video"
+                    title={currentVideo?.title}
+                    src={sources[src]}
+                    ref={player}
+                    onTimeUpdate={handleCurrentTimeUpdate}
+                    autoPlay={showResumePopup ? true : false}
+                    controls={showResumePopup ? true : false}
+                    onCanPlay={handleCanPlay}
+                  >
+                    <MediaProvider>
+                      {subtitleTracks}
 
-                  <Poster
-                    className="vds-poster"
-                    src={currentVideo?.imgUrlLandscape}
-                    alt={currentVideo?.title}
-                  />
-                </MediaProvider>
+                      <Poster
+                        className="vds-poster"
+                        src={currentVideo?.imgUrlLandscape}
+                        alt={currentVideo?.title}
+                      />
+                    </MediaProvider>
 
-                <DefaultVideoLayout
-                  thumbnails={`https://image.mux.com/${currentVideo?.videoUrlStream}/storyboard.vtt`}
-                  icons={defaultLayoutIcons}
-                />
-              </MediaPlayer>
+                    <DefaultVideoLayout
+                      thumbnails={`https://image.mux.com/${currentVideo?.videoUrlStream}/storyboard.vtt`}
+                      icons={defaultLayoutIcons}
+                    />
+                  </MediaPlayer>
 
-            </VideoWrapper>
-
-
-            <VideoInfo>
-
-              <VideoImg src={currentVideo?.imgUrlVertical} />
-
-              <VideoOtherInfo>
-
-                <Title> {currentVideo?.title} </Title>
-
-                <ContenedorIconosTextos>
-
-                  <ChannelIcon src={CanalIcono} />
-                  <EstiloTextos> {channel?.displayname} </EstiloTextos>
-                  <EstiloIconos src={DuracionIcono} />
-                  <EstiloTextos> {formatDuration(currentVideo?.duration)} </EstiloTextos>
-                  <EstiloIconos src={FechaIcono} />
-                  <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
-                  <EstiloIconos src={ViewsIcon} />
-                  <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
-                  <EstiloIconos src={LanguageIcono} />
-                  <EstiloTextos> {currentVideo?.language} </EstiloTextos>
-                  <EstiloTextos
-                    style={{
-                      marginLeft: '25px',
-                      backgroundColor: 'rgba(30, 27, 33)',
-                      padding: '4px 10px',
-                      borderRadius: '10px',
-                      marginTop: '-4px'
-                    }}>
-                    {currentVideo?.privacy && currentVideo?.privacy.charAt(0).toUpperCase() + currentVideo?.privacy.slice(1)}
-                  </EstiloTextos>
-
-                </ContenedorIconosTextos>
-
-                <Description>
-
-                  {currentVideo?.desc}
-
-                </Description>
+                </VideoWrapper>
 
 
-                <ChannelInfo>
-                  <ChannelImage src={channel?.img} />
-                  <ChannelInfoTx>
-                    <ChannelName> {channel?.displayname} </ChannelName>
-                    <ChannelCounter> {channel?.subscribers} </ChannelCounter>
-                  </ChannelInfoTx>
-                  <SuscbribeContainer>
-                    {!isCurrentUserUploader && (
-                      <Subscribe
-                        onClick={handleSub}
-                        isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
-                      >
-                        {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
-                      </Subscribe>
+                <VideoInfo>
 
-                    )}
-                    {!currentUser && isSubscribePopupVisible && (
-                      <SuscbribeNotLogged ref={subscribeRef}>
+                  <VideoImg src={currentVideo?.imgUrlVertical} />
 
-                        <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
+                  <VideoOtherInfo>
 
-                        <Link
-                          to="../../signin"
-                          style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                          }}
-                        >
-                          <ItemLogin>
-                            <ImgLogin src={InicioSesionIcono2} />
-                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                          </ItemLogin>
-                        </Link>
+                    <Title> {currentVideo?.title} </Title>
 
-                      </SuscbribeNotLogged>
-                    )}
-                  </SuscbribeContainer>
-                </ChannelInfo>
+                    <ContenedorIconosTextos>
 
-              </VideoOtherInfo>
+                      <ChannelIcon src={CanalIcono} />
+                      <EstiloTextos> {channel?.displayname} </EstiloTextos>
+                      <EstiloIconos src={DuracionIcono} />
+                      <EstiloTextos> {formatDuration(currentVideo?.duration)} </EstiloTextos>
+                      <EstiloIconos src={FechaIcono} />
+                      <EstiloTextos> {formatDate(currentVideo?.createdAt)} </EstiloTextos>
+                      <EstiloIconos src={ViewsIcon} />
+                      <EstiloTextos> {formatViews(currentVideo?.views)} </EstiloTextos>
+                      <EstiloIconos src={LanguageIcono} />
+                      <EstiloTextos> {currentVideo?.language} </EstiloTextos>
+                      <EstiloTextos
+                        style={{
+                          marginLeft: '25px',
+                          backgroundColor: 'rgba(30, 27, 33)',
+                          padding: '4px 10px',
+                          borderRadius: '10px',
+                          marginTop: '-4px'
+                        }}>
+                        {currentVideo?.privacy && currentVideo?.privacy.charAt(0).toUpperCase() + currentVideo?.privacy.slice(1)}
+                      </EstiloTextos>
 
-              <Buttons>
-                <LikeAndDislikeButtons>
-                  <LikeButton onClick={handleLike}>
+                    </ContenedorIconosTextos>
 
-                    {currentVideo?.likes?.includes(currentUser?._id) ?
-                      (<ButtonsImg src={VideoLikedIcono} />) :
-                      (<ButtonsImg src={VideoLikeIcono} />)} {" "}
-                    {currentVideo?.likes?.length}
+                    <Description>
 
-                    {!currentUser && isLikePopupVisible && (
-                      <LikeNotLogged ref={likeRef}>
+                      {currentVideo?.desc}
 
-                        <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
-
-                        <Link
-                          to="../../signin"
-                          style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                          }}
-                        >
-                          <ItemLogin>
-                            <ImgLogin src={InicioSesionIcono2} />
-                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                          </ItemLogin>
-                        </Link>
-
-                      </LikeNotLogged>
-                    )}
-
-                  </LikeButton>
-
-                  <DislikeLikeSeparator src={VerticalLineIcono} />
-
-                  <DislikeButton onClick={handleDislike}>
-
-                    {currentVideo?.dislikes?.includes(currentUser?._id) ?
-                      (<ButtonsImg src={VideoDislikedIcono} />) :
-                      (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
-                    {currentVideo?.dislikes?.length}
-
-                    {!currentUser && isDislikePopupVisible && (
-                      <DislikeNotLogged ref={dislikeRef}>
-
-                        <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
-
-                        <Link
-                          to="../../signin"
-                          style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                          }}
-                        >
-                          <ItemLogin>
-                            <ImgLogin src={InicioSesionIcono2} />
-                            <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
-                          </ItemLogin>
-                        </Link>
-
-                      </DislikeNotLogged>
-                    )}
-
-                  </DislikeButton>
-                </LikeAndDislikeButtons>
-                <Button onClick={handleSaveVideo}>
-                  <ButtonsImg src={VideoPlaylistIcono} /> Save
-                </Button>
-
-                <Button onClick={handleShare} ref={buttonShareRef}>
-                  <ButtonsImg src={VideoShareIcono} /> Share
-                </Button>
-
-              </Buttons>
-
-            </VideoInfo>
-
-            <RelatedVideos>
-
-              <RelatedSlider videoId={currentVideo?._id} UserUploader={channel?._id} />
-
-            </RelatedVideos>
-
-            <Comments videoId={currentVideo?._id} UserUploader={channel?._id} />
-
-          </Content>
-
-          <RecommendationContainer>
-
-            <TitleHeader> RECOMMENDED </TitleHeader>
-            <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} NoRecommendations={NoRecommendations} setNoRecommendations={setNoRecommendations} />
-
-          </RecommendationContainer>
+                    </Description>
 
 
-          {
-            isPopUpShareVisible && (
-              <SharePopupContainer>
-                <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-              </SharePopupContainer>
-            )
-          }
+                    <ChannelInfo>
+                      <ChannelImage src={channel?.img} />
+                      <ChannelInfoTx>
+                        <ChannelName> {channel?.displayname} </ChannelName>
+                        <ChannelCounter> {channel?.subscribers} </ChannelCounter>
+                      </ChannelInfoTx>
+                      <SuscbribeContainer>
+                        {!isCurrentUserUploader && (
+                          <Subscribe
+                            onClick={handleSub}
+                            isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                          >
+                            {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+                          </Subscribe>
 
-        </Wrapper >
-      )
-      }
+                        )}
+                        {!currentUser && isSubscribePopupVisible && (
+                          <SuscbribeNotLogged ref={subscribeRef}>
 
+                            <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
+
+                            <Link
+                              to="../../signin"
+                              style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                              }}
+                            >
+                              <ItemLogin>
+                                <ImgLogin src={InicioSesionIcono2} />
+                                <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                              </ItemLogin>
+                            </Link>
+
+                          </SuscbribeNotLogged>
+                        )}
+                      </SuscbribeContainer>
+                    </ChannelInfo>
+
+                  </VideoOtherInfo>
+
+                  <Buttons>
+                    <LikeAndDislikeButtons>
+                      <LikeButton onClick={handleLike}>
+
+                        {currentVideo?.likes?.includes(currentUser?._id) ?
+                          (<ButtonsImg src={VideoLikedIcono} />) :
+                          (<ButtonsImg src={VideoLikeIcono} />)} {" "}
+                        {currentVideo?.likes?.length}
+
+                        {!currentUser && isLikePopupVisible && (
+                          <LikeNotLogged ref={likeRef}>
+
+                            <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
+
+                            <Link
+                              to="../../signin"
+                              style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                              }}
+                            >
+                              <ItemLogin>
+                                <ImgLogin src={InicioSesionIcono2} />
+                                <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                              </ItemLogin>
+                            </Link>
+
+                          </LikeNotLogged>
+                        )}
+
+                      </LikeButton>
+
+                      <DislikeLikeSeparator src={VerticalLineIcono} />
+
+                      <DislikeButton onClick={handleDislike}>
+
+                        {currentVideo?.dislikes?.includes(currentUser?._id) ?
+                          (<ButtonsImg src={VideoDislikedIcono} />) :
+                          (<ButtonsImg src={VideoDislikeIcono} />)} {" "}
+                        {currentVideo?.dislikes?.length}
+
+                        {!currentUser && isDislikePopupVisible && (
+                          <DislikeNotLogged ref={dislikeRef}>
+
+                            <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
+
+                            <Link
+                              to="../../signin"
+                              style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                              }}
+                            >
+                              <ItemLogin>
+                                <ImgLogin src={InicioSesionIcono2} />
+                                <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+                              </ItemLogin>
+                            </Link>
+
+                          </DislikeNotLogged>
+                        )}
+
+                      </DislikeButton>
+                    </LikeAndDislikeButtons>
+                    <Button onClick={handleSaveVideo}>
+                      <ButtonsImg src={VideoPlaylistIcono} /> Save
+                    </Button>
+
+                    <Button onClick={handleShare} ref={buttonShareRef}>
+                      <ButtonsImg src={VideoShareIcono} /> Share
+                    </Button>
+
+                  </Buttons>
+
+                </VideoInfo>
+
+                <RelatedVideos>
+
+                  <RelatedSlider videoId={currentVideo?._id} UserUploader={channel?._id} />
+
+                </RelatedVideos>
+
+                <Comments videoId={currentVideo?._id} UserUploader={channel?._id} />
+
+              </Content>
+
+              <RecommendationContainer>
+
+                <TitleHeader> RECOMMENDED </TitleHeader>
+                <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} NoRecommendations={NoRecommendations} setNoRecommendations={setNoRecommendations} />
+
+              </RecommendationContainer>
+
+
+              {
+                isPopUpShareVisible && (
+                  <SharePopupContainer>
+                    <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
+                  </SharePopupContainer>
+                )
+              }
+
+            </Wrapper >
+          ) : (
+            <NotAllowedContainerBg>
+              <NotAllowedContainer>
+                <WrapperNotAllowed>
+                  <TitleNotAllowed> Private Video </TitleNotAllowed>
+                  <SubLabelNotAllowed>
+                    Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access.
+                  </SubLabelNotAllowed>
+                </WrapperNotAllowed>
+                <Link to={"/"} style={{ textDecoration: "none", marginLeft: "auto" }}>
+                  <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
+                </Link>
+
+              </NotAllowedContainer>
+            </NotAllowedContainerBg>
+          )}
+        </>
+      ) : (
+        <>
+          <NotFound404Component />
+        </>
+      )}
 
       {
         isSharePopupVisible && (
@@ -1563,26 +1579,7 @@ const VideoPage = () => {
       }
 
       {
-        !UserAllowed && videoLoaded && (
-          <NotAllowedContainerBg>
-            <NotAllowedContainer>
-              <WrapperNotAllowed>
-                <TitleNotAllowed> Private Video </TitleNotAllowed>
-                <SubLabelNotAllowed>
-                  "Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access."
-                </SubLabelNotAllowed>
-              </WrapperNotAllowed>
-              <Link to={"../"} style={{ textDecoration: "none", marginLeft: "auto" }}>
-                <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
-              </Link>
-
-            </NotAllowedContainer>
-          </NotAllowedContainerBg>
-        )
-      }
-
-      {
-        !videoLoaded && (
+        !videoLoaded && videoExists && (
           <LoadingContainer>
             <LoadingCircle />
           </LoadingContainer>

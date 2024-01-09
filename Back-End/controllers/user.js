@@ -289,7 +289,7 @@ export const updateVideoHistory = async (req, res, next) => {
         // Guardar los cambios
         await user.save();
 
-        res.status(200).json("Historial de video actualizado exitosamente.");
+        return res.status(200).json("Historial de video actualizado exitosamente.");
     } catch (error) {
         next(error);
     }
@@ -639,11 +639,6 @@ export const getPlaylistById = async (req, res, next) => {
 
         const foundPlaylist = playlist.playlists[0];
 
-        // Verificar si la privacidad de la playlist no es "privada"
-        if (foundPlaylist.privacy === 'private') {
-            return res.status(403).json({ error: "Access denied. Playlist is private." });
-        }
-
         // Obtener información completa de los videos en la playlist
         const videos = await Video.find({ _id: { $in: foundPlaylist.videos } });
         const videosLength = videos.length;
@@ -651,6 +646,16 @@ export const getPlaylistById = async (req, res, next) => {
         const defaultImage = lastVideo ? lastVideo.imgUrl : null;
 
         const playlistImage = foundPlaylist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+        // Verificar si la privacidad de la playlist no es "privada"
+        if (foundPlaylist.privacy === 'private') {
+
+            const playlistDetails = {
+                privacy: foundPlaylist.privacy,
+            };
+
+            res.status(200).json(playlistDetails);
+        }
 
         const playlistDetails = {
             _id: foundPlaylist._id,
@@ -938,12 +943,12 @@ export const unfollowPlaylist = async (req, res, next) => {
 export const checkPlaylistExists = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const playlistNameToCheck = req.params.name.toLowerCase();  // Convertir a minúsculas
+        const playlistIdToCheck = req.params.playlistId;
 
         const user = await User.findById(userId);
 
         // Verificar si user.playlists está definido y contiene elementos antes de realizar la comparación
-        const playlistExists = user.playlists && user.playlists.some(p => p.name && p.name.toLowerCase() === playlistNameToCheck);
+        const playlistExists = user.playlists && user.playlists.some(p => p._id && p._id.equals(playlistIdToCheck));
 
         res.status(200).json({ playlistExists });
     } catch (error) {

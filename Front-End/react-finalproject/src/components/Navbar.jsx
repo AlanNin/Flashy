@@ -350,9 +350,6 @@ const LogoutUserImg = styled.img`
   }
 `;
 
-
-
-
 const Navbar = ({ menuVisible, toggleMenu }) => {
   const { currentUser } = useSelector(state => state.user);
   const [scrolled, setScrolled] = useState(false);

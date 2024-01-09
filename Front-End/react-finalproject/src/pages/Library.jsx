@@ -21,6 +21,7 @@ import RemoveTrashcan from "../assets/RemoveTrashcan.png";
 import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png";
+import FollowingIcon from "../assets/FollowingIcon.png";
 import CardLibrary from "../components/CardLibrary";
 import CreateNewPlaylist from "../components/CreateNewPlaylist";
 import moment from "moment";
@@ -605,6 +606,85 @@ const SharePopupContent = styled.p`
   margin: 0;
 `;
 
+const UnfollowPlaylistPopupContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
+const UnfollowPlaylistPopupWrapper = styled.div`
+    width: max-content;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    padding: 30px 30px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+`;
+
+const UnfollowPlaylistPopupTitle = styled.h1`
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const UnfollowPlaylistPopupTxt = styled.h1`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: normal;
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: ${({ theme }) => theme.textSoft};
+    max-width: 400px;
+`;
+
+const UnfollowPlaylistPopupPlaylistName = styled.span`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: bold;
+    font-size: 17px;
+    color: ${({ theme }) => theme.textSoft};
+`;
+
+const OptionsUnfollowCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+const UnfollowPlaylistCancel = styled.div`
+    margin-right: 10px;
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
+const UnfollowPlaylistDelete = styled.div`
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
 const DeletePlaylistPopupContainer = styled.div`
     width: 100%;
     height: 100%;
@@ -1186,6 +1266,38 @@ const Library = () => {
   // UPDATE PLAYLIST VIDEOS
   const [wasPlaylistVideosUpdated, setWasPlaylistVideosUpdated] = useState(false);
 
+  // UNFOLLOW PLAYLIST
+  const [isUnfollowPlaylistPopupOpen, setIsUnfollowPlaylisPopupOpen] = useState(false);
+
+  const handleUnfollowPlaylist = async () => {
+    setIsUnfollowPlaylisPopupOpen(true);
+  };
+
+  const handleUnfollowConfirmation = async (confirmed) => {
+    setIsUnfollowPlaylisPopupOpen(false);
+
+    if (confirmed) {
+      try {
+        await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
+        setPlaylistUpdated(true);
+      } catch (error) {
+        console.error('Error deleting history:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isUnfollowPlaylistPopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isUnfollowPlaylistPopupOpen]);
+
   // FETCH PLAYLIST VIDEOS
   const [videos, setVideos] = useState([]);
 
@@ -1371,12 +1483,19 @@ const Library = () => {
 
             <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
 
-            {selectedPlaylist?.creatorId === currentUser?._id && selectedPlaylist?.name !== 'Watch Later' && (
+            {selectedPlaylist?.name !== 'Watch Later' && (
               <PlaylistInfoActionButtonsDiv>
                 {selectedPlaylist?.privacy !== 'private' && (
                   <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
                 )}
-                <PlaylistInfoActionButtonsImg src={RemoveTrashcan} onClick={handleDeletePlaylist} />
+                {selectedPlaylist?.name !== 'Watch Later' && selectedPlaylist?.creatorId === currentUser?._id && (
+                  <PlaylistInfoActionButtonsImg src={RemoveTrashcan} onClick={handleDeletePlaylist} />
+                )}
+
+                {selectedPlaylist?.followers?.includes(currentUser?._id) && (
+                  <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
+                )}
+
               </PlaylistInfoActionButtonsDiv>
             )}
 
@@ -1479,6 +1598,28 @@ const Library = () => {
               </OptionsDeleteCancel>
             </DeletePlaylistPopupWrapper>
           </DeletePlaylistPopupContainer>
+        )
+      }
+
+      {
+        isUnfollowPlaylistPopupOpen && (
+          <UnfollowPlaylistPopupContainer
+            onDeleteConfirmed={() => handleUnfollowConfirmation(true)}
+            onCancel={() => handleUnfollowConfirmation(false)}
+          >
+            <UnfollowPlaylistPopupWrapper>
+              <UnfollowPlaylistPopupTitle> Unfollow Playlist </UnfollowPlaylistPopupTitle>
+              <UnfollowPlaylistPopupTxt> Are you sure you want to unfollow <UnfollowPlaylistPopupPlaylistName>{selectedPlaylist?.name}</UnfollowPlaylistPopupPlaylistName>? </UnfollowPlaylistPopupTxt>
+              <OptionsUnfollowCancel>
+                <UnfollowPlaylistCancel onClick={() => handleUnfollowConfirmation(false)}>
+                  Cancel
+                </UnfollowPlaylistCancel>
+                <UnfollowPlaylistDelete onClick={() => handleUnfollowConfirmation(true)}>
+                  Unfollow
+                </UnfollowPlaylistDelete>
+              </OptionsUnfollowCancel>
+            </UnfollowPlaylistPopupWrapper>
+          </UnfollowPlaylistPopupContainer>
         )
       }
 
