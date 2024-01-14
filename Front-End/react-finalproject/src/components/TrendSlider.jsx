@@ -33,6 +33,7 @@ import CloseXGr from "../assets/CloseXGr.png"
 import ReactPlayer from 'react-player';
 import Card4CardPopup from "./Card4CardPopup";
 import PlaylistSelectBoxVideo from "./PlaylistSelectBoxVideo";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -1070,19 +1071,8 @@ const TrendSlider = ({ type = "trend" }) => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
 
   useEffect(() => {
@@ -1458,14 +1448,6 @@ const TrendSlider = ({ type = "trend" }) => {
         )
       }
 
-
-      {
-        isPopUpShareVisible && (
-          <SharePopupContainer>
-            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-          </SharePopupContainer>
-        )
-      }
     </div>
   );
 }

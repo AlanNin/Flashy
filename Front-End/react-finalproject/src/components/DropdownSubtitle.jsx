@@ -83,7 +83,7 @@ const InputSubtitleFile = styled.input`
       text-align: center;
       content: 'SELECT FILE';
       display: inline-block;
-      color: white;
+      color: ${({ subtitleNextValidationError }) => (subtitleNextValidationError ? 'red' : 'white')};
       cursor: pointer;
       transition: background-color 0.3s ease;
   }
@@ -147,7 +147,8 @@ const subtitleOptions = [
   { code: 'KR', name: 'Korean (KR)' },
 ];
 
-const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
+const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValidationError, subtitleNextValidationError, setSubtitleNextValidationError }) => {
+  const [emptyUrl, setemptyUrl] = useState(true);
 
   const [dropdowns, setDropdowns] = useState(
     selectedSubtitle.length > 0
@@ -159,7 +160,6 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
       }))
       : [{ selectedSubtitle: [], subtitleFile: null, subtitleFilePerc: 0 }]
   );
-
 
   const [dropdownCount, setDropdownCount] = useState(selectedSubtitle.length > 0 ? selectedSubtitle.length : 1);
   const dropdownRefs = useRef([]);
@@ -208,6 +208,8 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
         // Si el dropdown ya tiene subtítulos, actualiza el existente
         updatedSubtitles[0] = { name: subtitle, url: selectedSubtitle[0]?.url || '' };
       }
+
+      setemptyUrl(true);
 
       updatedDropdowns[dropdownIndex] = { selectedSubtitle: updatedSubtitles, subtitleFile, subtitleFilePerc };
       onSubtitleChange(updatedDropdowns.map(dropdown => dropdown.selectedSubtitle).flat());
@@ -258,9 +260,11 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
       setDropdowns((prevDropdowns) => {
         const updatedDropdowns = [...prevDropdowns];
         updatedDropdowns[dropdownIndex].subtitleFile = file;
-        updatedDropdowns[dropdownIndex].formatError = false;  // Reiniciar el error de formato
+        updatedDropdowns[dropdownIndex].formatError = false;
+        setSubtitleNextValidationError(false);
         return updatedDropdowns;
       });
+
       uploadSubtitleFile(file, dropdownIndex);
     } else {
       setDropdowns((prevDropdowns) => {
@@ -276,9 +280,37 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
       const updatedDropdowns = [...prevDropdowns];
       updatedDropdowns[0] = { selectedSubtitle: [], subtitleFile: undefined, subtitleFilePerc: 0 };
       onSubtitleChange(updatedDropdowns.map((dropdown) => dropdown.selectedSubtitle).flat());
+
+      const hasAllDropdownsWithUrl = updatedDropdowns.every((dropdown) => {
+        // Check if the dropdown has selectedSubtitle
+        if (dropdown.selectedSubtitle.length > 0) {
+          // Check if at least one subtitle in the dropdown has a URL
+          return dropdown.selectedSubtitle.some((subtitle) => subtitle.url);
+        }
+        // If selectedSubtitle is empty, consider it as valid
+        return true;
+      });
+
+      setemptyUrl(!hasAllDropdownsWithUrl);
+
       return updatedDropdowns;
     });
   };
+
+  // Empty Subtitle Validation
+  useEffect(() => {
+    if (emptyUrl) {
+      setSubtitleValidationError(true);
+    } else {
+      setSubtitleValidationError(false);
+    }
+
+    if (dropdowns.length === 1 && dropdowns[0].selectedSubtitle.length === 0) {
+      setSubtitleValidationError(false);
+    } else {
+      setSubtitleValidationError(true);
+    }
+  }, [emptyUrl, selectedSubtitle]);
 
   const renderDropdowns = () => {
     return dropdowns.map((dropdown, index) => (
@@ -286,7 +318,6 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
         <DropdownContainer ref={(el) => (dropdownRefs.current[index] = el)}>
           {index === 0 && (
             <SideDropdownImg src={ResetIcon} onClick={handleResetFirstDropdown} />
-
           )}
           {index > 0 && (
             <SideDropdownImg src={RemoveMinusIcon} onClick={() => handleRemoveDropdown(index)} />
@@ -319,6 +350,7 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
                     type="file"
                     accept=".vtt"
                     onChange={(e) => handleFileChange(e.target.files[0], index)}
+                    subtitleNextValidationError={subtitleNextValidationError}
                   />
 
                   {dropdown.formatError && dropdown.subtitleFilePerc === 0 && (
@@ -345,6 +377,19 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange }) => {
     setDropdowns((prevDropdowns) => {
       const updatedDropdowns = prevDropdowns.filter((_, index) => index !== dropdownIndex);
       onSubtitleChange(updatedDropdowns.map((dropdown) => dropdown.selectedSubtitle).flat());
+
+      const hasAllDropdownsWithUrl = updatedDropdowns.every((dropdown) => {
+        // Check if the dropdown has selectedSubtitle
+        if (dropdown.selectedSubtitle.length > 0) {
+          // Check if at least one subtitle in the dropdown has a URL
+          return dropdown.selectedSubtitle.some((subtitle) => subtitle.url);
+        }
+        // If selectedSubtitle is empty, consider it as valid
+        return true;
+      });
+
+      setemptyUrl(!hasAllDropdownsWithUrl);
+
       return updatedDropdowns;
     });
   };

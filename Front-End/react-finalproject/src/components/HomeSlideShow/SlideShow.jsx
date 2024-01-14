@@ -25,6 +25,7 @@ import CloseXGr from "../../assets/CloseXGr.png"
 import ReactPlayer from 'react-player';
 import Card4CardPopup from "../Card4CardPopup";
 import PlaylistSelectBoxVideo from "../../components/PlaylistSelectBoxVideo";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -938,7 +939,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
       const fetchProgress = async () => {
         if (currentUser) {
           const userProgressRes = await axios.get(`/videos/userProgress/${MoreInfoInputs.videoId}`);
-          setProgress(userProgressRes.data.progress);
+          setProgress(userProgressRes?.data?.progress);
         }
       };
 
@@ -967,20 +968,10 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
+
 
   useEffect(() => {
     const handleClickOutsideShare = (event) => {
@@ -1383,15 +1374,6 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
               </ShareLinkCopyDiv>
             </ShareContainer>
           </SharePopupContainerBg>
-        )
-      }
-
-
-      {
-        isPopUpShareVisible && (
-          <SharePopupContainer>
-            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-          </SharePopupContainer>
         )
       }
 

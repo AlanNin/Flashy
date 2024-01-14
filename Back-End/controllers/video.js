@@ -81,6 +81,19 @@ export const addVideo = async (req, res, next) => {
                 }
             }
 
+            // Notifica a los suscriptores
+            const creator = await User.findById(userId);
+            const subscribers = await User.find({ _id: { $in: creator.subscribers } });
+
+            const notificationPromises = subscribers.map(async (subscriber) => {
+                subscriber.notifications.push({
+                    videoId,
+                });
+                await subscriber.save();
+            });
+
+            await Promise.all(notificationPromises);
+
             res.status(200).json(savedVideo);
 
         } catch (err) {
@@ -125,6 +138,19 @@ export const addVideo = async (req, res, next) => {
                     });
                 }
             }
+
+            // Notifica a los suscriptores
+            const creator = await User.findById(userId);
+            const subscribers = await User.find({ _id: { $in: creator.subscribers } });
+
+            const notificationPromises = subscribers.map(async (subscriber) => {
+                subscriber.notifications.push({
+                    videoId,
+                });
+                await subscriber.save();
+            });
+
+            await Promise.all(notificationPromises);
 
             res.status(200).json(savedVideo);
 
@@ -374,6 +400,16 @@ export const sub = async (req, res, next) => {
 
 export const getByTag = async (req, res, next) => {
     const tags = req.query.tags.split(",");
+    try {
+        const videos = await Video.find({ tags: { $in: tags }, privacy: 'public' }).limit(20);
+        res.status(200).json(videos);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const findByTag = async (req, res, next) => {
+    const tags = req.params.tag;
     try {
         const videos = await Video.find({ tags: { $in: tags }, privacy: 'public' }).limit(20);
         res.status(200).json(videos);

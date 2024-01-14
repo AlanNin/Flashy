@@ -232,7 +232,7 @@ const CardTrending = ({ type, video, index, setIsMoreInfo, setMoreInfoInputs }) 
     const fetchProgress = async () => {
       if (currentUser) {
         const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
-        setProgress(userProgressRes.data.progress);
+        setProgress(userProgressRes?.data?.progress);
       }
     };
 

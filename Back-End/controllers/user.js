@@ -2,24 +2,210 @@ import { createError } from "../error.js";
 import User from "../models/User.js";
 import Video from "../models/Video.js"
 import Comment from "../models/Comment.js";
-import Reply from "../models/Comment.js";
-import { v4 as uuidv4 } from 'uuid';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import nodemailer from 'nodemailer';
+
+const sendVerificationEmail = async (user) => {
+    const verificationToken = jwt.sign({ id: user._id }, process.env.JWT, { expiresIn: '1d' });
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'Verificación de Cuenta',
+        html: `<p>¡Gracias por registrarte! Haz clic en el siguiente enlace para verificar tu cuenta: <a href="${process.env.APP_URL}/confirm/${verificationToken}">Verificar cuenta</a></p>`,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+
+    } catch (error) {
+        console.error('Error al enviar el correo de verificación:', error);
+    }
+};
+
+export const sendVerificationEmailRequest = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            // Manejar el caso en que el usuario no se encuentre
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // Verifica si el correo ya está verificado
+        if (user.isVerified) {
+            return res.status(400).json({ error: 'El correo ya ha sido verificado' });
+        }
+
+        sendVerificationEmail(user, (error, successMessage) => {
+            if (error) {
+                return res.status(500).json({ error: 'Error al enviar el correo de verificación' });
+            }
+            res.status(200).json(successMessage);
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const confirmAccount = async (req, res) => {
+    try {
+        const token = req.params.token;
+
+        // Verificar el token
+        const decoded = jwt.verify(token, process.env.JWT);
+        const newEmail = decoded.newEmail;
+
+        // Verificar si el usuario ya está verificado
+        if (decoded.isVerified) {
+            // Puedes redirigir al usuario a una página de éxito o mostrar un mensaje
+            return res.send('La cuenta ya ha sido verificada anteriormente.');
+        }
+
+        // Actualizar el campo isVerified del usuario en la base de datos
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            throw createError(404, 'Usuario no encontrado.');
+        }
+
+        if (!newEmail || newEmail === undefined) {
+            user.isVerified = true;
+        }
+
+        await user.save();
+
+        // Puedes redirigir al usuario a una página de éxito o mostrar un mensaje
+        res.json({ success: true, message: 'Cuenta verificada con éxito.' });
+    } catch (error) {
+        // Manejar el error, por ejemplo, mostrar un mensaje de error o redirigir a una página de error
+        console.error('Error en confirmAccount:', error);
+        res.status(error.statusCode || 500).json({ success: false, message: error.message || 'Error interno del servidor' });
+    }
+};
+
+const sendVerificationChangeEmail = async (userId, newEmail) => {
+    const verificationToken = jwt.sign({ id: userId, newEmail: newEmail }, process.env.JWT, { expiresIn: '1d' });
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: newEmail,
+        subject: 'Verificar cambio de correo electrónico',
+        html: `<p>¡Haz clic en el siguiente enlace para verificar tu nuevo correo electrónico: <a href="${process.env.APP_URL}/confirmEmail/${verificationToken}">Verificar correo</a></p>`,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+
+    } catch (error) {
+        console.error('Error al enviar el correo de verificación:', error);
+    }
+};
+
+export const confirmEmailChange = async (req, res) => {
+    try {
+        const token = req.params.token;
+
+        // Verificar el token
+        const decoded = jwt.verify(token, process.env.JWT);
+
+        const newEmail = decoded.newEmail;
+
+        // Actualizar el campo isVerified del usuario en la base de datos
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            throw createError(404, 'Usuario no encontrado.');
+        }
+
+        user.email = newEmail;
+        await user.save();
+
+        // Puedes redirigir al usuario a una página de éxito o mostrar un mensaje
+        res.json({ success: true, message: 'Correo actualizado con éxito.' });
+    } catch (error) {
+        // Manejar el error, por ejemplo, mostrar un mensaje de error o redirigir a una página de error
+        console.error('Error en confirmEmailChange:', error);
+        res.status(error.statusCode || 500).json({ success: false, message: error.message || 'Error interno del servidor' });
+    }
+};
 
 export const update = async (req, res, next) => {
-    if (req.params.id === req.user.id) {
-        try {
-            const updatedUser = await User.findByIdAndUpdate(req.params.id, {
-                $set: req.body
-            },
-                { new: true });
-            res.status(200).json(updatedUser);
-        } catch (error) {
-            next(error);
+    const { id } = req.params;
+    const { currentPassword, newPassword, ...otherUpdates } = req.body;
+    const userId = req.user.id;
+
+    try {
+
+        let updateData = {};
+
+        // Verificar si se proporcionó una nueva contraseña y si el usuario existe
+        if (newPassword) {
+            const currentUser = await User.findById(id);
+            if (!currentUser) {
+                return next(createError(404, "Usuario no encontrado"));
+            }
+
+            // Verificar si la contraseña actual es correcta
+            const isCorrectPassword = await bcrypt.compare(currentPassword, currentUser.password);
+
+            if (!isCorrectPassword) {
+                console.error("Credenciales incorrectas");
+                return next(createError(401, "Credenciales incorrectas"));
+            }
+
+            // Encriptar la nueva contraseña
+            const saltRounds = 10;
+            const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            updateData.password = hashedNewPassword;
         }
-    } else {
-        return next(createError(403, "¡No puedes actualizar este usuario!"))
+
+        if (otherUpdates.email) {
+
+            const newEmail = otherUpdates.email;
+
+            sendVerificationChangeEmail(userId, newEmail);
+        }
+
+        const { email, ...remainingUpdates } = otherUpdates;
+
+        // Incluir otras actualizaciones en los datos de actualización
+        updateData = { ...updateData, ...remainingUpdates };
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
+
+        res.status(200).json(updatedUser);
+
+    } catch (error) {
+        next(error);
+        console.log(error);
     }
-}
+};
+
 
 export const remove = async (req, res, next) => {
     if (req.params.id === req.user.id) {
@@ -35,6 +221,195 @@ export const remove = async (req, res, next) => {
     }
 }
 
+const sendRecoverPassword = async (user) => {
+
+    const recoveryCode = Math.floor(100000 + Math.random() * 900000);
+
+    if (!user) {
+        console.error('Usuario no encontrado.');
+        return;
+    }
+
+    user.recoveryCode = recoveryCode;
+
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'Código de recuperación de contraseña',
+        html: `<p>Tu código de recuperación de contraseña es: <strong>${recoveryCode}</strong></p>`,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+
+    } catch (error) {
+        console.error('Error al enviar el correo de verificación:', error);
+    }
+};
+
+
+export const sendRecoverPasswordRequest = async (req, res, next) => {
+    try {
+
+        const userEmail = req.body.email;
+
+        const user = await User.findOne({ email: userEmail });
+
+        if (!user) {
+            // Manejar el caso en que el usuario no se encuentre
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        sendRecoverPassword(user, (error, successMessage) => {
+            if (error) {
+                return res.status(500).json({ error: 'Error al enviar el correo de verificación' });
+            }
+            res.status(200).json(successMessage);
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const confirmRecoverPasswordCode = async (req, res) => {
+    const enteredCode = req.query.code;
+    const userEmail = req.query.email;
+
+    try {
+        if (!userEmail) {
+            throw createError(400, 'El correo electrónico es requerido.');
+        }
+
+        const user = await User.findOne({ email: userEmail });
+
+        if (!user) {
+            throw createError(404, 'Usuario no encontrado.');
+        }
+
+        if (enteredCode !== user.recoveryCode) {
+            return res.json({ success: false, message: 'Código de recuperación incorrecto.' });
+        }
+
+
+
+        res.json({ success: true, message: 'Contraseña recuperada con éxito.' });
+    } catch (error) {
+        console.error('Error en confirmRecoverPasswordCode:', error);
+        res.status(error.statusCode || 500).json({ success: false, message: error.message || 'Error interno del servidor' });
+    }
+};
+
+export const recoverPasswordUpdatePassword = async (req, res, next) => {
+    const userEmail = req.body.email;
+    const newPassword = req.body.newPassword;
+
+    try {
+        // Verificar si se proporcionó una nueva contraseña y si el usuario existe
+        if (!newPassword) {
+            return next(createError(400, 'La nueva contraseña es requerida.'));
+        }
+
+        const currentUser = await User.findOne({ email: userEmail });
+
+        if (!currentUser) {
+            return next(createError(404, 'Usuario no encontrado.'));
+        }
+
+        // Encriptar la nueva contraseña
+        const saltRounds = 10;
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Actualizar la contraseña en la base de datos
+        const updatedUser = await User.findByIdAndUpdate(
+            currentUser._id,
+            { password: hashedNewPassword, recoveryCode: null },
+            { new: true }
+        );
+
+        res.status(200).json({ success: true, user: updatedUser });
+
+    } catch (error) {
+        next(error);
+        console.error(error);
+    }
+};
+
+const sendRecoverUsername = async (user) => {
+
+    if (!user) {
+        console.error('Usuario no encontrado.');
+        return;
+    }
+
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'Recuperación de nombre de usuario',
+        html: (() => {
+            if (user.fromGoogle) {
+                return `<p>Esta cuenta fue creada con Google</p>`;
+            } else if (user.fromFacebook) {
+                return `<p>Esta cuenta fue creada con Facebook</p>`;
+            } else {
+                return `<p>Tu nombre de usuario en Flashy es: <strong>${user.name}</strong></p>`;
+            }
+        })(),
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+
+    } catch (error) {
+        console.error('Error al enviar el correo de recuparación:', error);
+    }
+};
+
+
+export const sendRecoverUsernameRequest = async (req, res, next) => {
+    try {
+
+        const userEmail = req.body.email;
+
+        const user = await User.findOne({ email: userEmail });
+
+        if (!user) {
+            // Manejar el caso en que el usuario no se encuentre
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        sendRecoverUsername(user, (error, successMessage) => {
+            if (error) {
+                return res.status(500).json({ error: 'Error al enviar el correo de verificación' });
+            }
+            res.status(200).json(successMessage);
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getUser = async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id)
@@ -46,33 +421,51 @@ export const getUser = async (req, res, next) => {
 
 export const subscribe = async (req, res, next) => {
     try {
-        await User.findByIdAndUpdate(req.user.id, {
-            $push: { subscribedUsers: req.params.id },
+        // Verifica si el usuario ya está suscrito
+        const isAlreadySubscribed = await User.exists({
+            _id: req.params.id,
+            subscribers: req.user.id,
         });
-        await User.findByIdAndUpdate(req.params.id, {
-            $inc: { subscribers: 1 },
-        });
-        res.status(200).json("Subscription successfull.")
-    } catch (err) {
-        next(err);
-    }
-};
 
-export const unsubscribe = async (req, res, next) => {
-    try {
-        try {
-            await User.findByIdAndUpdate(req.user.id, {
-                $pull: { subscribedUsers: req.params.id },
-            });
+        if (!isAlreadySubscribed) {
+            // Añade el ID del usuario suscrito al array de subscribers
             await User.findByIdAndUpdate(req.params.id, {
-                $inc: { subscribers: -1 },
+                $push: { subscribers: req.user.id },
             });
-            res.status(200).json("Unsubscription successfull.")
-        } catch (err) {
-            next(err);
+
+            // Añade el ID del usuario que realiza la suscripción al array subscribedUsers
+            await User.findByIdAndUpdate(req.user.id, {
+                $push: { subscribedUsers: req.params.id },
+            });
+
+            res.status(200).json("Subscription successful.");
+        } else {
+            res.status(400).json("User is already subscribed.");
+            console.log("xd");
         }
     } catch (err) {
         next(err);
+        console.error(err);
+    }
+};
+
+
+export const unsubscribe = async (req, res, next) => {
+    try {
+        // Remueve el ID del usuario que realiza la desuscripción del array subscribedUsers
+        await User.findByIdAndUpdate(req.user.id, {
+            $pull: { subscribedUsers: req.params.id },
+        });
+
+        // Remueve el ID del usuario que se está desuscribiendo del array subscribers
+        await User.findByIdAndUpdate(req.params.id, {
+            $pull: { subscribers: req.user.id },
+        });
+
+        res.status(200).json("Unsubscription successful.");
+    } catch (err) {
+        next(err);
+        console.error(err);
     }
 };
 
@@ -954,5 +1347,27 @@ export const checkPlaylistExists = async (req, res, next) => {
     } catch (error) {
         console.error(error);
         next(error);
+    }
+};
+
+// GET NOTIFICATIONS
+export const getNotifications = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Buscar el usuario por ID
+        const user = await User.findById(userId);
+
+        if (user) {
+            // Obtener las notificaciones del usuario
+            const notifications = user.notifications;
+
+            res.status(200).json({ notifications });
+        } else {
+            res.status(404).json({ error: "User not found." });
+        }
+    } catch (error) {
+        next(error);
+        console.error(error);
     }
 };

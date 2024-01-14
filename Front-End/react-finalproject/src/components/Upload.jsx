@@ -89,7 +89,7 @@ const ContainerBg = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3;
+    z-index: 4;
 `;
 
 const fadeIn = keyframes`
@@ -1004,6 +1004,8 @@ const Upload = ({ setOpen }) => {
     const [formatThumbnailError, setFormatThumbnailError] = useState(false);
     const [formatThumbnailVerticalError, setFormatThumbnailVerticalError] = useState(false);
     const [formatThumbnailLandscapeError, setFormatThumbnailLandscapeError] = useState(false);
+    const [subtitleValidationError, setSubtitleValidationError] = useState(false);
+    const [subtitleNextValidationError, setSubtitleNextValidationError] = useState(false);
 
     const handleLanguageChange = (language) => {
         setEmptyLanguageError(false);
@@ -1020,7 +1022,7 @@ const Upload = ({ setOpen }) => {
         setInputs((prev) => {
             return { ...prev, subtitles: subtitle };
         });
-    };
+    };;
 
     const handlePlaylistChange = (playlistId, checked) => {
         setSelectedPlaylists((prevSelected) => {
@@ -1126,7 +1128,7 @@ const Upload = ({ setOpen }) => {
         }
         if (step === 3) {
             setButtonNextDisable(true);
-            if (inputs.language === undefined) {
+            if (inputs.language === undefined || subtitleValidationError) {
                 setButtonNextDisable(true);
             }
             else {
@@ -1136,7 +1138,7 @@ const Upload = ({ setOpen }) => {
         if (step === 4) {
             setButtonNextDisable(false);
         }
-    }, [inputs, inputs.imgUrl, inputs.imgUrlVertical, inputs.imgUrlLandscape, step]);
+    }, [inputs, inputs.imgUrl, inputs.imgUrlVertical, inputs.imgUrlLandscape, step, subtitleValidationError]);
 
 
     const handleTags = (e) => {
@@ -1164,8 +1166,11 @@ const Upload = ({ setOpen }) => {
             if (step === 2 && imgLandscapePerc === 0) {
                 setEmptyThumbnailLandscapeError(true);
             }
-            if (step === 3) {
+            if (step === 3 && inputs.language === undefined) {
                 setEmptyLanguageError(true);
+            }
+            if (subtitleValidationError) {
+                setSubtitleNextValidationError(true);
             }
             return;
         }
@@ -1826,7 +1831,13 @@ const Upload = ({ setOpen }) => {
 
                                     <DropDownSubtitlesContainer>
 
-                                        <DropdownSubtitle selectedSubtitle={selectedSubtitle} onSubtitleChange={handleSubtitleChange} />
+                                        <DropdownSubtitle
+                                            selectedSubtitle={selectedSubtitle}
+                                            onSubtitleChange={handleSubtitleChange}
+                                            setSubtitleValidationError={setSubtitleValidationError}
+                                            subtitleNextValidationError={subtitleNextValidationError}
+                                            setSubtitleNextValidationError={setSubtitleNextValidationError}
+                                        />
 
                                     </DropDownSubtitlesContainer>
 

@@ -27,6 +27,7 @@ import { dislike, fetchSuccess, like } from "../redux/videoSlice";
 import { subscription } from "../redux/userSlice";
 import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
 import NotFound404Component from "../components/NotFound404Component";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -704,6 +705,7 @@ const VideoPage = () => {
   const [NoRecommendations, setNoRecommendations] = useState(false);
   const [anyPopup, setAnyPopup] = useState(false);
   const [showResumePopup, setShowResumePopup] = useState(false);
+  const [currentSuscriptionCounter, setCurrentSuscriptionCounter] = useState(0);
 
   const translations = {
     en: {
@@ -785,6 +787,7 @@ const VideoPage = () => {
         }
         setChannel(channelRes.data);
         dispatch(fetchSuccess(videoRes.data));
+        setCurrentSuscriptionCounter(channelRes.data.subscribers.length);
 
         if (currentUser) {
 
@@ -897,11 +900,23 @@ const VideoPage = () => {
       return;
     }
 
-    currentUser.subscribedUsers.includes(channel?._id)
-      ? await axios.put(`/users/unsub/${channel?._id}`)
-      : await axios.put(`/users/sub/${channel?._id}`);
+    // Verificar si el usuario está suscrito o no y realizar la acción correspondiente
+    if (currentUser.subscribedUsers.includes(channel?._id)) {
+      // Usuario ya está suscrito, realizar acción de desuscripción
+      await axios.put(`/users/unsub/${channel?._id}`);
+      setCurrentSuscriptionCounter(currentSuscriptionCounter - 1);
+      toast.success('Unsubscription successfull');
+    } else {
+      // Usuario no está suscrito, realizar acción de suscripción
+      await axios.put(`/users/sub/${channel?._id}`);
+      setCurrentSuscriptionCounter(currentSuscriptionCounter + 1);
+      toast.success('Suscription successfull');
+    }
+
+    // Despachar la acción para actualizar el estado global (si es necesario)
     dispatch(subscription(channel?._id));
   };
+
 
   const isCurrentUserUploader = currentUser?._id === channel?._id;
 
@@ -1086,19 +1101,8 @@ const VideoPage = () => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
 
   useEffect(() => {
@@ -1320,7 +1324,7 @@ const VideoPage = () => {
                       <ChannelImage src={channel?.img} />
                       <ChannelInfoTx>
                         <ChannelName> {channel?.displayname} </ChannelName>
-                        <ChannelCounter> {channel?.subscribers} </ChannelCounter>
+                        <ChannelCounter> {currentSuscriptionCounter} </ChannelCounter>
                       </ChannelInfoTx>
                       <SuscbribeContainer>
                         {!isCurrentUserUploader && (
@@ -1449,15 +1453,6 @@ const VideoPage = () => {
                 <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} NoRecommendations={NoRecommendations} setNoRecommendations={setNoRecommendations} />
 
               </RecommendationContainer>
-
-
-              {
-                isPopUpShareVisible && (
-                  <SharePopupContainer>
-                    <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-                  </SharePopupContainer>
-                )
-              }
 
             </Wrapper >
           ) : (

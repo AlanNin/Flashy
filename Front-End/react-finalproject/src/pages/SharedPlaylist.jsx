@@ -772,10 +772,14 @@ const SharedPlaylist = () => {
                       <PlaylistInfoActionButtonsDiv>
                         <PlaylistInfoActionButtonsImg src={PlaylistShareIcono} onClick={handleShare} />
 
-                        {selectedPlaylist?.followers?.includes(currentUser?._id) ? (
-                          <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
-                        ) : (
-                          <PlaylistInfoActionButtonsImg src={FollowIcon} onClick={handleFollow} />
+                        {currentUser && selectedPlaylist?.creatorId !== currentUser?._id && (
+                          <>
+                            {selectedPlaylist?.followers?.includes(currentUser?._id) ? (
+                              <PlaylistInfoActionButtonsImg src={FollowingIcon} onClick={handleUnfollowPlaylist} />
+                            ) : (
+                              <PlaylistInfoActionButtonsImg src={FollowIcon} onClick={handleFollow} />
+                            )}
+                          </>
                         )}
 
                       </PlaylistInfoActionButtonsDiv>

@@ -29,6 +29,7 @@ import CardLibrary from "../components/CardLibrary";
 import CreateNewPlaylist from "../components/CreateNewPlaylist";
 import moment from "moment";
 import "moment/locale/es";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -184,6 +185,7 @@ const PlaylistInfoImgContainer = styled.div`
   width: 100%;
   height: 210px;
   border-radius: 10px;
+  border: ${({ formatImageError }) => (formatImageError ? '1px solid red' : '0px solid transparent')}; 
 `;
 
 const PlaylistInfoImg = styled.img`
@@ -1052,6 +1054,11 @@ const Library = () => {
   const [playlistWasUpdated, setPlaylistWasUpdated] = useState(false);
 
   useEffect(() => {
+
+    if (!currentUser) {
+      return;
+    }
+
     setPlaylistUpdated(false);
 
     const timer = setTimeout(async () => {
@@ -1087,16 +1094,35 @@ const Library = () => {
   // EDIT PLAYLIST IMG
   const [img, setImg] = useState(undefined);
   const [imgPerc, setImgPerc] = useState(0);
+  const [formatImageError, setFormatImageError] = useState(false);
+
+  const handleImageChange = (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+      if (allowedTypes.includes(selectedFile.type)) {
+        setImg(e.target.files[0]);
+        setFormatImageError(false);
+      } else {
+        setFormatImageError(true);
+      }
+    }
+  };
+
 
   const handleUpdateImgDB = async () => {
-    try {
-      await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { image: inputs.image });
-      handleUpdate();
-      setImg(null);
-      setImgPerc(0);
-      setInputs({ image: null });
-    } catch (error) {
-      console.error("Error updating playlist:", error);
+    if (inputs.image !== undefined) {
+      try {
+        await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { image: inputs.image });
+        handleUpdate();
+        setImg(null);
+        setImgPerc(0);
+        setInputs({ image: null });
+      } catch (error) {
+        console.error("Error updating playlist:", error);
+      }
     }
   };
 
@@ -1255,20 +1281,10 @@ const Library = () => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
+
 
   useEffect(() => {
     const handleClickOutsideShare = (event) => {
@@ -1374,13 +1390,17 @@ const Library = () => {
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
     setWasPlaylistVideosUpdated(false);
     const fetchVideos = async () => {
       try {
         const res = await axios.get(`/users/${selectedPlaylist.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
         setVideos(res.data);
       } catch (error) {
-        console.error("Error fetching videos:", error);
+        //ignore error
       }
     };
     fetchVideos();
@@ -1428,15 +1448,15 @@ const Library = () => {
             )}
             <PlaylistInfoWrapper>
 
-              <PlaylistInfoImgContainer>
+              <PlaylistInfoImgContainer formatImageError={formatImageError}>
                 <PlaylistInfoImg src={selectedPlaylist?.image} />
 
                 {selectedPlaylist?.creatorId === currentUser?._id && (
                   <>
                     <InputImageNewPlaylist
                       type="file"
-                      accept="image/*"
-                      onChange={(e) => setImg(e.target.files[0])}
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={(e) => handleImageChange(e)}
                       title=""
                     />
                     <EditPlaylistInfoImg src={EditPlaylist} />
@@ -1800,14 +1820,6 @@ const Library = () => {
               </ShareLinkCopyDiv>
             </ShareContainer>
           </SharePopupContainerBg>
-        )
-      }
-
-      {
-        isPopUpShareVisible && (
-          <SharePopupContainer>
-            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-          </SharePopupContainer>
         )
       }
 

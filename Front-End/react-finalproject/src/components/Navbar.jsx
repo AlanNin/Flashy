@@ -3,14 +3,12 @@ import styled from "styled-components";
 import "../utils/global.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MenuIcono from "../assets/MenuIcono.png";
-import E2ColorNoBG from "../assets/E3WhiteNoBG.png";
 import FlashLogo from "../assets/GifLogo.gif";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import BuscarIcono from "../assets/BuscarIcono.png";
 import FacebookIcono2 from "../assets/FacebookIcono2.png";
 import InstagramIcono2 from "../assets/InstagramIcono2.png";
 import TwitterIcono2 from "../assets/TwitterIcono2.png";
-import TelegramIcono2 from "../assets/TelegramIcono2.png";
 import ProfileIcono from "../assets/ProfileIcono.png";
 import LogoutIcono from "../assets/LogoutIcono.png";
 import LogoutIconoP from "../assets/LogoutIconoP.png";
@@ -24,7 +22,10 @@ import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, resetUserState } from "../redux/userSlice";
 import UploadVideoIcono from "../assets/UploadVideoIcono.png";
+import NotificationIcon from "../assets/NotificationIcon.png";
+import NotificationFilledIcon from "../assets/NotificationFilledIcon.png";
 import Upload from "./Upload";
+import NotificationCenter from "./NotificationCenter";
 
 const Container = styled.div`
   position: fixed;
@@ -209,15 +210,22 @@ const UserContainer = styled.div`
   transform: translateY(-50%);
   position: absolute;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: auto;
   height: 40px;
 `;
 
 const UploadVideoImg = styled.img`
-  height: 30px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  margin-right: -4px;
 `;
 
 const ItemUser = styled.div`
@@ -240,6 +248,7 @@ const UserImg = styled.img`
   width: 35px;
   border-radius: 30px;
   background-color: #999; 
+  object-fit: cover;
 `;
 
 const DisplayName = styled.h3`
@@ -350,6 +359,20 @@ const LogoutUserImg = styled.img`
   }
 `;
 
+// NOTIFICATION CENTER
+const NotificationCenterImg = styled.img`
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+  margin-right: 0px;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+`;
+
 const Navbar = ({ menuVisible, toggleMenu }) => {
   const { currentUser } = useSelector(state => state.user);
   const [scrolled, setScrolled] = useState(false);
@@ -440,8 +463,15 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
   }, [open]);
 
   const handleKeyPress = (e) => {
+
     if (e.key === "Enter") {
       // Navegar al resultado de búsqueda al presionar Enter
+      handleSearch();
+    }
+  };
+
+  const handleSearch = () => {
+    if (q !== '') {
       navigate(`/search?q=${q}`);
     }
   };
@@ -471,8 +501,15 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     };
   }, []);
 
+  // NOTIFICATION CENTER
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+
+  const handleNotificationCenter = () => {
+    setIsNotificationCenterOpen(!isNotificationCenterOpen);
+  };
+
   // HIDE NAVBAR SIGN IN SIGN UP, MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
-  const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup';
+  const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup' || location.pathname === '/recovery';
 
   if (isSigninOrSignup) {
     return null;
@@ -496,7 +533,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
               placeholder={translations[language].search}
               onChange={(e) => setQ(e.target.value)}
               onKeyPress={handleKeyPress} />
-            <ImgBuscar src={BuscarIcono} onClick={() => navigate(`/search?q=${q}`)} />
+            <ImgBuscar src={BuscarIcono} onClick={() => handleSearch()} />
           </Search>
           <FollowDiv>
             <Follow>{translations[language].join}</Follow>
@@ -509,6 +546,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
           <ImgRedes onClick={redDiscord} src={DiscordIcono2} />
           {currentUser ? (
             <UserContainer>
+              <NotificationCenterImg src={isNotificationCenterOpen ? NotificationFilledIcon : NotificationIcon} onClick={() => handleNotificationCenter()} />
               <UploadVideoImg src={UploadVideoIcono} onClick={() => setOpen(true)} />
               <ItemUser onClick={toggleDropdown} ref={dropdownButtonRef}>
                 <UserImg src={currentUser.img} />
@@ -601,6 +639,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       </Container >
 
       {open && <Upload setOpen={setOpen} />}
+      {isNotificationCenterOpen && <NotificationCenter setIsNotificationCenterOpen={setIsNotificationCenterOpen} />}
     </>
   );
 };

@@ -71,18 +71,39 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     password: {
         type: String,
     },
     img: {
         type: String,
     },
+    banner: {
+        type: String,
+    },
+    fromFacebook: {
+        type: Boolean,
+        default: false,
+    },
+    fromGoogle: {
+        type: Boolean,
+        default: false,
+    },
+    recoveryCode: {
+        type: String,
+    },
     subscribers: {
-        type: Number,
-        default: 0
+        type: [String],
     },
     subscribedUsers: {
         type: [String],
+    },
+    notificationsEnabled: {
+        type: Boolean,
+        default: true,
     },
     videoProgress: {
         type: Map,
@@ -115,6 +136,20 @@ const UserSchema = new mongoose.Schema({
         },
         followDate: {
             type: Date
+        },
+    }],
+    notifications: [{
+        videoId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Video',
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        read: {
+            type: Boolean,
+            default: false,
         },
     }],
 }, { timestamps: true }

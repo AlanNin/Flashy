@@ -12,10 +12,18 @@ import History from "./pages/History";
 import Subscriptions from "./pages/Subscriptions";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
+import Recovery from "./pages/Recovery";
 import VideoPage from "./pages/Video";
 import Library from "./pages/Library";
 import SharedPlaylist from "./pages/SharedPlaylist";
+import FlashyContent from "./pages/FlashyContent";
+import Settings from "./pages/Settings";
 import NotFound404 from "./pages/NotFound404";
+import ConfirmUser from "./pages/ConfirmUser";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange";
+import { useSelector } from "react-redux";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Container = styled.div`
   position: relative;
@@ -75,6 +83,7 @@ const GlobalStyle = createGlobalStyle`
 
 
 function App() {
+  const { currentUser } = useSelector(state => state.user);
   const [darkMode, setDarkMode] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -90,7 +99,10 @@ function App() {
             <FlexContainer>
               <DesenfoqueWithMenu menuVisible={menuVisible} />
               <GlobalStyle menuVisible={menuVisible} />
+
+              {/* NAVBAR */}
               <Navbar menuVisible={menuVisible} toggleMenu={toggleMenu} />
+
               <Menu
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
@@ -100,22 +112,37 @@ function App() {
               <Main>
                 <Routes>
                   <Route path="/">
+
+                    {/* PAGES */}
                     <Route index element={<Home type="trendsub" />} />
                     <Route path="randoms" element={<Home type="random" />} />
                     <Route path="mostliked" element={<Home type="mostliked" />} />
-                    <Route path="signin" element={<Signin />} />
                     <Route path="explore" element={<Explore />} />
-                    <Route path="search" element={<Search />} />
-                    <Route path="library" element={<Library />} />
-                    <Route path="history" element={<History />} />
                     <Route path="subscriptions" element={<Subscriptions />} />
-                    <Route path="signup" element={<Signup />} />
+                    <Route path="history" element={<History />} />
+                    <Route path="library" element={<Library />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="search" element={<Search />} />
+                    <Route path="signin" element={!currentUser ? <Signin /> : <NotFound404 />} />
+                    <Route path="signup" element={!currentUser ? <Signup /> : <NotFound404 />} />
+                    <Route path="recovery" element={!currentUser ? <Recovery /> : <NotFound404 />} />
+
+                    {/* Flashy Content */}
+                    <Route path="music" element={<FlashyContent />} />
+                    <Route path="sports" element={<FlashyContent />} />
+                    <Route path="movies" element={<FlashyContent />} />
+                    <Route path="series" element={<FlashyContent />} />
+                    <Route path="videogames" element={<FlashyContent />} />
+
+                    {/* VIDEO ROUTES */}
                     <Route
                       path="video"
                       element={<VideoPage />}
                     >
                       <Route path=":id" element={<VideoPage />} />
                     </Route>
+
+                    {/* SHARED PLAYLIST */}
                     <Route
                       path="playlist"
                       element={<SharedPlaylist />}
@@ -123,7 +150,23 @@ function App() {
                       <Route path=":id" element={<SharedPlaylist />} />
                     </Route>
 
-                    {/* Manejar ingreso a ruta no definida */}
+                    {/* CONFIRM USER */}
+                    <Route
+                      path="confirm"
+                      element={<ConfirmUser />}
+                    >
+                      <Route path=":token" element={<ConfirmUser />} />
+                    </Route>
+
+                    {/* EMAIL CHANGE */}
+                    <Route
+                      path="confirmEmail"
+                      element={<ConfirmEmailChange />}
+                    >
+                      <Route path=":token" element={<ConfirmEmailChange />} />
+                    </Route>
+
+                    {/* HANDLE UNDEFINED ROUTE */}
                     <Route path="*" element={<NotFound404 />} />
 
                   </Route>

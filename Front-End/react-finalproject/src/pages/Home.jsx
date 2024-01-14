@@ -3,10 +3,11 @@ import styled from "styled-components";
 import Card from "../components/Card";
 import HomeSlideShow from "../components/HomeSlideShow/SlideShow";
 import TrendSlider from "../components/TrendSlider";
-import Gif from "../assets/StudioG1.gif"
 import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
+import RegularGif from "../assets/StudioG1.gif"
+import ChipiChipiChapaChapa from '../assets/ChipiChipiChapaChapa.gif';
 
 const MainContainer = styled.div`
   position: relative;
@@ -25,6 +26,7 @@ const ShareContainer = styled.div`
   margin-left: 55px;
   right: 0px;
   margin-right: 12px;
+  align-items: center;
 `;
 
 const GifH = styled.img`
@@ -35,25 +37,24 @@ const GifH = styled.img`
 
 const ShareDiv = styled.h1`
   flex-direction: column;
-  margin-top:25px;
   display: flex;
-  margin-left: 15px;
   align-items: center;
+  margin-right: 5px;
 `;
 
 const Share1 = styled.h1`
   font-size: 15px;
   color: rgba(224, 175, 208, 0.8);
-  margin-right: 19px;
+  margin-right: 20px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 600;
 `;
 
 const Share2 = styled.h1`
-font-size: 15px;
-color: white;
-font-family: "Roboto Condensed", Helvetica;
-font-weight: 500;
+  font-size: 15px;
+  color: white;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 500;
 `;
 
 
@@ -71,7 +72,7 @@ const Container = styled.div`
   display: flex;
   justify-content: flex-start; 
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 14px;
 `;
 
 const Wrapper = styled.div`
@@ -134,6 +135,18 @@ const Home = ({ type }) => {
     };
   }, [addingToPlaylist]);
 
+  // CHIPI CHIPI CHAPA CHAPA DUBI DUBI DABA DABA 
+  const selectRandomImage = () => {
+    const random = Math.random();
+    const probability = 0.1; // Probabilidad 10%
+
+    if (random < probability) {
+      return ChipiChipiChapaChapa;
+    } else {
+      return RegularGif;
+    }
+  };
+
   return (
     <MainContainer>
 
@@ -148,7 +161,7 @@ const Home = ({ type }) => {
             {translations[language].share2}
           </Share2>
         </ShareDiv>
-        <GifH src={Gif} />
+        <GifH src={selectRandomImage()} />
       </ShareContainer>
 
 

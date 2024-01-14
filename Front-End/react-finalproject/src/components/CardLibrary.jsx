@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import moment from "moment";
 import "moment/locale/es";
 import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -384,20 +385,10 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
+
 
   useEffect(() => {
     const handleClickOutsideShare = (event) => {
@@ -688,14 +679,6 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
         )
       }
 
-
-      {
-        isPopUpShareVisible && (
-          <SharePopupContainer>
-            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-          </SharePopupContainer>
-        )
-      }
 
     </MainContainer>
   );

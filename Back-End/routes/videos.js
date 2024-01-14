@@ -5,6 +5,7 @@ import {
     addView,
     deleteVideo,
     getByTag,
+    findByTag,
     getVideo,
     random,
     getByLikes,
@@ -57,6 +58,9 @@ router.get("/sub", verifyToken, sub)
 
 // GET VIDEO BY TAG
 router.get("/tags", getByTag)
+
+// GET VIDEO BY TAG
+router.get("/tag/:tag", findByTag)
 
 // GET VIDEO BY TITLE
 router.get("/search", search)

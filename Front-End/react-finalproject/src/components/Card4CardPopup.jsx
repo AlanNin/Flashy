@@ -207,12 +207,6 @@ const Card4CardPopup = ({ type, video }) => {
     }
   };
 
-
-  const timeago = timestamp => {
-    const relativeTime = moment(timestamp).fromNow();
-    return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
-  };
-
   const [channel, setChannel] = useState({})
   const [noVideosMessage, setNoVideosMessage] = useState('');
 

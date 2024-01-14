@@ -31,6 +31,14 @@ import {
     followPlaylist,
     unfollowPlaylist,
     getPlaylistById,
+    sendVerificationEmailRequest,
+    confirmAccount,
+    confirmEmailChange,
+    sendRecoverPasswordRequest,
+    confirmRecoverPasswordCode,
+    recoverPasswordUpdatePassword,
+    sendRecoverUsernameRequest,
+    getNotifications,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -38,10 +46,10 @@ const router = express.Router();
 router.use(cors());
 
 // UPDATE USER
-router.put("/:id", verifyToken, update)
+router.put("/:id/update", verifyToken, update)
 
 // REMOVE USER
-router.delete("/:id", verifyToken, remove)
+router.delete("/:id/remove", verifyToken, remove)
 
 // GET A USER
 router.get("/find/:id", getUser)
@@ -126,5 +134,30 @@ router.delete("/playlists/unfollow/:playlistId", verifyToken, unfollowPlaylist);
 
 // CHECK IF PLAYLIST EXISTS
 router.post("/:userId/playlists/check/:playlistId", verifyToken, checkPlaylistExists);
+
+// CONFIRM ACCOUNT REQUEST
+router.post('/emailVerification', verifyToken, sendVerificationEmailRequest);
+
+// CONFIRM ACCOUNT
+router.get('/confirm/:token', confirmAccount);
+
+// CONFIRM EMAIL CHANGE REQUEST
+router.get('/confirmEmailChange/:token', confirmEmailChange);
+
+// RECOVER PASSWORD REQUEST
+router.post('/recoverpassword', sendRecoverPasswordRequest);
+
+// CONFIRM RECOVER PASSWORD REQUEST
+router.get('/confirmRecoverCode', confirmRecoverPasswordCode);
+
+// RECOVER PASSWORD SET NEW PASSWORD
+router.post('/recoverPasswordUpdatePassword', recoverPasswordUpdatePassword);
+
+// RECOVER USERNAME REQUEST
+router.post('/recoverusername', sendRecoverUsernameRequest);
+
+// GET NOTIFICATIONS
+router.get('/notifications', verifyToken, getNotifications);
+
 
 export default router;

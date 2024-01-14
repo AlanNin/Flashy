@@ -26,6 +26,12 @@ export const userSlice = createSlice({
             state.loading = false;
             state.error = false;
         },
+        userUpdated: (state, action) => {
+            state.currentUser = action.payload;
+        },
+        userVerified: (state, action) => {
+            state.currentUser = action.payload;
+        },
         subscription: (state, action) => {
             if (state.currentUser.subscribedUsers.includes(action.payload)) {
                 state.currentUser.subscribedUsers.splice(
@@ -41,7 +47,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, subscription } =
+export const { loginStart, loginSuccess, loginFailure, logout, userUpdated, userVerified, subscription } =
     userSlice.actions;
 
 export default userSlice.reducer;

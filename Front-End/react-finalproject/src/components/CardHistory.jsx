@@ -17,6 +17,7 @@ import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
 import PlaylistSelectBoxVideo from "../components/PlaylistSelectBoxVideo";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -543,7 +544,7 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
     const fetchProgress = async () => {
       if (currentUser) {
         const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
-        setProgress(userProgressRes.data.progress);
+        setProgress(userProgressRes?.data?.progress);
       }
     };
 
@@ -623,20 +624,10 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard ');
   };
+
 
   useEffect(() => {
     const handleClickOutsideShare = (event) => {
@@ -894,15 +885,6 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
             userId={currentUser?._id}
             videoId={video?._id}
           />
-        )
-      }
-
-
-      {
-        isPopUpShareVisible && (
-          <SharePopupContainer>
-            <SharePopupContent> Share Link copied in clipboard </SharePopupContent>
-          </SharePopupContainer>
         )
       }
 

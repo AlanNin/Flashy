@@ -9,11 +9,12 @@ import GoogleSignin from "../assets/GoogleSignin.png";
 import E1ColorNoBG from "../assets/E1WhiteNoBG.png";
 import FlechaDerechaIcono from "../assets/FlechaDerechaIcono.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { auth, GoogleProvider, FacebookProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
+import { toast } from 'react-toastify';
 
 const MainContainer = styled.div`
   position: relative;
@@ -79,21 +80,6 @@ const InputContainer = styled.div`
 `;
 
 
-const Input = styled.input`
-  font-family: "Roboto Condensed", Helvetica;
-  font-size: 18px;
-  border: 1px solid #1D1D1D;
-  border-radius: 3px;
-  padding: 10px 10px;
-  background-color: #303030;
-  width: 350px;
-  color: ${({ theme }) => theme.text};
-  transition: border-color 0.3s ease-in-out;
-  &:focus {
-    border-color: ${({ theme }) => theme.accent};
-  }
-`;
-
 const Placeholder = styled.label`
   position: absolute;
   font-family: "Roboto Condensed", Helvetica;
@@ -113,7 +99,7 @@ const Placeholder = styled.label`
     hasFocus &&
     css`
       animation: none;
-      opacity: 0.5;
+      opacity: 0.7;
       transform: translateZ(0); /* Para activar el contexto 3D */
 
       &.fadeIn {
@@ -145,6 +131,26 @@ const Placeholder = styled.label`
       opacity: 0.5;
       transform: translateZ(0); /* Aparecer hacia el frente */
     }
+  }
+`;
+
+const Input = styled.input`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 18px;
+  border: 1px solid #1D1D1D;
+  border-radius: 3px;
+  padding: 10px 10px;
+  background-color: #303030;
+  width: 350px;
+  color: ${({ theme }) => theme.text};
+  transition: border-color 0.3s ease-in-out;
+  outline: 1px solid #303030;
+  &:focus {
+    outline: 1px solid #BE49C9;
+  }
+
+  &:focus + ${Placeholder} {
+    color: #BE49C9;
   }
 `;
 
@@ -192,7 +198,7 @@ const GoogleImg = styled.img`
 `;
 
 const DivSignin = styled.div`
-  margin-top: 60px;
+  margin-top: 45px;
   margin-bottom: 10px;
 `;
 
@@ -309,7 +315,7 @@ font-weight: 400;
 `;
 
 const ErrorMessage = ({ children }) => (
-  <div style={{ color: 'red', marginTop: '5px', marginRight: 'auto', fontFamily: '"Roboto Condensed", Helvetica' }}>{children}</div>
+  <div style={{ fontSize: '15px', color: '#BE49C9', marginTop: '7px', marginRight: 'auto', fontFamily: '"Roboto Condensed", Helvetica' }}>{children}</div>
 );
 
 const Signin = () => {
@@ -325,7 +331,7 @@ const Signin = () => {
   const [signinError, setSigninError] = useState(false);
   const [externalautherror, setExternalAuthError] = useState(false);
   const [emptyfieldsError, setEmptyFieldsError] = useState(false);
-
+  const { currentUser } = useSelector(state => state.user);
 
   const handleHCaptchaVerify = () => {
     captchaRef.current.execute();
@@ -369,9 +375,10 @@ const Signin = () => {
             img: result.user.photoURL,
           });
 
-          console.log(signInResponse);
-          dispatch(loginSuccess(signInResponse.data));
+          toast.success(`Welcome back to Flashy`);
           navigate("/");
+          dispatch(loginSuccess(signInResponse.data));
+
         } catch (error) {
           console.error("Error en axios.post:", error);
           dispatch(loginFailure());
@@ -398,14 +405,13 @@ const Signin = () => {
         img: photoURL,
       };
 
-      console.log('Data being sent in the POST request:', userData);
 
       const res = await axios.post("/auth/externalsignin", userData);
 
-      console.log('Response from the server:', res);
-
-      dispatch(loginSuccess(res.data));
+      toast.success(`Welcome back to Flashy`);
       navigate("/");
+      dispatch(loginSuccess(res.data));
+
     } catch (error) {
       console.error("Error in signInWithFacebook:", error);
 
@@ -431,7 +437,6 @@ const Signin = () => {
 
         if (!nameCheckResponse.data.exists) {
           // Mostrar un mensaje de error para el nombre de usuario
-          console.error("Username or password incorrect");
           setSigninError(true);
         } else {
           const passwordCheckResponse = await axios.post("/auth/checkpassword", { name, password });
@@ -441,7 +446,6 @@ const Signin = () => {
             handleHCaptchaVerify();
           } else {
             // Mostrar un mensaje de error para la contraseña incorrecta
-            console.error("Username or password incorrect");
             setSigninError(true);
           }
         }
@@ -460,10 +464,12 @@ const Signin = () => {
     // Verifica si el token hCaptcha se recibió con éxito
     if (token) {
       try {
-        // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
         const res = await axios.post("/auth/signin", { name, password, captchaToken: token });
-        dispatch(loginSuccess(res.data));
+
+        toast.success(`Welcome back to Flashy`);
         navigate('/');
+        dispatch(loginSuccess(res.data));
+
       } catch (error) {
         dispatch(loginFailure());
         console.error("Failed to sign in", error);
@@ -521,7 +527,7 @@ const Signin = () => {
       orauth: "O",
       signinErrormsg: "Usuario o contraseña incorrecta.",
       externalautherrormsg: "Este correo no está registrado.",
-      emptyfields: "Por favor acepta los requerimientos para continuar.",
+      emptyfields: "Por favor rellena todos los campos para continuar.",
     },
   };
 
@@ -550,6 +556,7 @@ const Signin = () => {
               onFocus={() => setNameFocused(true)}
               onBlur={() => setNameFocused(false)}
               required
+              autoComplete='off new-password'
             />
             <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
               {translations[language].placeholdername}
@@ -569,6 +576,7 @@ const Signin = () => {
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
               required
+              autoComplete='off new-password'
             />
             <Placeholder hasFocus={passwordFocused || password !== ""} hasValue={password !== ""}>
               {translations[language].placeholderpassword}
@@ -606,7 +614,7 @@ const Signin = () => {
 
           <CantCreate>
             <CantSignin>
-              <Link to="../recoveraccount" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+              <Link to="../recovery" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
                 {translations[language].cantsignin}
               </Link>
             </CantSignin>
