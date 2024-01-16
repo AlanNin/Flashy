@@ -19,6 +19,8 @@ const MainContainer = styled.div`
   background-color: rgba(15, 12, 18);
   margin: auto;
   max-width: 1920px;
+  overflow: hidden;
+  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const HeaderDiv = styled.div`
@@ -143,7 +145,7 @@ const Home = () => {
 
 
   return (
-    <MainContainer>
+    <MainContainer NoVideosFound={NoVideosFound}>
 
       <HeaderDiv tag={tag}>
         <HeaderSubHeaderDiv>

@@ -15,6 +15,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { auth, GoogleProvider, FacebookProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { toast } from 'react-toastify';
+import NotFound404Component from "../components/NotFound404Component";
 
 const MainContainer = styled.div`
   position: relative;
@@ -375,9 +376,9 @@ const Signin = () => {
             img: result.user.photoURL,
           });
 
+          dispatch(loginSuccess(signInResponse.data));
           toast.success(`Welcome back to Flashy`);
           navigate("/");
-          dispatch(loginSuccess(signInResponse.data));
 
         } catch (error) {
           console.error("Error en axios.post:", error);
@@ -408,9 +409,9 @@ const Signin = () => {
 
       const res = await axios.post("/auth/externalsignin", userData);
 
+      dispatch(loginSuccess(res.data));
       toast.success(`Welcome back to Flashy`);
       navigate("/");
-      dispatch(loginSuccess(res.data));
 
     } catch (error) {
       console.error("Error in signInWithFacebook:", error);
@@ -466,9 +467,9 @@ const Signin = () => {
       try {
         const res = await axios.post("/auth/signin", { name, password, captchaToken: token });
 
+        dispatch(loginSuccess(res.data));
         toast.success(`Welcome back to Flashy`);
         navigate('/');
-        dispatch(loginSuccess(res.data));
 
       } catch (error) {
         dispatch(loginFailure());
@@ -485,6 +486,19 @@ const Signin = () => {
       handleDivSigninClick(e);
     }
   };
+
+  // USER ALREADY LOGGED
+  const [userLogged, setUserLogged] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setUserLogged(true);
+    } else {
+      setUserLogged(false);
+    }
+
+  }, [currentUser]);
+
 
   const translations = {
     en: {
@@ -532,135 +546,145 @@ const Signin = () => {
   };
 
   return (
-    <MainContainer>
+    <>
+      {userLogged ? (
+        <NotFound404Component />
+      ) : (
 
-      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-        <Logo>
-          <ImgLogo src={E1ColorNoBG} />
-        </Logo>
-      </Link>
+        <MainContainer>
 
-      <Container>
-        <Wrapper>
-          <Title>{translations[language].title}</Title>
-          <SubTitle>{translations[language].subtitle}</SubTitle>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo>
+              <ImgLogo src={E1ColorNoBG} />
+            </Logo>
+          </Link>
 
-          <InputContainer>
-            <Input
-              onChange={(e) => {
-                setName(e.target.value)
-                setSigninError(false);
-                setEmptyFieldsError(false);
-              }}
-              onKeyPress={handleKeyPress}
-              onFocus={() => setNameFocused(true)}
-              onBlur={() => setNameFocused(false)}
-              required
-              autoComplete='off new-password'
-            />
-            <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
-              {translations[language].placeholdername}
-            </Placeholder>
-          </InputContainer>
+          <Container>
+            <Wrapper>
+              <Title>{translations[language].title}</Title>
+              <SubTitle>{translations[language].subtitle}</SubTitle>
 
-          <InputContainer>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                setSigninError(false);
-                setEmptyFieldsError(false);
-              }}
-              onKeyPress={handleKeyPress}
-              onFocus={() => setPasswordFocused(true)}
-              onBlur={() => setPasswordFocused(false)}
-              required
-              autoComplete='off new-password'
-            />
-            <Placeholder hasFocus={passwordFocused || password !== ""} hasValue={password !== ""}>
-              {translations[language].placeholderpassword}
-            </Placeholder>
+              <InputContainer>
+                <Input
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setSigninError(false);
+                    setEmptyFieldsError(false);
+                  }}
+                  onKeyPress={handleKeyPress}
+                  onFocus={() => setNameFocused(true)}
+                  onBlur={() => setNameFocused(false)}
+                  required
+                  autoComplete='off new-password'
+                />
+                <Placeholder hasFocus={nameFocused || name !== ""} hasValue={name !== ""}>
+                  {translations[language].placeholdername}
+                </Placeholder>
+              </InputContainer>
 
-            {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-            {signinError && <ErrorMessage>{translations[language].signinErrormsg}</ErrorMessage>}
+              <InputContainer>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    setSigninError(false);
+                    setEmptyFieldsError(false);
+                  }}
+                  onKeyPress={handleKeyPress}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
+                  required
+                  autoComplete='off new-password'
+                />
+                <Placeholder hasFocus={passwordFocused || password !== ""} hasValue={password !== ""}>
+                  {translations[language].placeholderpassword}
+                </Placeholder>
 
-          </InputContainer>
+                {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+                {signinError && <ErrorMessage>{translations[language].signinErrormsg}</ErrorMessage>}
 
-          <SignButtons>
-            <ButtonFacebook onClick={signInWithFacebook}>
-              <FacebookImg src={FacebookSignin} />
-            </ButtonFacebook>
-            <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
-            <ButtonGoogle onClick={signInWithGoogle}>
-              <GoogleImg src={GoogleSignin} />
-            </ButtonGoogle>
-          </SignButtons>
+              </InputContainer>
 
-          {externalautherror && <ErrorMessage>{translations[language].externalautherrormsg}</ErrorMessage>}
+              <SignButtons>
+                <ButtonFacebook onClick={signInWithFacebook}>
+                  <FacebookImg src={FacebookSignin} />
+                </ButtonFacebook>
+                <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
+                <ButtonGoogle onClick={signInWithGoogle}>
+                  <GoogleImg src={GoogleSignin} />
+                </ButtonGoogle>
+              </SignButtons>
 
-
-          <HCaptcha
-            sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
-            size="invisible"
-            onLoad={onLoad}
-            onVerify={onHCaptchaVerify}
-            ref={captchaRef}
-          />
-
-          <DivSignin onClick={handleDivSigninClick} id="DivSignin">
-            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={name !== "" && password !== ""} />
-          </DivSignin>
-
-          <CantCreate>
-            <CantSignin>
-              <Link to="../recovery" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                {translations[language].cantsignin}
-              </Link>
-            </CantSignin>
+              {externalautherror && <ErrorMessage>{translations[language].externalautherrormsg}</ErrorMessage>}
 
 
-            <CreateAcc>
-              <Link to="../signup" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                {translations[language].createaccount}
-              </Link>
-            </CreateAcc>
+              <HCaptcha
+                sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
+                size="invisible"
+                onLoad={onLoad}
+                onVerify={onHCaptchaVerify}
+                ref={captchaRef}
+              />
+
+              <DivSignin onClick={handleDivSigninClick} id="DivSignin">
+                <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={name !== "" && password !== ""} />
+              </DivSignin>
+
+              <CantCreate>
+                <CantSignin>
+                  <Link to="../recovery" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                    {translations[language].cantsignin}
+                  </Link>
+                </CantSignin>
 
 
-          </CantCreate>
-
-        </Wrapper>
-
-      </Container>
-
-      <MoreInfo>
-
-        <More>
-          <Links>{translations[language].support}</Links>
-          <Links>{translations[language].privacenotice}</Links>
-          <Links>{translations[language].termsofservice}</Links>
-          <Links>{translations[language].cookiepreferences}</Links>
+                <CreateAcc>
+                  <Link to="../signup" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                    {translations[language].createaccount}
+                  </Link>
+                </CreateAcc>
 
 
-          <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
-            <LanguageSquare active={language === 'en'}>
-              EN
-            </LanguageSquare>
-            <LanguageSquare active={language === 'es'}>
-              ES
-            </LanguageSquare>
-            <Img2 src={IdiomaIcono} />
-          </LanguageSwitch>
+              </CantCreate>
 
-        </More>
+            </Wrapper>
 
-        <MoreSub>
-          <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
-        </MoreSub>
+          </Container>
 
-      </MoreInfo>
+          <MoreInfo>
 
-    </MainContainer >
+            <More>
+              <Links>{translations[language].support}</Links>
+              <Links>{translations[language].privacenotice}</Links>
+              <Links>{translations[language].termsofservice}</Links>
+              <Links>{translations[language].cookiepreferences}</Links>
+
+
+              <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
+                <LanguageSquare active={language === 'en'}>
+                  EN
+                </LanguageSquare>
+                <LanguageSquare active={language === 'es'}>
+                  ES
+                </LanguageSquare>
+                <Img2 src={IdiomaIcono} />
+              </LanguageSwitch>
+
+            </More>
+
+            <MoreSub>
+              <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
+            </MoreSub>
+
+          </MoreInfo>
+
+        </MainContainer >
+
+      )}
+
+
+    </>
   );
 };
 

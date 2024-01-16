@@ -10,7 +10,8 @@ import ForgotUsernameIlustration from "../assets/ForgotUsernameIlustration.webp"
 import ForgotPasswordIlustration from "../assets/ForgotPasswordIlustration.webp";
 import PasswordRecoveredIlustration from "../assets/PasswordRecoveredIlustration.png";
 import IdiomaIcono from "../assets/IdiomaIcono.png";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import NotFound404Component from "../components/NotFound404Component";
 
 // CONTAINER
 const MainContainer = styled.div`
@@ -734,9 +735,9 @@ const RecoverUsernameSubTitle = styled.h2`
 const Recovery = () => {
   const [inputFocused, setInputFocused] = useState(false);
   const { language, setLanguage } = useLanguage();
+  const { currentUser } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
 
   // RECOVERY SECTIONS DEFINITION
 
@@ -1060,6 +1061,18 @@ const Recovery = () => {
     window.open('https://www.hcaptcha.com/terms', '_blank');
   };
 
+  // USER ALREADY LOGGED
+  const [userLogged, setUserLogged] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setUserLogged(true);
+    } else {
+      setUserLogged(false);
+    }
+
+  }, [currentUser]);
+
   const translations = {
     en: {
       title: "Sign in",
@@ -1125,6 +1138,7 @@ const Recovery = () => {
       forgotpasswordpasswordrecoveredsubtext: "Your password has been updated, for any other inconvenience contact our support team.",
 
       forgotpasswordforgotusername: "FORGOT USERNAME?",
+      forgotpasswordforgotpassword: "FORGOT PASSWORD?",
       forgotpasswordgoback: "GO TO SIGN IN",
     },
     es: {
@@ -1193,387 +1207,398 @@ const Recovery = () => {
       forgotpasswordpasswordrecoveredsubtext: "Tu contraseña ha sido actualizada, cualquier duda contacta a nuestro equipo de soporte.",
 
       forgotpasswordforgotusername: "¿OLVIDASTE TU USUARIO?",
+      forgotpasswordforgotpassword: "OLVIDASTE TU CONTRASEÑA?",
       forgotpasswordgoback: "IR AL INICIO DE SESIÓN",
     },
   };
 
   return (
-    <MainContainer>
-
-      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-        <Logo>
-          <ImgLogo src={E1ColorNoBG} />
-        </Logo>
-      </Link>
-
-      <Container>
-        {recoverySection === recoverySections[0] && (
-          <StartWrapper>
-            <StartRecoveryTitle>
-              {translations[language].cantsignin}
-            </StartRecoveryTitle>
-            <StartRecoverySubTitle>
-              {translations[language].cantsigninsub}
-            </StartRecoverySubTitle>
-
-            <StartOptionsDiv>
-              <StartOptionsItem onClick={handleGoToRecoverUsername}>
-                <StartOptionsItemImg src={ForgotUsernameIlustration} />
-                <StartOptionsItemTitle> {translations[language].forgotusername} </StartOptionsItemTitle>
-                <StartOptionsItemText> {translations[language].forgotusernamesub} </StartOptionsItemText>
-              </StartOptionsItem>
-
-              <StartOptionsItem onClick={handleGoToRecoverPassword}>
-                <StartOptionsItemImg src={ForgotPasswordIlustration} style={{ marginTop: '-22px' }} />
-                <StartOptionsItemTitle> {translations[language].forgotpassword} </StartOptionsItemTitle>
-                <StartOptionsItemText> {translations[language].forgotpasswordsub} </StartOptionsItemText>
-              </StartOptionsItem>
-            </StartOptionsDiv>
-
-          </StartWrapper>
-        )}
-
-        {recoverySection === recoverySections[1] && (
-
-          <RecoverUsernameWrapper>
-            <RecoverUsernameTitle language={language}>{translations[language].forgotusernametitle}</RecoverUsernameTitle>
-            <RecoverUsernameSubTitle language={language}>{translations[language].forgotusernamesubtitleemail}</RecoverUsernameSubTitle>
-
-            <InputContainer>
-              <RegularInput
-                type="text"
-                name="uemail"
-                value={inputs.uemail !== undefined ? inputs.uemail : ''}
-                onChange={(e) => {
-                  handleChangeUEmail(e);
-                }}
-                onKeyPress={handleKeyPressUEmail}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                required
-                autoComplete="off"
-
-              />
-              <Placeholder
-                hasFocus={inputFocused || (inputs?.uemail !== undefined && inputs?.uemail !== '')}
-                hasValue={inputs?.uemail !== undefined && inputs?.uemail !== ''}
-              >
-                {translations[language].placeholderemail}
-              </Placeholder>
-
-              {uEmailEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-              {!isUEmailValid && !uEmailEmptyError && inputs?.uemail !== '' && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
-              {uEmailError && <ErrorMessage>{translations[language].emaildoesntexist}</ErrorMessage>}
-
-            </InputContainer>
-
-            <DivSigninForgotPassword onClick={handleSendUEmail} id="DivSignin">
-              <SigninFlechaDerecha
-                src={FlechaDerechaIcono}
-                hasValue={inputs.uemail !== '' && inputs.uemail !== undefined && isUEmailValid}
-              />
-            </DivSigninForgotPassword>
-
-            <CantCreate>
-              <CantSignin onClick={handleGoToRecoverUsername}>
-                {translations[language].forgotpasswordforgotusername}
-              </CantSignin>
-
-              <CreateAcc>
-                <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                  {translations[language].forgotpasswordgoback}
-                </Link>
-              </CreateAcc>
-
-
-            </CantCreate>
-
-          </RecoverUsernameWrapper>
-        )}
-
-        {recoverySection === recoverySections[2] && (
-
-          <RecoveredPasswordWrapper>
-            <RecoveredPasswordIlustration src={PasswordRecoveredIlustration} />
-            <RecoveredPasswordTitle>{translations[language].forgotusernameemailsent}</RecoveredPasswordTitle>
-            <RecoveredPasswordSubTitle>{translations[language].forgotusernameemailsentsub}</RecoveredPasswordSubTitle>
-
-            <GoToSigninButton onClick={handleGotoSignin}> Go to Sign in</GoToSigninButton>
-
-          </RecoveredPasswordWrapper>
-        )}
-
-        {recoverySection === recoverySections[3] && (
-
-          <RecoverPasswordWrapper>
-            <RecoverPasswordTitle>{translations[language].forgotpasswordtitle}</RecoverPasswordTitle>
-            <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitleemail}</RecoverPasswordSubTitle>
-
-            <InputContainer>
-              <RegularInput
-                type="text"
-                name="email"
-                value={inputs.email !== undefined ? inputs.email : ''}
-                onChange={(e) => {
-                  handleChangeEmail(e);
-                }}
-                onKeyPress={handleKeyPressVEmail}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                required
-                autoComplete="off"
-
-              />
-              <Placeholder
-                hasFocus={inputFocused || (inputs?.email !== undefined && inputs?.email !== '')}
-                hasValue={inputs?.email !== undefined && inputs?.email !== ''}
-              >
-                {translations[language].placeholderemail}
-              </Placeholder>
-
-              {emailEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-              {!isEmailValid && !emailEmptyError && inputs?.email !== '' && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
-              {emailError && <ErrorMessage>{translations[language].emaildoesntexist}</ErrorMessage>}
-
-            </InputContainer>
-
-            <DivSigninForgotPassword onClick={handleGoToRecoverPasswordCode} id="DivSignin">
-              <SigninFlechaDerecha
-                src={FlechaDerechaIcono}
-                hasValue={inputs.email !== '' && inputs.email !== undefined && isEmailValid}
-              />
-            </DivSigninForgotPassword>
-
-            <CantCreate>
-              <CantSignin onClick={handleGoToRecoverUsername}>
-                {translations[language].forgotpasswordforgotusername}
-              </CantSignin>
-
-              <CreateAcc>
-                <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                  {translations[language].forgotpasswordgoback}
-                </Link>
-              </CreateAcc>
-
-
-            </CantCreate>
-
-          </RecoverPasswordWrapper>
-        )}
-
-        {recoverySection === recoverySections[4] && (
-
-          <RecoverPasswordWrapper>
-            <RecoverPasswordTitle>{translations[language].forgotpasswordtitlecode}</RecoverPasswordTitle>
-            <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitle}</RecoverPasswordSubTitle>
-
-            <InputContainer>
-              <RegularInput
-                type="password"
-                name="passwordcode"
-                value={inputs.passwordcode !== undefined ? inputs.passwordcode : ''}
-                onChange={(e) => {
-                  handleChangePasswordCode(e);
-                }}
-                onKeyPress={handleKeyPressVPasswordCode}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                required
-              />
-              <Placeholder
-                hasFocus={inputFocused || (inputs?.passwordcode !== undefined && inputs?.passwordcode !== '')}
-                hasValue={inputs?.passwordcode !== undefined && inputs?.passwordcode !== ''}
-              >
-                {translations[language].forgotpasswordplaceholder}
-              </Placeholder>
-
-              {resetCodeError && !emailEmptyError && inputs?.passwordcode !== null && <ErrorMessage>{translations[language].codeinvalid}</ErrorMessage>}
-              {resetCodeEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-              {!isResetCodeValid && !resetCodeError && <ErrorMessage>{translations[language].codedoesntexist}</ErrorMessage>}
-
-            </InputContainer>
-
-            <DivSigninForgotPassword onClick={handleConfirmPasswordCode} id="DivSignin">
-              <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={inputs.passwordcode !== "" && inputs.passwordcode !== undefined} />
-            </DivSigninForgotPassword>
-
-            <CantCreate>
-              <CantSignin onClick={handleGoToRecoverUsername}>
-                {translations[language].forgotpasswordforgotusername}
-              </CantSignin>
-
-              <CreateAcc>
-                <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                  {translations[language].forgotpasswordgoback}
-                </Link>
-              </CreateAcc>
-
-
-            </CantCreate>
-
-          </RecoverPasswordWrapper>
-        )}
-
-
-        {recoverySection === recoverySections[5] && (
-
-          <RecoverPasswordWrapper>
-            <RecoverPasswordTitle>{translations[language].forgotpasswordtitlechangepassword}</RecoverPasswordTitle>
-            <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitlechangepassword}</RecoverPasswordSubTitle>
-
-            <InputContainer>
-              <NewPasswordInput
-                type="password"
-                name="newpassword"
-                value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
-                onChange={(e) => {
-                  handleChangeNewPassword(e);
-                }}
-                onKeyPress={handleKeyPressVNewPassword}
-                onFocus={() => setNewPasswordFocused(true)}
-                onBlur={() => setNewPasswordFocused(false)}
-                required
-                autoComplete='off new-password'
-                strength={passwordStrength}
-                passwordValidLength={inputs?.newpassword?.length > 0}
-                passwordLength={inputs?.newpassword?.length}
-              />
-              <PlaceholderPassword
-                hasFocus={newPasswordFocused || inputs.newpassword !== ""
-                  && inputs.newpassword !== undefined} hasValue={inputs.newpassword !== ""
-                    && inputs.newpassword !== undefined}
-                strength={passwordStrength}
-                passwordValidLength={inputs?.newpassword?.length > 0}
-                isValid={isPasswordValid}
-              >
-                {translations[language].forgotpasswordplaceholdernew}
-              </PlaceholderPassword>
-
-              {inputs?.newpassword !== undefined && inputs?.newpassword !== '' && passwordStrength >= 0 && passwordStrength < 4 && <ErrorMessagePassword strength={passwordStrength}>
-                {passwordStrength === 3 && translations[language].passwordexcellent}
-                {passwordStrength === 2 && translations[language].passwordgreat}
-                {passwordStrength === 1 && translations[language].passwordokay}
-                {passwordStrength === 0 && translations[language].passwordtooweak}
-              </ErrorMessagePassword>}
-
-              <PasswordRequeriments passwordFocused={newPasswordFocused}>
-
-                <PasswordRequerimentsItem>
-                  <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length >= 8}>
-                    {inputs?.newpassword?.length >= 8 ? '✔' : '✖'}
-                  </PasswordRequerimentsSymbol>
-                  {translations[language].passwordpopup1}
-                </PasswordRequerimentsItem>
-                <PasswordRequerimentsItem>
-                  <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length > 0 && passwordStrength >= 1 && passwordStrength < 4}>
-                    {inputs?.newpassword?.length > 0 && passwordStrength >= 1 && passwordStrength < 4 ? '✔' : '✖'}
-                  </PasswordRequerimentsSymbol>
-                  {translations[language].passwordpopup2}
-                </PasswordRequerimentsItem>
-
-                <PasswordRequerimentsItem>
-                  <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length > 0 && passwordContains}>
-                    {inputs?.newpassword?.length > 0 && passwordContains ? '✔' : '✖'}
-                  </PasswordRequerimentsSymbol>
-                  {translations[language].passwordpopup3}
-                </PasswordRequerimentsItem>
-
-              </PasswordRequeriments>
-
-            </InputContainer>
-
-            <InputContainer style={{ marginTop: '20px' }}>
-              <InputConfirmPassword
-                type="password"
-                name="confirmnewpassword"
-                value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
-                onChange={(e) => {
-                  handleChangeConfirmNewPassword(e);
-                }}
-                onKeyPress={handleKeyPressVNewPassword}
-                onFocus={() => setConfirmNewPasswordFocused(true)}
-                onBlur={() => setConfirmNewPasswordFocused(false)}
-                required
-                autoComplete='off new-password'
-                isValid={isConfirmPasswordValid}
-              />
-              <ConfirmPlaceholder hasFocus={confirmNewPasswordFocused || inputs.confirmnewpassword !== "" && inputs.confirmnewpassword !== undefined} hasValue={inputs.confirmnewpassword !== ""
-                && inputs.confirmnewpassword !== undefined} isValid={isConfirmPasswordValid}>
-                {translations[language].forgotpasswordplaceholderconfirm}
-              </ConfirmPlaceholder>
-
-              {!isConfirmPasswordValid && <ErrorMessage>{translations[language].passworddonotmatch}</ErrorMessage>}
-              {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-
-            </InputContainer>
-
-            <DivSigninForgotPassword onClick={handleSaveNewPassword} id="DivSignin">
-              <SigninFlechaDerecha src={FlechaDerechaIcono}
-                hasValue={inputs.newpassword !== "" && inputs.newpassword !== undefined
-                  && inputs.confirmnewpassword !== undefined && inputs.confirmnewpassword !== undefined && passwordIsGood}
-              />
-            </DivSigninForgotPassword>
-
-            <CantCreate>
-              <CantSignin onClick={handleGoToRecoverUsername}>
-                {translations[language].forgotpasswordforgotusername}
-              </CantSignin>
-
-              <CreateAcc>
-                <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                  {translations[language].forgotpasswordgoback}
-                </Link>
-              </CreateAcc>
-
-
-            </CantCreate>
-
-          </RecoverPasswordWrapper>
-        )}
-
-        {recoverySection === recoverySections[6] && (
-
-          <RecoveredPasswordWrapper>
-            <RecoveredPasswordIlustration src={PasswordRecoveredIlustration} />
-            <RecoveredPasswordTitle>{translations[language].forgotpasswordpasswordrecovered}</RecoveredPasswordTitle>
-            <RecoveredPasswordSubTitle>{translations[language].forgotpasswordpasswordrecoveredsubtext}</RecoveredPasswordSubTitle>
-
-            <GoToSigninButton onClick={handleGotoSignin}> Go to Sign in</GoToSigninButton>
-
-          </RecoveredPasswordWrapper>
-        )}
-
-
-      </Container>
-
-      <MoreInfo>
-
-        <More>
-          <Links>{translations[language].support}</Links>
-          <Links>{translations[language].privacenotice}</Links>
-          <Links>{translations[language].termsofservice}</Links>
-          <Links>{translations[language].cookiepreferences}</Links>
-
-
-          <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
-            <LanguageSquare active={language === 'en'}>
-              EN
-            </LanguageSquare>
-            <LanguageSquare active={language === 'es'}>
-              ES
-            </LanguageSquare>
-            <Img2 src={IdiomaIcono} />
-          </LanguageSwitch>
-
-        </More>
-
-        <MoreSub>
-          <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
-        </MoreSub>
-
-      </MoreInfo>
-
-    </MainContainer >
+    <>
+      {userLogged ? (
+        <NotFound404Component />
+      ) : (
+
+        <MainContainer>
+
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo>
+              <ImgLogo src={E1ColorNoBG} />
+            </Logo>
+          </Link>
+
+          <Container>
+            {recoverySection === recoverySections[0] && (
+              <StartWrapper>
+                <StartRecoveryTitle>
+                  {translations[language].cantsignin}
+                </StartRecoveryTitle>
+                <StartRecoverySubTitle>
+                  {translations[language].cantsigninsub}
+                </StartRecoverySubTitle>
+
+                <StartOptionsDiv>
+                  <StartOptionsItem onClick={handleGoToRecoverUsername}>
+                    <StartOptionsItemImg src={ForgotUsernameIlustration} />
+                    <StartOptionsItemTitle> {translations[language].forgotusername} </StartOptionsItemTitle>
+                    <StartOptionsItemText> {translations[language].forgotusernamesub} </StartOptionsItemText>
+                  </StartOptionsItem>
+
+                  <StartOptionsItem onClick={handleGoToRecoverPassword}>
+                    <StartOptionsItemImg src={ForgotPasswordIlustration} style={{ marginTop: '-22px' }} />
+                    <StartOptionsItemTitle> {translations[language].forgotpassword} </StartOptionsItemTitle>
+                    <StartOptionsItemText> {translations[language].forgotpasswordsub} </StartOptionsItemText>
+                  </StartOptionsItem>
+                </StartOptionsDiv>
+
+              </StartWrapper>
+            )}
+
+            {recoverySection === recoverySections[1] && (
+
+              <RecoverUsernameWrapper>
+                <RecoverUsernameTitle language={language}>{translations[language].forgotusernametitle}</RecoverUsernameTitle>
+                <RecoverUsernameSubTitle language={language}>{translations[language].forgotusernamesubtitleemail}</RecoverUsernameSubTitle>
+
+                <InputContainer>
+                  <RegularInput
+                    type="text"
+                    name="uemail"
+                    value={inputs.uemail !== undefined ? inputs.uemail : ''}
+                    onChange={(e) => {
+                      handleChangeUEmail(e);
+                    }}
+                    onKeyPress={handleKeyPressUEmail}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    required
+                    autoComplete="off"
+
+                  />
+                  <Placeholder
+                    hasFocus={inputFocused || (inputs?.uemail !== undefined && inputs?.uemail !== '')}
+                    hasValue={inputs?.uemail !== undefined && inputs?.uemail !== ''}
+                  >
+                    {translations[language].placeholderemail}
+                  </Placeholder>
+
+                  {uEmailEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+                  {!isUEmailValid && !uEmailEmptyError && inputs?.uemail !== '' && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
+                  {uEmailError && <ErrorMessage>{translations[language].emaildoesntexist}</ErrorMessage>}
+
+                </InputContainer>
+
+                <DivSigninForgotPassword onClick={handleSendUEmail} id="DivSignin">
+                  <SigninFlechaDerecha
+                    src={FlechaDerechaIcono}
+                    hasValue={inputs.uemail !== '' && inputs.uemail !== undefined && isUEmailValid}
+                  />
+                </DivSigninForgotPassword>
+
+                <CantCreate>
+                  <CantSignin onClick={handleGoToRecoverPassword}>
+                    {translations[language].forgotpasswordforgotpassword}
+                  </CantSignin>
+
+                  <CreateAcc>
+                    <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                      {translations[language].forgotpasswordgoback}
+                    </Link>
+                  </CreateAcc>
+
+
+                </CantCreate>
+
+              </RecoverUsernameWrapper>
+            )}
+
+            {recoverySection === recoverySections[2] && (
+
+              <RecoveredPasswordWrapper>
+                <RecoveredPasswordIlustration src={PasswordRecoveredIlustration} />
+                <RecoveredPasswordTitle>{translations[language].forgotusernameemailsent}</RecoveredPasswordTitle>
+                <RecoveredPasswordSubTitle>{translations[language].forgotusernameemailsentsub}</RecoveredPasswordSubTitle>
+
+                <GoToSigninButton onClick={handleGotoSignin}> Go to Sign in</GoToSigninButton>
+
+              </RecoveredPasswordWrapper>
+            )}
+
+            {recoverySection === recoverySections[3] && (
+
+              <RecoverPasswordWrapper>
+                <RecoverPasswordTitle>{translations[language].forgotpasswordtitle}</RecoverPasswordTitle>
+                <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitleemail}</RecoverPasswordSubTitle>
+
+                <InputContainer>
+                  <RegularInput
+                    type="text"
+                    name="email"
+                    value={inputs.email !== undefined ? inputs.email : ''}
+                    onChange={(e) => {
+                      handleChangeEmail(e);
+                    }}
+                    onKeyPress={handleKeyPressVEmail}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    required
+                    autoComplete="off"
+
+                  />
+                  <Placeholder
+                    hasFocus={inputFocused || (inputs?.email !== undefined && inputs?.email !== '')}
+                    hasValue={inputs?.email !== undefined && inputs?.email !== ''}
+                  >
+                    {translations[language].placeholderemail}
+                  </Placeholder>
+
+                  {emailEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+                  {!isEmailValid && !emailEmptyError && inputs?.email !== '' && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
+                  {emailError && <ErrorMessage>{translations[language].emaildoesntexist}</ErrorMessage>}
+
+                </InputContainer>
+
+                <DivSigninForgotPassword onClick={handleGoToRecoverPasswordCode} id="DivSignin">
+                  <SigninFlechaDerecha
+                    src={FlechaDerechaIcono}
+                    hasValue={inputs.email !== '' && inputs.email !== undefined && isEmailValid}
+                  />
+                </DivSigninForgotPassword>
+
+                <CantCreate>
+                  <CantSignin onClick={handleGoToRecoverUsername}>
+                    {translations[language].forgotpasswordforgotusername}
+                  </CantSignin>
+
+                  <CreateAcc>
+                    <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                      {translations[language].forgotpasswordgoback}
+                    </Link>
+                  </CreateAcc>
+
+
+                </CantCreate>
+
+              </RecoverPasswordWrapper>
+            )}
+
+            {recoverySection === recoverySections[4] && (
+
+              <RecoverPasswordWrapper>
+                <RecoverPasswordTitle>{translations[language].forgotpasswordtitlecode}</RecoverPasswordTitle>
+                <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitle}</RecoverPasswordSubTitle>
+
+                <InputContainer>
+                  <RegularInput
+                    type="password"
+                    name="passwordcode"
+                    value={inputs.passwordcode !== undefined ? inputs.passwordcode : ''}
+                    onChange={(e) => {
+                      handleChangePasswordCode(e);
+                    }}
+                    onKeyPress={handleKeyPressVPasswordCode}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    required
+                  />
+                  <Placeholder
+                    hasFocus={inputFocused || (inputs?.passwordcode !== undefined && inputs?.passwordcode !== '')}
+                    hasValue={inputs?.passwordcode !== undefined && inputs?.passwordcode !== ''}
+                  >
+                    {translations[language].forgotpasswordplaceholder}
+                  </Placeholder>
+
+                  {resetCodeError && !emailEmptyError && inputs?.passwordcode !== null && <ErrorMessage>{translations[language].codeinvalid}</ErrorMessage>}
+                  {resetCodeEmptyError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+                  {!isResetCodeValid && !resetCodeError && <ErrorMessage>{translations[language].codedoesntexist}</ErrorMessage>}
+
+                </InputContainer>
+
+                <DivSigninForgotPassword onClick={handleConfirmPasswordCode} id="DivSignin">
+                  <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={inputs.passwordcode !== "" && inputs.passwordcode !== undefined} />
+                </DivSigninForgotPassword>
+
+                <CantCreate>
+                  <CantSignin onClick={handleGoToRecoverUsername}>
+                    {translations[language].forgotpasswordforgotusername}
+                  </CantSignin>
+
+                  <CreateAcc>
+                    <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                      {translations[language].forgotpasswordgoback}
+                    </Link>
+                  </CreateAcc>
+
+
+                </CantCreate>
+
+              </RecoverPasswordWrapper>
+            )}
+
+
+            {recoverySection === recoverySections[5] && (
+
+              <RecoverPasswordWrapper>
+                <RecoverPasswordTitle>{translations[language].forgotpasswordtitlechangepassword}</RecoverPasswordTitle>
+                <RecoverPasswordSubTitle>{translations[language].forgotpasswordsubtitlechangepassword}</RecoverPasswordSubTitle>
+
+                <InputContainer>
+                  <NewPasswordInput
+                    type="password"
+                    name="newpassword"
+                    value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
+                    onChange={(e) => {
+                      handleChangeNewPassword(e);
+                    }}
+                    onKeyPress={handleKeyPressVNewPassword}
+                    onFocus={() => setNewPasswordFocused(true)}
+                    onBlur={() => setNewPasswordFocused(false)}
+                    required
+                    autoComplete='off new-password'
+                    strength={passwordStrength}
+                    passwordValidLength={inputs?.newpassword?.length > 0}
+                    passwordLength={inputs?.newpassword?.length}
+                  />
+                  <PlaceholderPassword
+                    hasFocus={newPasswordFocused || inputs.newpassword !== ""
+                      && inputs.newpassword !== undefined} hasValue={inputs.newpassword !== ""
+                        && inputs.newpassword !== undefined}
+                    strength={passwordStrength}
+                    passwordValidLength={inputs?.newpassword?.length > 0}
+                    isValid={isPasswordValid}
+                  >
+                    {translations[language].forgotpasswordplaceholdernew}
+                  </PlaceholderPassword>
+
+                  {inputs?.newpassword !== undefined && inputs?.newpassword !== '' && passwordStrength >= 0 && passwordStrength < 4 && <ErrorMessagePassword strength={passwordStrength}>
+                    {passwordStrength === 3 && translations[language].passwordexcellent}
+                    {passwordStrength === 2 && translations[language].passwordgreat}
+                    {passwordStrength === 1 && translations[language].passwordokay}
+                    {passwordStrength === 0 && translations[language].passwordtooweak}
+                  </ErrorMessagePassword>}
+
+                  <PasswordRequeriments passwordFocused={newPasswordFocused}>
+
+                    <PasswordRequerimentsItem>
+                      <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length >= 8}>
+                        {inputs?.newpassword?.length >= 8 ? '✔' : '✖'}
+                      </PasswordRequerimentsSymbol>
+                      {translations[language].passwordpopup1}
+                    </PasswordRequerimentsItem>
+                    <PasswordRequerimentsItem>
+                      <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length > 0 && passwordStrength >= 1 && passwordStrength < 4}>
+                        {inputs?.newpassword?.length > 0 && passwordStrength >= 1 && passwordStrength < 4 ? '✔' : '✖'}
+                      </PasswordRequerimentsSymbol>
+                      {translations[language].passwordpopup2}
+                    </PasswordRequerimentsItem>
+
+                    <PasswordRequerimentsItem>
+                      <PasswordRequerimentsSymbol isValid={inputs?.newpassword?.length > 0 && passwordContains}>
+                        {inputs?.newpassword?.length > 0 && passwordContains ? '✔' : '✖'}
+                      </PasswordRequerimentsSymbol>
+                      {translations[language].passwordpopup3}
+                    </PasswordRequerimentsItem>
+
+                  </PasswordRequeriments>
+
+                </InputContainer>
+
+                <InputContainer style={{ marginTop: '20px' }}>
+                  <InputConfirmPassword
+                    type="password"
+                    name="confirmnewpassword"
+                    value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
+                    onChange={(e) => {
+                      handleChangeConfirmNewPassword(e);
+                    }}
+                    onKeyPress={handleKeyPressVNewPassword}
+                    onFocus={() => setConfirmNewPasswordFocused(true)}
+                    onBlur={() => setConfirmNewPasswordFocused(false)}
+                    required
+                    autoComplete='off new-password'
+                    isValid={isConfirmPasswordValid}
+                  />
+                  <ConfirmPlaceholder hasFocus={confirmNewPasswordFocused || inputs.confirmnewpassword !== "" && inputs.confirmnewpassword !== undefined} hasValue={inputs.confirmnewpassword !== ""
+                    && inputs.confirmnewpassword !== undefined} isValid={isConfirmPasswordValid}>
+                    {translations[language].forgotpasswordplaceholderconfirm}
+                  </ConfirmPlaceholder>
+
+                  {!isConfirmPasswordValid && <ErrorMessage>{translations[language].passworddonotmatch}</ErrorMessage>}
+                  {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+
+                </InputContainer>
+
+                <DivSigninForgotPassword onClick={handleSaveNewPassword} id="DivSignin">
+                  <SigninFlechaDerecha src={FlechaDerechaIcono}
+                    hasValue={inputs.newpassword !== "" && inputs.newpassword !== undefined
+                      && inputs.confirmnewpassword !== undefined && inputs.confirmnewpassword !== undefined && passwordIsGood}
+                  />
+                </DivSigninForgotPassword>
+
+                <CantCreate>
+                  <CantSignin onClick={handleGoToRecoverUsername}>
+                    {translations[language].forgotpasswordforgotusername}
+                  </CantSignin>
+
+                  <CreateAcc>
+                    <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                      {translations[language].forgotpasswordgoback}
+                    </Link>
+                  </CreateAcc>
+
+
+                </CantCreate>
+
+              </RecoverPasswordWrapper>
+            )}
+
+            {recoverySection === recoverySections[6] && (
+
+              <RecoveredPasswordWrapper>
+                <RecoveredPasswordIlustration src={PasswordRecoveredIlustration} />
+                <RecoveredPasswordTitle>{translations[language].forgotpasswordpasswordrecovered}</RecoveredPasswordTitle>
+                <RecoveredPasswordSubTitle>{translations[language].forgotpasswordpasswordrecoveredsubtext}</RecoveredPasswordSubTitle>
+
+                <GoToSigninButton onClick={handleGotoSignin}> Go to Sign in</GoToSigninButton>
+
+              </RecoveredPasswordWrapper>
+            )}
+
+
+          </Container>
+
+          <MoreInfo>
+
+            <More>
+              <Links>{translations[language].support}</Links>
+              <Links>{translations[language].privacenotice}</Links>
+              <Links>{translations[language].termsofservice}</Links>
+              <Links>{translations[language].cookiepreferences}</Links>
+
+
+              <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
+                <LanguageSquare active={language === 'en'}>
+                  EN
+                </LanguageSquare>
+                <LanguageSquare active={language === 'es'}>
+                  ES
+                </LanguageSquare>
+                <Img2 src={IdiomaIcono} />
+              </LanguageSwitch>
+
+            </More>
+
+            <MoreSub>
+              <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
+            </MoreSub>
+
+          </MoreInfo>
+
+        </MainContainer >
+
+      )}
+
+    </>
+
   );
 };
 

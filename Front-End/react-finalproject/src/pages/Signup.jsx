@@ -12,9 +12,10 @@ import IdiomaIcono from "../assets/IdiomaIcono.png";
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { auth, GoogleProvider, FacebookProvider } from "../firebase"
 import { signInWithPopup } from "firebase/auth";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import { toast } from 'react-toastify';
+import NotFound404Component from "../components/NotFound404Component";
 
 const MainContainer = styled.div`
   position: relative;
@@ -468,6 +469,7 @@ const Signup = () => {
   const [confirmpasswordError, setConfirmPasswordError] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [receiveEmails, setReceiveEmails] = useState(false);
+  const { currentUser } = useSelector(state => state.user);
 
   const handleAcceptTermsChange = () => {
     setAcceptTerms(!acceptTerms);
@@ -534,9 +536,9 @@ const Signup = () => {
 
       console.log('Response from the server:', res);
 
+      dispatch(loginSuccess(res.data));
       toast.success(`Welcome to Flashy`);
       navigate("/");
-      dispatch(loginSuccess(res.data));
 
     } catch (error) {
       console.error("Error in signUpWithGoogle:", error);
@@ -587,9 +589,9 @@ const Signup = () => {
 
       console.log('Response from the server:', res);
 
+      dispatch(loginSuccess(res.data));
       toast.success(`Welcome to Flashy`);
       navigate("/");
-      dispatch(loginSuccess(res.data));
 
 
     } catch (error) {
@@ -618,7 +620,7 @@ const Signup = () => {
         const emailCheckResponse = await axios.post("/auth/checkemail", { email });
 
         //Check Username 
-        const isNameValid = /^[^\s]{1,12}$/.test(name);
+        const isNameValid = /^[^\s]{3,20}$/.test(name);
 
         // Initialize error flag
         let isError = false;
@@ -680,9 +682,9 @@ const Signup = () => {
       try {
         // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
         const res = await axios.post("/auth/signup", { name, displayname, email, password, captchaToken: token });
-        navigate('/');
-        toast.success(`Welcome to Flashy`);
         dispatch(loginSuccess(res.data));
+        toast.success(`Welcome to Flashy`);
+        navigate('/');
       } catch (error) {
         dispatch(loginFailure());
         console.error("Failed to sign up", error);
@@ -803,6 +805,17 @@ const Signup = () => {
 
   }, [confirmpassword, password, passwordContains, passwordStrength]);
 
+  // USER ALREADY LOGGED
+  const [userLogged, setUserLogged] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setUserLogged(true);
+    } else {
+      setUserLogged(false);
+    }
+
+  }, [currentUser]);
 
   const translations = {
     en: {
@@ -812,7 +825,7 @@ const Signup = () => {
       emailtaken: "Email is already taken.",
       placeholderusername: "Username",
       usernametaken: "Username is already taken.",
-      usernameinvalid: "8 characters maximum, should not contain spaces.",
+      usernameinvalid: "20 characters maximum, should not contain spaces.",
       placeholderdisplayname: "Display name",
       placeholderpassword: "Password",
       placeholderconfirmpassword: "Confirm Password",
@@ -852,7 +865,7 @@ const Signup = () => {
       emailtaken: "Este correo ya ha sido registrado anteriormente.",
       placeholderusername: "Usuario",
       usernametaken: "Este usuario ya ha sido registrado anteriormente.",
-      usernameinvalid: "Máximo de 8 caracteres y no debe contener espacios.",
+      usernameinvalid: "Máximo de 20 caracteres y no debe contener espacios.",
       placeholderdisplayname: "Nombre a mostrar",
       placeholderpassword: "Contraseña",
       placeholderconfirmpassword: "Confirmar contraseña",
@@ -887,244 +900,254 @@ const Signup = () => {
   };
 
   return (
-    <MainContainer>
+    <>
+      {userLogged ? (
+        <NotFound404Component />
+      ) : (
 
-      <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-        <Logo>
-          <ImgLogo src={E1ColorNoBG} />
-        </Logo>
-      </Link>
+        <MainContainer>
 
-      <Container>
-        <Wrapper>
-          <Title>{translations[language].title}</Title>
-          <SubTitle>{translations[language].subtitle}</SubTitle>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo>
+              <ImgLogo src={E1ColorNoBG} />
+            </Logo>
+          </Link>
 
-          <InputContainer>
-            <InputEmail
-              onChange={(e) => {
-                setEmail(e.target.value)
-                setEmailError(false);
-                setEmptyFieldsError(false);
-              }}
-              onFocus={() => {
-                setEmailFocused(true);
-              }}
-              onBlur={() => setEmailFocused(false)}
-              onKeyPress={handleKeyPress}
-              required
-              isValid={isEmailValid}
-            />
-            <PlaceholderEmail hasFocus={emailFocused || email !== ""} hasValue={email !== ""} isValid={isEmailValid}>
-              {translations[language].placeholderemail}
-            </PlaceholderEmail>
+          <Container>
+            <Wrapper>
+              <Title>{translations[language].title}</Title>
+              <SubTitle>{translations[language].subtitle}</SubTitle>
 
-            {!isEmailValid && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
-            {emailError && <ErrorMessage>{translations[language].emailtaken}</ErrorMessage>}
+              <InputContainer>
+                <InputEmail
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    setEmailError(false);
+                    setEmptyFieldsError(false);
+                  }}
+                  onFocus={() => {
+                    setEmailFocused(true);
+                  }}
+                  onBlur={() => setEmailFocused(false)}
+                  onKeyPress={handleKeyPress}
+                  required
+                  isValid={isEmailValid}
+                />
+                <PlaceholderEmail hasFocus={emailFocused || email !== ""} hasValue={email !== ""} isValid={isEmailValid}>
+                  {translations[language].placeholderemail}
+                </PlaceholderEmail>
 
-          </InputContainer>
+                {!isEmailValid && <ErrorMessage>{translations[language].emailinvalid}</ErrorMessage>}
+                {emailError && <ErrorMessage>{translations[language].emailtaken}</ErrorMessage>}
 
-          <InputContainer>
-            <InputUsername
-              onChange={(e) => {
-                setName(e.target.value)
-                setNameError(false);
-                setNameInvalidError(false);
-                setEmptyFieldsError(false);
-              }}
-              onFocus={() => {
-                setNameFocused(true);
-              }}
-              onBlur={() => setNameFocused(false)}
-              onKeyPress={handleKeyPress}
-              required
-              isValid={isUsernameValid}
-            />
-            <PlaceholderUsername hasFocus={nameFocused || name !== ""} hasValue={name !== ""} isValid={isUsernameValid}>
-              {translations[language].placeholderusername}
-            </PlaceholderUsername>
+              </InputContainer>
 
-            {!isUsernameValid && <ErrorMessage>{translations[language].usernameinvalidtyping}</ErrorMessage>}
+              <InputContainer>
+                <InputUsername
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setNameError(false);
+                    setNameInvalidError(false);
+                    setEmptyFieldsError(false);
+                  }}
+                  onFocus={() => {
+                    setNameFocused(true);
+                  }}
+                  onBlur={() => setNameFocused(false)}
+                  onKeyPress={handleKeyPress}
+                  required
+                  isValid={isUsernameValid}
+                />
+                <PlaceholderUsername hasFocus={nameFocused || name !== ""} hasValue={name !== ""} isValid={isUsernameValid}>
+                  {translations[language].placeholderusername}
+                </PlaceholderUsername>
 
-            {nameError && <ErrorMessage>{translations[language].usernametaken}</ErrorMessage>}
-            {nameInvalidError && <ErrorMessage>{translations[language].usernameinvalid}</ErrorMessage>}
-          </InputContainer>
+                {!isUsernameValid && <ErrorMessage>{translations[language].usernameinvalidtyping}</ErrorMessage>}
 
-          <InputContainer>
-            <InputDisplayName
-              onChange={(e) => {
-                setDisplayName(e.target.value)
-                setEmptyFieldsError(false);
-              }}
-              onFocus={() => setDisplayNameFocused(true)}
-              onBlur={() => setDisplayNameFocused(false)}
-              onKeyPress={handleKeyPress}
-              required
-              isValid={isDisplayNameValid}
-            />
-            <PlaceholderDisplayName hasFocus={displaynameFocused || displayname !== ""} hasValue={displayname !== ""} isValid={isDisplayNameValid}>
-              {translations[language].placeholderdisplayname}
-            </PlaceholderDisplayName>
+                {nameError && <ErrorMessage>{translations[language].usernametaken}</ErrorMessage>}
+                {nameInvalidError && <ErrorMessage>{translations[language].usernameinvalid}</ErrorMessage>}
+              </InputContainer>
 
-            {!isDisplayNameValid && <ErrorMessage>{translations[language].displaynameinvalidtyping}</ErrorMessage>}
-          </InputContainer>
+              <InputContainer>
+                <InputDisplayName
+                  onChange={(e) => {
+                    setDisplayName(e.target.value)
+                    setEmptyFieldsError(false);
+                  }}
+                  onFocus={() => setDisplayNameFocused(true)}
+                  onBlur={() => setDisplayNameFocused(false)}
+                  onKeyPress={handleKeyPress}
+                  required
+                  isValid={isDisplayNameValid}
+                />
+                <PlaceholderDisplayName hasFocus={displaynameFocused || displayname !== ""} hasValue={displayname !== ""} isValid={isDisplayNameValid}>
+                  {translations[language].placeholderdisplayname}
+                </PlaceholderDisplayName>
 
-          <InputContainer>
-            <InputPassword
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                setEmptyFieldsError(false);
-              }}
-              onFocus={() => setPasswordFocused(true)}
-              onBlur={() => setPasswordFocused(false)}
-              onKeyPress={handleKeyPress}
-              required
-              strength={passwordStrength}
-              passwordValidLength={password.length > 0}
-            />
-            <PlaceholderPassword
-              hasFocus={passwordFocused || password !== ""}
-              hasValue={password !== ""}
-              strength={passwordStrength}
-              passwordValidLength={password.length > 0}
-              passwordlength={password.length}
-            >
-              {translations[language].placeholderpassword}
-            </PlaceholderPassword>
+                {!isDisplayNameValid && <ErrorMessage>{translations[language].displaynameinvalidtyping}</ErrorMessage>}
+              </InputContainer>
 
-            {password.length > 0 && passwordStrength >= 0 && passwordStrength < 4 && <ErrorMessagePassword strength={passwordStrength}>
-              {passwordStrength === 3 && translations[language].passwordexcellent}
-              {passwordStrength === 2 && translations[language].passwordgreat}
-              {passwordStrength === 1 && translations[language].passwordokay}
-              {passwordStrength === 0 && translations[language].passwordtooweak}
-            </ErrorMessagePassword>}
+              <InputContainer>
+                <InputPassword
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    setEmptyFieldsError(false);
+                  }}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
+                  onKeyPress={handleKeyPress}
+                  required
+                  strength={passwordStrength}
+                  passwordValidLength={password.length > 0}
+                />
+                <PlaceholderPassword
+                  hasFocus={passwordFocused || password !== ""}
+                  hasValue={password !== ""}
+                  strength={passwordStrength}
+                  passwordValidLength={password.length > 0}
+                  passwordlength={password.length}
+                >
+                  {translations[language].placeholderpassword}
+                </PlaceholderPassword>
 
-            <PasswordRequeriments passwordFocused={passwordFocused}>
+                {password.length > 0 && passwordStrength >= 0 && passwordStrength < 4 && <ErrorMessagePassword strength={passwordStrength}>
+                  {passwordStrength === 3 && translations[language].passwordexcellent}
+                  {passwordStrength === 2 && translations[language].passwordgreat}
+                  {passwordStrength === 1 && translations[language].passwordokay}
+                  {passwordStrength === 0 && translations[language].passwordtooweak}
+                </ErrorMessagePassword>}
 
-              <PasswordRequerimentsItem>
-                <PasswordRequerimentsSymbol isValid={password.length >= 8}>
-                  {password.length >= 8 ? '✔' : '✖'}
-                </PasswordRequerimentsSymbol>
-                {translations[language].passwordpopup1}
-              </PasswordRequerimentsItem>
-              <PasswordRequerimentsItem>
-                <PasswordRequerimentsSymbol isValid={password.length > 0 && passwordStrength >= 1 && passwordStrength < 4}>
-                  {password.length > 0 && passwordStrength >= 1 && passwordStrength < 4 ? '✔' : '✖'}
-                </PasswordRequerimentsSymbol>
-                {translations[language].passwordpopup2}
-              </PasswordRequerimentsItem>
+                <PasswordRequeriments passwordFocused={passwordFocused}>
 
-              <PasswordRequerimentsItem>
-                <PasswordRequerimentsSymbol isValid={password.length > 0 && passwordContains}>
-                  {password.length > 0 && passwordContains ? '✔' : '✖'}
-                </PasswordRequerimentsSymbol>
-                {translations[language].passwordpopup3}
-              </PasswordRequerimentsItem>
+                  <PasswordRequerimentsItem>
+                    <PasswordRequerimentsSymbol isValid={password.length >= 8}>
+                      {password.length >= 8 ? '✔' : '✖'}
+                    </PasswordRequerimentsSymbol>
+                    {translations[language].passwordpopup1}
+                  </PasswordRequerimentsItem>
+                  <PasswordRequerimentsItem>
+                    <PasswordRequerimentsSymbol isValid={password.length > 0 && passwordStrength >= 1 && passwordStrength < 4}>
+                      {password.length > 0 && passwordStrength >= 1 && passwordStrength < 4 ? '✔' : '✖'}
+                    </PasswordRequerimentsSymbol>
+                    {translations[language].passwordpopup2}
+                  </PasswordRequerimentsItem>
 
-            </PasswordRequeriments>
-          </InputContainer>
+                  <PasswordRequerimentsItem>
+                    <PasswordRequerimentsSymbol isValid={password.length > 0 && passwordContains}>
+                      {password.length > 0 && passwordContains ? '✔' : '✖'}
+                    </PasswordRequerimentsSymbol>
+                    {translations[language].passwordpopup3}
+                  </PasswordRequerimentsItem>
 
-          <InputContainer>
-            <InputConfirmPassword
-              type="password"
-              onChange={(e) => {
-                setConfirmPassword(e.target.value)
-                setEmptyFieldsError(false);
-              }}
-              onFocus={() => setConfirmPasswordFocused(true)}
-              onBlur={() => setConfirmPasswordFocused(false)}
-              onKeyPress={handleKeyPress}
-              required
-              isValid={isConfirmPasswordValid}
-            />
-            <PlaceholderConfirmPassword hasFocus={confirmpasswordFocused || confirmpassword !== ""} hasValue={confirmpassword !== ""} isValid={isConfirmPasswordValid}>
-              {translations[language].placeholderconfirmpassword}
-            </PlaceholderConfirmPassword>
-            {!isConfirmPasswordValid && <ErrorMessage>{translations[language].passworddonotmatch}</ErrorMessage>}
+                </PasswordRequeriments>
+              </InputContainer>
 
-            {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
-            {confirmpasswordError && <ErrorMessage>{translations[language].confirmpassworderror}</ErrorMessage>}
-          </InputContainer>
+              <InputContainer>
+                <InputConfirmPassword
+                  type="password"
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value)
+                    setEmptyFieldsError(false);
+                  }}
+                  onFocus={() => setConfirmPasswordFocused(true)}
+                  onBlur={() => setConfirmPasswordFocused(false)}
+                  onKeyPress={handleKeyPress}
+                  required
+                  isValid={isConfirmPasswordValid}
+                />
+                <PlaceholderConfirmPassword hasFocus={confirmpasswordFocused || confirmpassword !== ""} hasValue={confirmpassword !== ""} isValid={isConfirmPasswordValid}>
+                  {translations[language].placeholderconfirmpassword}
+                </PlaceholderConfirmPassword>
+                {!isConfirmPasswordValid && <ErrorMessage>{translations[language].passworddonotmatch}</ErrorMessage>}
 
-          <SignButtons>
-            <ButtonFacebook onClick={signUpWithFacebook}>
-              <FacebookImg src={FacebookSignin} />
-            </ButtonFacebook>
-            <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
-            <ButtonGoogle onClick={signUpWithGoogle}>
-              <GoogleImg src={GoogleSignin} />
-            </ButtonGoogle>
+                {emptyfieldsError && <ErrorMessage>{translations[language].emptyfields}</ErrorMessage>}
+                {confirmpasswordError && <ErrorMessage>{translations[language].confirmpassworderror}</ErrorMessage>}
+              </InputContainer>
 
-          </SignButtons>
-          {authError && <ErrorMessage>{translations[language].authtaken}</ErrorMessage>}
+              <SignButtons>
+                <ButtonFacebook onClick={signUpWithFacebook}>
+                  <FacebookImg src={FacebookSignin} />
+                </ButtonFacebook>
+                <SignButtonsTxt> {translations[language].orauth} </SignButtonsTxt>
+                <ButtonGoogle onClick={signUpWithGoogle}>
+                  <GoogleImg src={GoogleSignin} />
+                </ButtonGoogle>
 
-          <HCaptcha
-            sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
-            size="invisible"
-            onLoad={onLoad}
-            onVerify={onHCaptchaVerify}
-            ref={captchaRef}
-          />
-          <Checkbox1>
-            <input type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
-            <CheckboxTxt>{translations[language].checkboxtermsofservice}</CheckboxTxt>
-          </Checkbox1>
-          <Checkbox2>
-            <input type="checkbox" checked={receiveEmails} onChange={handleReceiveEmailsChange} />
-            <CheckboxTxt>{translations[language].checkboxtemails}</CheckboxTxt>
+              </SignButtons>
+              {authError && <ErrorMessage>{translations[language].authtaken}</ErrorMessage>}
 
-
-          </Checkbox2>
-
-          {checkboxError && <ErrorMessage>{translations[language].checkboxmissing}</ErrorMessage>}
-
-
-          <DivSignup onClick={handleDivSignupClick} id="DivSignup">
-            <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={isEmailValid && isUsernameValid && isDisplayNameValid && passwordIsGood} />
-          </DivSignup>
-
-          <LabelAcc>
-            <AlreadyAccount>
-              <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
-                {translations[language].doyoualreadyhaveanaccount}
-              </Link>
-            </AlreadyAccount>
-          </LabelAcc>
-
-        </Wrapper>
-
-      </Container>
-
-      <MoreInfo>
-
-        <More>
-          <Links>{translations[language].support}</Links>
-          <Links>{translations[language].privacynotice}</Links>
-          <Links>{translations[language].termsofservice}</Links>
-          <Links>{translations[language].cookiepreferences}</Links>
+              <HCaptcha
+                sitekey="c3b2f85b-a04c-4065-8bf8-b687709d759e"
+                size="invisible"
+                onLoad={onLoad}
+                onVerify={onHCaptchaVerify}
+                ref={captchaRef}
+              />
+              <Checkbox1>
+                <input type="checkbox" checked={acceptTerms} onChange={handleAcceptTermsChange} />
+                <CheckboxTxt>{translations[language].checkboxtermsofservice}</CheckboxTxt>
+              </Checkbox1>
+              <Checkbox2>
+                <input type="checkbox" checked={receiveEmails} onChange={handleReceiveEmailsChange} />
+                <CheckboxTxt>{translations[language].checkboxtemails}</CheckboxTxt>
 
 
-          <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
-            <LanguageSquare active={language === 'en'}>
-              EN
-            </LanguageSquare>
-            <LanguageSquare active={language === 'es'}>
-              ES
-            </LanguageSquare>
-            <Img2 src={IdiomaIcono} />
-          </LanguageSwitch>
+              </Checkbox2>
 
-        </More>
+              {checkboxError && <ErrorMessage>{translations[language].checkboxmissing}</ErrorMessage>}
 
-        <MoreSub>
-          <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
-        </MoreSub>
 
-      </MoreInfo>
+              <DivSignup onClick={handleDivSignupClick} id="DivSignup">
+                <SigninFlechaDerecha src={FlechaDerechaIcono} hasValue={isEmailValid && isUsernameValid && isDisplayNameValid && passwordIsGood} />
+              </DivSignup>
 
-    </MainContainer >
+              <LabelAcc>
+                <AlreadyAccount>
+                  <Link to="../signin" style={{ textDecoration: "none", color: "inherit", fontSize: "inherit", fontFamily: "inherit" }}>
+                    {translations[language].doyoualreadyhaveanaccount}
+                  </Link>
+                </AlreadyAccount>
+              </LabelAcc>
+
+            </Wrapper>
+
+          </Container>
+
+          <MoreInfo>
+
+            <More>
+              <Links>{translations[language].support}</Links>
+              <Links>{translations[language].privacynotice}</Links>
+              <Links>{translations[language].termsofservice}</Links>
+              <Links>{translations[language].cookiepreferences}</Links>
+
+
+              <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
+                <LanguageSquare active={language === 'en'}>
+                  EN
+                </LanguageSquare>
+                <LanguageSquare active={language === 'es'}>
+                  ES
+                </LanguageSquare>
+                <Img2 src={IdiomaIcono} />
+              </LanguageSwitch>
+
+            </More>
+
+            <MoreSub>
+              <SubtextLink> {translations[language].subtextlink1} <SubtextLinkClick onClick={privacyCaptcha}>{translations[language].privacypolicyclick}</SubtextLinkClick>{translations[language].subtextlink2} <SubtextLinkClick onClick={termsCaptcha}>{translations[language].termsofserviceclick}</SubtextLinkClick> {translations[language].subtextlink3}</SubtextLink>
+            </MoreSub>
+
+          </MoreInfo>
+
+        </MainContainer >
+
+      )}
+
+    </>
+
   );
 };
 

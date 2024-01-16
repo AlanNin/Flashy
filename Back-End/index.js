@@ -7,10 +7,20 @@ import commentRoutes from "./routes/comments.js";
 import authRoutes from "./routes/auth.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import http from "http";
+import { Server } from "socket.io";
 
 const app = express();
 dotenv.config();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000", // Allow requests from this origin
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        credentials: true,
+    },
+});
 
 const connect = () => {
     mongoose
@@ -32,6 +42,16 @@ app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
 
+// WebSocket connection handler
+io.on("connection", (socket) => {
+    //
+    // Handle disconnect
+    socket.on("disconnect", () => {
+        //
+    });
+});
+
+
 //error handler
 app.use((err, req, res, next) => {
     const status = err.status || 500;
@@ -43,7 +63,11 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(8800, () => {
+const PORT = process.env.PORT;
+
+server.listen(PORT, () => {
     connect();
     console.log("Connected to Server");
 });
+
+export { io };

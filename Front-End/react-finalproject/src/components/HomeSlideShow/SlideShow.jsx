@@ -103,7 +103,7 @@ const popDownAnimation = keyframes`
 
 const PopupContainer = styled.div`
   position: relative;
-  width: 48%;
+  width: 901.92px;
   height: auto;
   margin-top: auto;
   margin-bottom: ${({ filteredVideosLenght }) => (filteredVideosLenght === 0 ? '10%' : '0px')};
@@ -787,36 +787,12 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const moreInfoRef = useRef(null);
   const videoPlayer = useRef(null);
-  const [playerWidth, setPlayerWidth] = useState(0);
-  const [playerHeight, setPlayerHeight] = useState(0);
-  const windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   const [shareLink, setShareLink] = useState('');
   const [isSharePopupVisible, setSharePopupVisible] = useState(false);
   const shareRef = useRef(null);
   const shareRefBg = useRef(null);
   const buttonShareRef = useRef(null);
   const currentURL = window.location.href + 'video/' + MoreInfoInputs.videoId;
-  const [isPopUpShareVisible, setIsPopUpShareVisible] = useState(false);
-  const [videoTimerTick, setVideoTimerTick] = useState(0);
-
-
-  // VIDEO TICK TIMER TO TRACK VIDEO SIZE
-  const handleVideoTimerTick = (state) => {
-    const playedPercentage = state.played * 100;
-    setVideoTimerTick(playedPercentage);
-  };
-
-  // SET VIDEO POPUP SIZE
-  useEffect(() => {
-    if (windowWidth <= 2000 && windowHeight <= 1200) {
-      setPlayerWidth(910)
-      setPlayerHeight(530)
-    } else {
-      setPlayerWidth(1240)
-      setPlayerHeight(700)
-    }
-  }, [videoTimerTick, isMoreInfo]);
 
   // SHOW POPUP MORE INFO
   const handleShowMoreInfo = () => {
@@ -1110,9 +1086,8 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                     autoplay={true}
                     playing={true}
                     muted={isVideoMuted}
-                    width={`${playerWidth}px`}
-                    height={`${playerHeight}px`}
-                    onProgress={handleVideoTimerTick}
+                    width='910px'
+                    height='530px'
                     onEnded={handleVideoPopupEnded}
                     style={{ cursor: 'pointer', marginTop: '-10px', background: 'black' }}
                   />

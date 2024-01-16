@@ -14,10 +14,14 @@ import StrengthTooWeak from '../assets/StrengthTooWeak.png';
 import StrengthOkay from '../assets/StrengthOkay.png';
 import StrengthGreat from '../assets/StrengthGreat.png';
 import StrengthExcellent from '../assets/StrengthExcellent.png';
+import SadFaceIcon from "../assets/NotSubbedIcono.png";
+import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
+import CopyIcono from "../assets/CopyIcono.png";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
-import { userUpdated } from "../redux/userSlice";
+import { userUpdated, userToggleNotifications, logout } from "../redux/userSlice";
 import {
   getStorage,
   ref,
@@ -36,6 +40,7 @@ const MainContainer = styled.div`
   margin: auto;
   max-width: 1820px;
   overflow: hidden;
+  padding-right: ${({ settingSection, settingSections }) => (settingSection === settingSections[1] || settingSection === settingSections[2] ? '7px' : '0px')};
 `;
 
 const Container = styled.div`
@@ -161,6 +166,14 @@ const LabelBold = styled.label`
     color: ${({ theme }) => theme.text};
 `;
 
+const LabelRegular = styled.label`
+    display: flex;
+    font-size: 17px;
+    font-weight: normal;
+    font-family: "Roboto Condensed", Helvetica;
+    color: ${({ theme }) => theme.text};
+`;
+
 const SubLabel = styled.label`
     display: flex;
     margin-top: 5px;
@@ -228,6 +241,12 @@ const NoEditInput = styled.input`
 
   outline: 1px solid #303030;
 
+`;
+
+const AdvancedSettingsInput = styled(NoEditInput)`
+  margin-top: 0px;
+  margin-bottom: 0px;
+  cursor: text;
 `;
 
 const EditInput = styled.input`
@@ -393,6 +412,8 @@ const AccountProfileBannereDiv = styled.div`
     height: 250px;
     z-index: 1;
     border-radius: 8px 8px 0px 0px;
+    border: ${({ formatBannerError }) => (formatBannerError ? '1px solid red' : '0px solid transparent')}; 
+
 `;
 
 const AccountProfileBanner = styled.img`
@@ -626,11 +647,261 @@ const ValidationsPasswordPopupItem = styled(ValidationsPopupItem)`
   margin-bottom: 10px;
 `;
 
+// USER VALIDATION
+const NoUserContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: auto;
+    margin-top: 318px;
+`;
+
+const NoUserImg = styled.img`
+    height: 96px;
+    width: 96px;
+    padding: 20 px;
+`;
+
+const NoUserMessage1 = styled.span`
+    margin-top: 10px;  
+    color: rgba(224, 175, 208, 0.8);
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 30px;
+`;
+
+const NoUserMessage2 = styled.span`
+    margin-top: 10px;    
+    color: ${({ theme }) => theme.text};
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 30px;
+`;
+
+const ItemLogin = styled.div`
+  margin-top: 20px;
+  display: flex;
+  padding: 0px 12px;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: 40px;
+  transition: background-color 0.5s;
+  cursor: pointer;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.loginbg};
+  &:hover {
+    background-color: ${({ theme }) => theme.softloginbg};
+  }
+`;
+
+const ImgLogin = styled.img`
+  height: 30px;
+  width: 30px;
+`;
+
+const ButtonLoginText = styled.h3`
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 24px;
+  font-weight: normal;
+  color: ${({ theme }) => theme.text};
+  margin-bottom: 3px;
+`;
+
+// NOTIFICATIONS
+
+const SwitchDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  width: max-content;
+  gap: 75px;
+  padding: 30px 0px;
+`;
+
+const SwitchItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 22.5px;
+  border-radius: 30px;
+  height: 0px;
+`;
+
+const Switch = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 37px;
+  height: 15px;
+  transition: background-color 0.4s ease;
+  background-color: ${({ notificationsEnabled }) => (notificationsEnabled ? 'white' : '#2e2c2d')};
+  border-radius: 12px;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    margin-top: 1px;
+    height: 22px;
+    background-color: #ff006a;
+    border-radius: 50%;
+    transition: transform 0.4s ease;
+    transform: ${({ notificationsEnabled }) => (notificationsEnabled ? 'translateX(18px)' : 'translateX(0)')};
+  }
+`;
+
+const SwitchTxt = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+`;
+
+// ADVANCED SETTINGS
+const AdvancedSettingsDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  width: 100%;
+  gap: 90px;
+  padding: 40px 0px;
+`;
+
+const AdvancedSettingItem = styled.div`
+  position: relative;  
+  display: flex;
+  align-items: center;
+  gap: 45px;
+  border-radius: 30px;
+  height: 0px;
+`;
+
+const AdvancedSettingItemColumn = styled.div`
+  position: relative;  
+  display: flex;
+  flex-direction: column;
+  justifiy-content: center;
+  border-radius: 30px;
+  margin-top: 20px;
+`;
+
+const AdvancedSettingItemImg = styled.img`
+  position: absolute;
+  top: -16px;
+  left: 335px;
+  height: 25px;
+  width: 25px;
+  background: rgba(255, 0, 192, 0.4);
+  border-radius: 10px;
+  padding: 4px;
+  cursor: pointer;
+`;
+
+const LabelDeleteAccount = styled.label`
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    color: #FF00C0;
+    cursor: pointer;
+`;
+
+const DeleteAccountPopupContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
+const DeleteAccountPopupWrapper = styled.div`
+    width: max-content;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    padding: 30px 30px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+`;
+
+const DeleteAccountPopupTitle = styled.h1`
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const DeleteAccountPopupTxt = styled.h1`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: normal;
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: ${({ theme }) => theme.textSoft};
+    max-width: 400px;
+`;
+
+const OptionsDeleteCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+const DeleteAccountCancel = styled.div`
+    margin-right: 10px;
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
+const DeleteAccountDelete = styled.div`
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
 const Settings = () => {
+  // GET SPECIFIC ROUTE
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const notificationsParam = parseInt(searchParams.get('settings'));
+  const navigate = useNavigate();
 
   // CURRENT USER
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
+  // SIGN IN METHOD
+  const [signinMethod, setSigninMethod] = useState('');
+
+  useEffect(() => {
+    if (currentUser?.fromGoogle) {
+      setSigninMethod('You are currently signed in with a Google Account');
+    } else if (currentUser?.fromFacebook) {
+      setSigninMethod('You are currently signed in with a Facebook Account');
+    } else {
+      setSigninMethod('You are currently signed in with a Flashy Account');
+    }
+  }, [currentUser]);
 
   /*
   // RESET SCROLL
@@ -649,9 +920,10 @@ const Settings = () => {
   const settingSections = [
     "Account",
     "Notifications",
+    "Advanced Settings",
   ];
 
-  const [settingSection, setSettingSection] = useState(settingSections[0]);
+  const [settingSection, setSettingSection] = useState(notificationsParam && notificationsParam >= 0 && notificationsParam <= 2 ? settingSections[notificationsParam] : settingSections[0]);
 
   // TRANSLATIONS
   const { language, setLanguage } = useLanguage();
@@ -685,6 +957,11 @@ const Settings = () => {
 
       // VALIDATIONS --> CONFIRM NEW PASSWORD
       passworddonotmatch: "Passwords do not match",
+
+      // USER VALIDATION
+      notlogged: "Seems like you currently are not logged in as a user :(",
+      notlogged2: "Log in to personalize your Flashy experience as much as you want!",
+      signin: "Sign in",
     },
     es: {
 
@@ -714,6 +991,11 @@ const Settings = () => {
 
       // VALIDATIONS --> CONFIRM NEW PASSWORD
       passworddonotmatch: "Las contraseñas no coinciden",
+
+      // USER VALIDATION
+      notlogged: "Parece que aún no has iniciado sesión como usuario :(",
+      notlogged2: "Inicia sesión para personalizar tu experiencia en Flashy tanto como quieras!",
+      signin: "Iniciar Sesión",
     },
   };
 
@@ -928,11 +1210,13 @@ const Settings = () => {
   const handleChangePassword = () => {
     setIsChangingPassword(!isChangingPassword);
 
-    setInputs({
+    setInputs((prevInputs) => ({
+      ...prevInputs,
       currentpassword: '',
       newpassword: '',
       confirmnewpassword: '',
-    });
+    }));
+
   };
 
   const handleCurrentPassword = (e) => {
@@ -964,7 +1248,6 @@ const Settings = () => {
       });
     }
   };
-
 
   // VALIDATIONS --> EMAIL ADDRESS
   const [hasFocusEmail, setHasFocusEmail] = useState(false);
@@ -1209,11 +1492,12 @@ const Settings = () => {
       if (inputs?.currentpassword?.length > 0 && inputs?.newpassword?.length > 0 && inputs?.confirmnewpassword?.length > 0) {
         setIsChangingPassword(false);
 
-        setInputs({
+        setInputs((prevInputs) => ({
+          ...prevInputs,
           currentpassword: '',
           newpassword: '',
           confirmnewpassword: '',
-        });
+        }));
       }
 
 
@@ -1225,355 +1509,570 @@ const Settings = () => {
   // RESEND EMAIL VERIFICATION
   const handleSendAccountVerification = async () => {
     try {
+      toast.success(`Verification email sent`);
       await axios.post(`/users/emailVerification`);
     } catch (error) {
       console.error("Error sending verification:", error);
     }
   };
 
+  // NOTIFICATIONS
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  useEffect(() => {
+    setNotificationsEnabled(currentUser?.notificationsEnabled);
+  }, [currentUser]);
+
+  // NOTIFICATIONS --> TOGGLE
+  const handleToggleNotifications = async () => {
+    try {
+      if (currentUser.notificationsEnabled === false) {
+        toast.success(`Notifications enabled`);
+      } else {
+        toast.success(`Notifications disabled`);
+      }
+      dispatch(userToggleNotifications());
+      await axios.post(`/users/toggle-notifications`);
+    } catch (error) {
+      console.error("Error sending verification:", error);
+    }
+  };
+
+  // ADVANCED SETTINGS
+
+  // ADVANCED SETTINGS --> COPY USER ID
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(currentUser?._id);
+    toast.success('User ID copied in clipboard');
+  };
+
+  // ADVANCED SETTINGS --> DELETE ACCOUNT
+  const [isDeleteAccountPopupOpen, setIsDeleteAccountPopupOpen] = useState(false);
+
+  const handleDeleteAccount = () => {
+    setIsDeleteAccountPopupOpen(!isDeleteAccountPopupOpen);
+  };
+
+  const handleDeleteAccountConfirmation = async (confirmed) => {
+    handleDeleteAccount();
+
+    if (confirmed) {
+      try {
+        dispatch(logout());
+        toast.success(`User deleted successfully`);
+        navigate('/');
+        await axios.delete(`/users/${currentUser?._id}/remove/`);
+      } catch (error) {
+        console.error('Error deleting history:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isDeleteAccountPopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isDeleteAccountPopupOpen]);
+
   return (
-    <MainContainer>
-      <Container>
+    <MainContainer settingSection={settingSection} settingSections={settingSections} >
 
-        <SettingsListContainer>
+      {currentUser ? (
 
-          <SettingsListWrapper>
+        <Container>
 
-            <SettingsListHeader> Settings </SettingsListHeader>
+          <SettingsListContainer>
 
-            {settingSections.map((section, index) => (
-              <SettingsListItem
-                key={index}
-                style={{ background: settingSection === section ? 'rgba(66, 66, 66, 0.7)' : '' }}
-                onClick={() => setSettingSection(section)}
-              >
-                {section}
-              </SettingsListItem>
-            ))}
+            <SettingsListWrapper>
 
-          </SettingsListWrapper>
+              <SettingsListHeader> Settings </SettingsListHeader>
 
-        </SettingsListContainer>
+              {settingSections.map((section, index) => (
+                <SettingsListItem
+                  key={index}
+                  style={{ background: settingSection === section ? 'rgba(66, 66, 66, 0.7)' : '' }}
+                  onClick={() => {
+                    setSettingSection(section);
+                    navigate(`/settings?settings=${index}`);
+                  }}
+                >
+                  {section}
+                </SettingsListItem>
+              ))}
 
+            </SettingsListWrapper>
 
-        {settingSection === settingSections[0] && (
-          <>
-            <Wrapper>
-
-              <TitleLabel> Account </TitleLabel>
-
-              <Label> Choose how other users can see you on Flashy </Label>
-              <SubLabel> You are currently signed in with a Flashy Account </SubLabel>
-
-              <Line />
-
-              <LabelBold style={{ marginBottom: '25px' }}> Hello, {currentUser?.displayname} </LabelBold>
-
-              <AccountPresentationSection>
-
-                <AccountProfileBannereDiv>
-                  <AccountProfileBanner src={currentUser?.banner ? currentUser?.banner : BannerPlaceholder} />
-
-                  <InputEditAccountProfileBanner
-                    type="file"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={(e) => handleProfileBannerChange(e)}
-                    title=""
-                  />
-
-                  <EditAccountProfileBannerImg src={EditIcono} />
-
-                </AccountProfileBannereDiv>
-
-                <AccountProfilePictureDiv formatPfPError={formatPfPError}>
-                  <AccountProfilePicture src={currentUser?.img} />
-
-                  <InputEditAccountProfilePicture
-                    type="file"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={(e) => handleProfilePictureChange(e)}
-                    title=""
-                  />
-
-                  <EditAccountProfilePictureImg src={EditIcono} />
-
-                </AccountProfilePictureDiv>
-
-                <AccountProfileLabel> {currentUser?.displayname} </AccountProfileLabel>
-                <AccountProfileEmailLabel> {currentUser?.email}</AccountProfileEmailLabel>
-              </AccountPresentationSection>
-
-              <AccountSection isChangingPassword={isChangingPassword} IsVerified={currentUser?.isVerified}>
-
-                <SmallerLabel didChange={didEmailChange} isOkay={isEmailOkay} hasFocus={hasFocusEmail}>
-                  EMAIL ADDRESS
-                </SmallerLabel>
+          </SettingsListContainer>
 
 
-                {currentUser?.isVerified ? (
-                  <>
-                    <EditInput didChange={didEmailChange} isOkay={isEmailOkay}
-                      type="text"
-                      name="email"
-                      placeholder={currentUser?.email}
-                      value={inputs.email !== undefined ? inputs.email : currentUser?.email}
-                      onChange={handleChangeEmail}
-                      autoComplete="off"
-                      onFocus={() => setHasFocusEmail(true)}
-                      onBlur={() => setHasFocusEmail(false)}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <NoEditInput
-                      type="text"
-                      name="email"
-                      value={currentUser?.email}
-                      readOnly
-                      style={{ background: 'rgba(61, 54, 64, 0.3)' }}
-                      onFocus={() => setHasFocusEmail(true)}
-                      onBlur={() => setHasFocusEmail(false)}
+          {settingSection === settingSections[0] && (
+            <>
+              <Wrapper >
+
+                <TitleLabel> Account </TitleLabel>
+
+                <Label> Choose how other users can see you on Flashy </Label>
+                <SubLabel> {signinMethod} </SubLabel>
+
+                <Line />
+
+                <LabelBold style={{ marginBottom: '25px' }}> Hello, {currentUser?.displayname} </LabelBold>
+
+                <AccountPresentationSection>
+
+                  <AccountProfileBannereDiv formatBannerError={formatBannerError}>
+                    <AccountProfileBanner src={currentUser?.banner ? currentUser?.banner : BannerPlaceholder} />
+
+                    <InputEditAccountProfileBanner
+                      type="file"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={(e) => handleProfileBannerChange(e)}
+                      title=""
                     />
 
-                    <EmailNotConfirmed>
-                      <EmailNotConfirmedImgHeader>
+                    <EditAccountProfileBannerImg src={EditIcono} />
 
-                        <EmailNotConfirmedImg src={NoConfirmed} />
-                        <EmailNotConfirmedHeader> Not Verified </EmailNotConfirmedHeader>
+                  </AccountProfileBannereDiv>
 
-                      </EmailNotConfirmedImgHeader>
+                  <AccountProfilePictureDiv formatPfPError={formatPfPError}>
+                    <AccountProfilePicture src={currentUser?.img} />
 
-                      <EmailNotConfirmedTxt>
-                        Your account has not been verified,
-                        <EmailNotConfirmedVerify onClick={handleSendAccountVerification}>
-                          click here
-                        </EmailNotConfirmedVerify>
-                        to resend verification email.
-                      </EmailNotConfirmedTxt>
+                    <InputEditAccountProfilePicture
+                      type="file"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={(e) => handleProfilePictureChange(e)}
+                      title=""
+                    />
 
-                    </EmailNotConfirmed>
-                  </>
-                )}
+                    <EditAccountProfilePictureImg src={EditIcono} />
 
+                  </AccountProfilePictureDiv>
 
-                <SmallerLabel didChange={didUsernameChange} isOkay={isUsernameOkay} hasFocus={hasFocusUsername}>
-                  USERNAME
-                </SmallerLabel>
-                <EditInput didChange={didUsernameChange} isOkay={isUsernameOkay}
-                  type="text"
-                  name="username"
-                  placeholder={currentUser?.name}
-                  value={inputs.username !== undefined ? inputs.username : currentUser?.name}
-                  onChange={handleChangeUsername}
-                  onFocus={() => setHasFocusUsername(true)}
-                  onBlur={() => setHasFocusUsername(false)}
-                />
+                  <AccountProfileLabel> {currentUser?.displayname} </AccountProfileLabel>
+                  <AccountProfileEmailLabel> {currentUser?.email}</AccountProfileEmailLabel>
+                </AccountPresentationSection>
 
-                <SmallerLabel didChange={didDisplayNameChange} isOkay={isDisplayNameOkay} hasFocus={hasFocusDisplayName}>
-                  DISPLAY NAME
-                </SmallerLabel>
-                <EditInput didChange={didDisplayNameChange} isOkay={isDisplayNameOkay}
-                  type="text"
-                  name="displayname"
-                  placeholder={currentUser?.displayname}
-                  value={inputs.displayname !== undefined ? inputs.displayname : currentUser?.displayname}
-                  onChange={handleChangeDisplayName}
-                  onFocus={() => setHasFocusDisplayName(true)}
-                  onBlur={() => setHasFocusDisplayName(false)}
-                />
+                <AccountSection isChangingPassword={isChangingPassword} IsVerified={currentUser?.isVerified}>
 
-                <SmallerLabel> JOINED </SmallerLabel>
-                <NoEditInput
-                  type="text"
-                  name="Joined"
-                  value={formatDate(currentUser?.createdAt)}
-                  readOnly
-                />
-
-                <ChangePasswordDiv onClick={handleChangePassword}>
-                  <ChangePasswordImg />
-                  <ChangePasswordLabel> Change Password </ChangePasswordLabel>
-                </ChangePasswordDiv>
-
-                <ChangePasswordSection>
-                  <SmallerLabel hasFocus={hasFocusCurrentPassword}> CURRENT PASSWORD </SmallerLabel>
-                  <EditInput
-                    type="password"
-                    name="currentpassword"
-                    placeholder=''
-                    autoComplete="off new-password"
-                    value={inputs.currentpassword !== undefined ? inputs.currentpassword : ''}
-                    onChange={handleCurrentPassword}
-                    onFocus={() => setHasCurrentPassword(true)}
-                    onBlur={() => setHasCurrentPassword(false)}
-                  />
-
-                  <SmallerLabelNewPassoword hasFocus={hasFocusNewPassword} Strength={newPasswordStrength} Length={inputs?.newpassword?.length}>
-                    NEW PASSWORD
-                  </SmallerLabelNewPassoword>
-                  <EditInputNewPassword
-                    type="password"
-                    name="newpassword"
-                    placeholder=''
-                    autoComplete="off new-password"
-                    value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
-                    onChange={handleNewPassword}
-                    onFocus={() => setHasFocusNewPassword(true)}
-                    onBlur={() => setHasFocusNewPassword(false)}
-                    Strength={newPasswordStrength}
-                    Length={inputs?.newpassword?.length}
-                  />
-
-                  <SmallerLabel hasFocus={hasFocusConfirmNewPassword}>
-                    CONFIRM NEW PASSWORD
+                  <SmallerLabel didChange={didEmailChange} isOkay={isEmailOkay} hasFocus={hasFocusEmail}>
+                    EMAIL ADDRESS
                   </SmallerLabel>
-                  <EditInput
-                    type="password"
-                    name="confirmnewpassword"
-                    placeholder=''
-                    autoComplete="off new-password"
-                    value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
-                    onChange={handleConfirmNewPassword}
-                    onFocus={() => setHasFocusConfirmNewPassword(true)}
-                    onBlur={() => setHasFocusConfirmNewPassword(false)}
+
+
+                  {currentUser?.isVerified ? (
+                    <>
+                      <EditInput didChange={didEmailChange} isOkay={isEmailOkay}
+                        type="text"
+                        name="email"
+                        placeholder={currentUser?.email}
+                        value={inputs.email !== undefined ? inputs.email : currentUser?.email}
+                        onChange={handleChangeEmail}
+                        autoComplete="off"
+                        onFocus={() => setHasFocusEmail(true)}
+                        onBlur={() => setHasFocusEmail(false)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <NoEditInput
+                        type="text"
+                        name="email"
+                        value={currentUser?.email}
+                        readOnly
+                        style={{ background: 'rgba(61, 54, 64, 0.3)' }}
+                        onFocus={() => setHasFocusEmail(true)}
+                        onBlur={() => setHasFocusEmail(false)}
+                      />
+
+                      <EmailNotConfirmed>
+                        <EmailNotConfirmedImgHeader>
+
+                          <EmailNotConfirmedImg src={NoConfirmed} />
+                          <EmailNotConfirmedHeader> Not Verified </EmailNotConfirmedHeader>
+
+                        </EmailNotConfirmedImgHeader>
+
+                        <EmailNotConfirmedTxt>
+                          Your account has not been verified,
+                          <EmailNotConfirmedVerify onClick={handleSendAccountVerification}>
+                            click here
+                          </EmailNotConfirmedVerify>
+                          to resend verification email.
+                        </EmailNotConfirmedTxt>
+
+                      </EmailNotConfirmed>
+                    </>
+                  )}
+
+
+                  <SmallerLabel didChange={didUsernameChange} isOkay={isUsernameOkay} hasFocus={hasFocusUsername}>
+                    USERNAME
+                  </SmallerLabel>
+                  <EditInput didChange={didUsernameChange} isOkay={isUsernameOkay}
+                    type="text"
+                    name="username"
+                    placeholder={currentUser?.name}
+                    value={inputs.username !== undefined ? inputs.username : currentUser?.name}
+                    onChange={handleChangeUsername}
+                    onFocus={() => setHasFocusUsername(true)}
+                    onBlur={() => setHasFocusUsername(false)}
                   />
-                </ChangePasswordSection>
 
-                <SaveButtonDiv>
-                  <SaveButton onClick={handleSaveChanges} isSaveButtonEnable={isSaveButtonEnable}>
-                    Save
-                  </SaveButton>
-                </SaveButtonDiv>
+                  <SmallerLabel didChange={didDisplayNameChange} isOkay={isDisplayNameOkay} hasFocus={hasFocusDisplayName}>
+                    DISPLAY NAME
+                  </SmallerLabel>
+                  <EditInput didChange={didDisplayNameChange} isOkay={isDisplayNameOkay}
+                    type="text"
+                    name="displayname"
+                    placeholder={currentUser?.displayname}
+                    value={inputs.displayname !== undefined ? inputs.displayname : currentUser?.displayname}
+                    onChange={handleChangeDisplayName}
+                    onFocus={() => setHasFocusDisplayName(true)}
+                    onBlur={() => setHasFocusDisplayName(false)}
+                  />
 
-              </AccountSection>
+                  <SmallerLabel> JOINED </SmallerLabel>
+                  <NoEditInput
+                    type="text"
+                    name="Joined"
+                    value={formatDate(currentUser?.createdAt)}
+                    readOnly
+                  />
 
-              {/* VALIDATIONS POPUP */}
+                  <ChangePasswordDiv onClick={handleChangePassword}>
+                    <ChangePasswordImg />
+                    <ChangePasswordLabel> Change Password </ChangePasswordLabel>
+                  </ChangePasswordDiv>
 
-              {/* VALIDATIONS POPUP --> EMAIL*/}
-              <ValidationsPopup isShowing={didEmailChange || isVerificationSent}>
+                  <ChangePasswordSection>
+                    <SmallerLabel hasFocus={hasFocusCurrentPassword}> CURRENT PASSWORD </SmallerLabel>
+                    <EditInput
+                      type="password"
+                      name="currentpassword"
+                      placeholder=''
+                      autoComplete="off new-password"
+                      value={inputs.currentpassword !== undefined ? inputs.currentpassword : ''}
+                      onChange={handleCurrentPassword}
+                      onFocus={() => setHasCurrentPassword(true)}
+                      onBlur={() => setHasCurrentPassword(false)}
+                    />
 
-                <ValidationsPopupItem isOkay={isEmailOkay}>
-                  <ValidationsPopupSymbol src={isVerificationSent ? EmailSentIcon : isEmailOkay ? CheckmarkIcon : AlertIcon} />
-                  {isEmailValid ? (
-                    isVerificationSent
-                      ? translations[language].emailverificationsent
-                      : isEmailNotAvailable
-                        ? translations[language].emailnotavailable
-                        : inputs?.email !== currentUser.email
-                          ? translations[language].emailavailable
-                          : translations[language].emailavailable
-                  ) : (
-                    translations[language].emailinvalid
-                  )}
-                </ValidationsPopupItem>
+                    <SmallerLabelNewPassoword hasFocus={hasFocusNewPassword} Strength={newPasswordStrength} Length={inputs?.newpassword?.length}>
+                      NEW PASSWORD
+                    </SmallerLabelNewPassoword>
+                    <EditInputNewPassword
+                      type="password"
+                      name="newpassword"
+                      placeholder=''
+                      autoComplete="off new-password"
+                      value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
+                      onChange={handleNewPassword}
+                      onFocus={() => setHasFocusNewPassword(true)}
+                      onBlur={() => setHasFocusNewPassword(false)}
+                      Strength={newPasswordStrength}
+                      Length={inputs?.newpassword?.length}
+                    />
 
-              </ValidationsPopup>
+                    <SmallerLabel hasFocus={hasFocusConfirmNewPassword}>
+                      CONFIRM NEW PASSWORD
+                    </SmallerLabel>
+                    <EditInput
+                      type="password"
+                      name="confirmnewpassword"
+                      placeholder=''
+                      autoComplete="off new-password"
+                      value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
+                      onChange={handleConfirmNewPassword}
+                      onFocus={() => setHasFocusConfirmNewPassword(true)}
+                      onBlur={() => setHasFocusConfirmNewPassword(false)}
+                    />
+                  </ChangePasswordSection>
 
-              {/* VALIDATIONS POPUP --> USERNAME*/}
-              <ValidationsPopup isShowing={didUsernameChange} style={{ top: '780px' }}>
+                  <SaveButtonDiv>
+                    <SaveButton onClick={handleSaveChanges} isSaveButtonEnable={isSaveButtonEnable}>
+                      Save
+                    </SaveButton>
+                  </SaveButtonDiv>
 
-                <ValidationsPopupItem isOkay={isUsernameOkay}>
-                  <ValidationsPopupSymbol src={isUsernameOkay ? CheckmarkIcon : AlertIcon} />
-                  {isUsernameValid ? (
-                    isUsernameNotAvailable
-                      ? translations[language].usernamenotavailable
-                      : inputs?.username !== currentUser.name
-                        ? translations[language].usernameavailable
-                        : translations[language].usernameavailable
-                  ) : (
-                    translations[language].usernameinvalid
-                  )}
-                </ValidationsPopupItem>
+                </AccountSection>
 
-              </ValidationsPopup>
+                {/* VALIDATIONS POPUP */}
 
-              {/* VALIDATIONS POPUP --> DISPLAYNAME */}
-              <ValidationsPopup isShowing={didDisplayNameChange} style={{ top: '868px' }}>
+                {/* VALIDATIONS POPUP --> EMAIL*/}
+                <ValidationsPopup isShowing={didEmailChange || isVerificationSent}>
 
-                <ValidationsPopupItem isOkay={isDisplayNameOkay}>
-                  <ValidationsPopupSymbol src={isDisplayNameOkay ? CheckmarkIcon : AlertIcon} />
-                  {isDisplayNameValid ? (
-                    inputs?.displayname !== currentUser.displayname
-                      ? translations[language].displaynameavailable
-                      : translations[language].displaynameavailable
-                  ) : (
-                    translations[language].displaynameinvalid
-                  )}
-                </ValidationsPopupItem>
+                  <ValidationsPopupItem isOkay={isEmailOkay}>
+                    <ValidationsPopupSymbol src={isVerificationSent ? EmailSentIcon : isEmailOkay ? CheckmarkIcon : AlertIcon} />
+                    {isEmailValid ? (
+                      isVerificationSent
+                        ? translations[language].emailverificationsent
+                        : isEmailNotAvailable
+                          ? translations[language].emailnotavailable
+                          : inputs?.email !== currentUser.email
+                            ? translations[language].emailavailable
+                            : translations[language].emailavailable
+                    ) : (
+                      translations[language].emailinvalid
+                    )}
+                  </ValidationsPopupItem>
 
-              </ValidationsPopup>
+                </ValidationsPopup>
 
+                {/* VALIDATIONS POPUP --> USERNAME*/}
+                <ValidationsPopup isShowing={didUsernameChange} style={{ top: currentUser?.isVerified ? '780px' : '884px' }}>
 
-              {/* VALIDATIONS POPUP --> NEW PASSWORD */}
-              <ValidationsPopup isShowing={hasFocusNewPassword} style={{ top: '1105px' }}>
+                  <ValidationsPopupItem isOkay={isUsernameOkay}>
+                    <ValidationsPopupSymbol src={isUsernameOkay ? CheckmarkIcon : AlertIcon} />
+                    {isUsernameValid ? (
+                      isUsernameNotAvailable
+                        ? translations[language].usernamenotavailable
+                        : inputs?.username !== currentUser.name
+                          ? translations[language].usernameavailable
+                          : translations[language].usernameavailable
+                    ) : (
+                      translations[language].usernameinvalid
+                    )}
+                  </ValidationsPopupItem>
 
-                <ValidationsPasswordPopupItem style={{ fontSize: '15px' }} Strength={newPasswordStrength}>
-                  {newPasswordStrength === 3 && translations[language].strengthexcellent}
-                  {newPasswordStrength === 2 && translations[language].strengthgreat}
-                  {newPasswordStrength === 1 && translations[language].strengthokay}
-                  {newPasswordStrength === 0 && translations[language].strengthtooweak}
-                  <ValidationsPasswordPopupSymbol src={getPasswordStrengthImage(newPasswordStrength)} />
-                </ValidationsPasswordPopupItem>
+                </ValidationsPopup>
 
-                <ValidationsPopupItem isOkay={inputs.newpassword?.length >= 8}>
-                  <ValidationsPopupSymbol src={inputs.newpassword?.length >= 8 ? CheckmarkIcon : AlertIcon} />
-                  {translations[language].passwordpopup1}
-                </ValidationsPopupItem>
+                {/* VALIDATIONS POPUP --> DISPLAYNAME */}
+                <ValidationsPopup isShowing={didDisplayNameChange} style={{ top: currentUser?.isVerified ? '868px' : '972px' }}>
 
-                <ValidationsPopupItem isOkay={newPasswordStrength > 0}>
-                  <ValidationsPopupSymbol src={newPasswordStrength > 0 ? CheckmarkIcon : AlertIcon} />
-                  {translations[language].passwordpopup2}
-                </ValidationsPopupItem>
+                  <ValidationsPopupItem isOkay={isDisplayNameOkay}>
+                    <ValidationsPopupSymbol src={isDisplayNameOkay ? CheckmarkIcon : AlertIcon} />
+                    {isDisplayNameValid ? (
+                      inputs?.displayname !== currentUser.displayname
+                        ? translations[language].displaynameavailable
+                        : translations[language].displaynameavailable
+                    ) : (
+                      translations[language].displaynameinvalid
+                    )}
+                  </ValidationsPopupItem>
 
-                <ValidationsPopupItem isOkay={newPasswordContains}>
-                  <ValidationsPopupSymbol src={newPasswordContains ? CheckmarkIcon : AlertIcon} />
-                  {translations[language].passwordpopup3}
-                </ValidationsPopupItem>
-
-              </ValidationsPopup>
-
-              <ValidationsPasswordPopup isChangingPassword={isChangingPassword} isShowing={!hasFocusNewPassword && inputs?.newpassword?.length > 0} style={{ top: '1172px' }}>
-
-                <ValidationsPasswordPopupItem style={{ fontSize: '15px', marginBottom: '0px' }} Strength={newPasswordStrength}>
-                  {newPasswordStrength === 3 && translations[language].strengthexcellent}
-                  {newPasswordStrength === 2 && translations[language].strengthgreat}
-                  {newPasswordStrength === 1 && translations[language].strengthokay}
-                  {newPasswordStrength === 0 && translations[language].strengthtooweak}
-                  <ValidationsPasswordPopupSymbol src={getPasswordStrengthImage(newPasswordStrength)} />
-                </ValidationsPasswordPopupItem>
-
-              </ValidationsPasswordPopup>
-
-              {/* VALIDATIONS POPUP --> CONFIRM NEW PASSWORD */}
-              <ValidationsPasswordPopup isChangingPassword={isChangingPassword} isShowing={!isConfirmPasswordOkay} style={{ top: '1262px' }}>
-
-                <ValidationsPopupItem>
-                  <ValidationsPopupSymbol src={AlertIcon} />
-
-                  {translations[language].passworddonotmatch}
-
-                </ValidationsPopupItem>
-              </ValidationsPasswordPopup>
-
-            </Wrapper>
-          </>
-        )}
-
-        {settingSection === settingSections[1] && (
-          <>
-            <Wrapper>
-
-              <TitleLabel> Settings </TitleLabel>
-
-              <Label> Notifications </Label>
-              <SubLabel> Personalize your notifications in your own way </SubLabel>
+                </ValidationsPopup>
 
 
-            </Wrapper>
-          </>
-        )}
+                {/* VALIDATIONS POPUP --> NEW PASSWORD */}
+                <ValidationsPasswordPopup isChangingPassword={isChangingPassword} isShowing={hasFocusNewPassword} style={{ top: currentUser?.isVerified ? '1105px' : '1205px' }}>
 
-      </Container>
+                  <ValidationsPasswordPopupItem style={{ fontSize: '15px' }} Strength={newPasswordStrength}>
+                    {newPasswordStrength === 3 && translations[language].strengthexcellent}
+                    {newPasswordStrength === 2 && translations[language].strengthgreat}
+                    {newPasswordStrength === 1 && translations[language].strengthokay}
+                    {newPasswordStrength === 0 && translations[language].strengthtooweak}
+                    <ValidationsPasswordPopupSymbol src={getPasswordStrengthImage(newPasswordStrength)} />
+                  </ValidationsPasswordPopupItem>
+
+                  <ValidationsPopupItem isOkay={inputs.newpassword?.length >= 8}>
+                    <ValidationsPopupSymbol src={inputs.newpassword?.length >= 8 ? CheckmarkIcon : AlertIcon} />
+                    {translations[language].passwordpopup1}
+                  </ValidationsPopupItem>
+
+                  <ValidationsPopupItem isOkay={newPasswordStrength > 0}>
+                    <ValidationsPopupSymbol src={newPasswordStrength > 0 ? CheckmarkIcon : AlertIcon} />
+                    {translations[language].passwordpopup2}
+                  </ValidationsPopupItem>
+
+                  <ValidationsPopupItem isOkay={newPasswordContains}>
+                    <ValidationsPopupSymbol src={newPasswordContains ? CheckmarkIcon : AlertIcon} />
+                    {translations[language].passwordpopup3}
+                  </ValidationsPopupItem>
+
+                </ValidationsPasswordPopup>
+
+                <ValidationsPasswordPopup isChangingPassword={isChangingPassword} isShowing={!hasFocusNewPassword && inputs?.newpassword?.length > 0} style={{ top: currentUser?.isVerified ? '1172px' : '1277px' }}>
+
+                  <ValidationsPasswordPopupItem style={{ fontSize: '15px', marginBottom: '0px' }} Strength={newPasswordStrength}>
+                    {newPasswordStrength === 3 && translations[language].strengthexcellent}
+                    {newPasswordStrength === 2 && translations[language].strengthgreat}
+                    {newPasswordStrength === 1 && translations[language].strengthokay}
+                    {newPasswordStrength === 0 && translations[language].strengthtooweak}
+                    <ValidationsPasswordPopupSymbol src={getPasswordStrengthImage(newPasswordStrength)} />
+                  </ValidationsPasswordPopupItem>
+
+                </ValidationsPasswordPopup>
+
+                {/* VALIDATIONS POPUP --> CONFIRM NEW PASSWORD */}
+                <ValidationsPasswordPopup isChangingPassword={isChangingPassword} isShowing={!isConfirmPasswordOkay} style={{ top: currentUser?.isVerified ? '1262px' : '1367px' }}>
+
+                  <ValidationsPopupItem>
+                    <ValidationsPopupSymbol src={AlertIcon} />
+
+                    {translations[language].passworddonotmatch}
+
+                  </ValidationsPopupItem>
+                </ValidationsPasswordPopup>
+
+              </Wrapper>
+            </>
+          )}
+
+          {settingSection === settingSections[1] && (
+            <>
+              <Wrapper>
+
+                <TitleLabel> Notifications </TitleLabel>
+
+                <Label> Personalize your notifications to keep track of your favorite content </Label>
+                <SubLabel> {signinMethod} </SubLabel>
+
+                <Line />
+
+                <Label style={{ marginTop: '20px' }}> General </Label>
+                <SubLabel style={{ marginBottom: '20px' }}> Manage your notifications on Flashy </SubLabel>
+
+                <SwitchDiv>
+                  <SwitchItem>
+                    <Switch notificationsEnabled={notificationsEnabled} onClick={handleToggleNotifications} />
+
+                    <SwitchTxt>
+                      <LabelRegular> Suscriptions </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}> Notify me about activity from the channels I'm subscribed to </SubLabel>
+                    </SwitchTxt>
+
+                  </SwitchItem>
+
+                  <SwitchItem>
+                    <Switch style={{ cursor: 'not-allowed' }} />
+
+                    <SwitchTxt>
+                      <LabelRegular> Recommended videos (Disabled) </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}> Notify me about videos that fit my taste </SubLabel>
+                    </SwitchTxt>
+
+                  </SwitchItem>
+
+                  <SwitchItem>
+                    <Switch style={{ cursor: 'not-allowed' }} />
+
+                    <SwitchTxt>
+                      <LabelRegular> Replies to my comment (Disabled) </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}> Notify me when someone replies my comment </SubLabel>
+                    </SwitchTxt>
+
+                  </SwitchItem>
+
+                  <SwitchItem>
+                    <Switch style={{ cursor: 'not-allowed' }} />
+
+                    <SwitchTxt>
+                      <LabelRegular> Mentions (Disabled) </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}> Notify me when someone mentions me </SubLabel>
+                    </SwitchTxt>
+
+                  </SwitchItem>
+
+                </SwitchDiv>
+
+                <Line />
+
+                <Label style={{ marginTop: '20px' }}> Email notifications</Label>
+                <SubLabel> Not available yet </SubLabel>
+
+              </Wrapper>
+            </>
+          )}
+
+          {settingSection === settingSections[2] && (
+            <>
+              <Wrapper>
+
+                <TitleLabel> Advanced Settings </TitleLabel>
+
+                <Label> We are here to make your experience unique </Label>
+                <SubLabel> {signinMethod} </SubLabel>
+
+                <Line />
+
+                <AdvancedSettingsDiv>
+
+                  <AdvancedSettingItem>
+
+                    <LabelRegular> User ID </LabelRegular>
+
+                    <AdvancedSettingsInput
+                      type="text"
+                      name="email"
+                      value={currentUser?._id}
+                      readOnly
+                      onFocus={() => setHasFocusEmail(true)}
+                      onBlur={() => setHasFocusEmail(false)}
+                    />
+
+                    <AdvancedSettingItemImg src={CopyIcono} onClick={handleCopyClick} />
+                  </AdvancedSettingItem>
+
+                  <AdvancedSettingItem>
+
+                    <LabelRegular> Delete Account </LabelRegular>
+
+                    <AdvancedSettingItemColumn>
+                      <LabelDeleteAccount onClick={handleDeleteAccount}> Delete Account </LabelDeleteAccount>
+                      <SubLabel> This is a permanent action and cannot be undone </SubLabel>
+
+                    </AdvancedSettingItemColumn>
+
+                  </AdvancedSettingItem>
+
+                </AdvancedSettingsDiv>
+
+
+              </Wrapper>
+            </>
+          )}
+
+        </Container>
+      ) : (
+        <NoUserContainer>
+          <NoUserImg src={SadFaceIcon} />
+          <NoUserMessage1>{translations[language].notlogged}</NoUserMessage1>
+          <NoUserMessage2>{translations[language].notlogged2}</NoUserMessage2>
+          <Link
+            to="../signin"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <ItemLogin>
+              <ImgLogin src={InicioSesionIcono2} />
+              <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
+            </ItemLogin>
+          </Link>
+        </NoUserContainer>
+      )}
+
+
+      {
+        isDeleteAccountPopupOpen && (
+          <DeleteAccountPopupContainer
+            onDeleteConfirmed={() => handleDeleteAccountConfirmation(true)}
+            onCancel={() => handleDeleteAccountConfirmation(false)}
+          >
+            <DeleteAccountPopupWrapper>
+              <DeleteAccountPopupTitle> Delete Account </DeleteAccountPopupTitle>
+              <DeleteAccountPopupTxt> Are you sure you want to delete your account? </DeleteAccountPopupTxt>
+              <DeleteAccountPopupTxt style={{ marginTop: '-25px', fontSize: '15px' }}> Note: this action is permanent and cannot be undone, please
+                be sure before you press the button delete.
+              </DeleteAccountPopupTxt>
+              <OptionsDeleteCancel>
+                <DeleteAccountCancel onClick={() => handleDeleteAccountConfirmation(false)}>
+                  Cancel
+                </DeleteAccountCancel>
+                <DeleteAccountDelete onClick={() => handleDeleteAccountConfirmation(true)}>
+                  Delete
+                </DeleteAccountDelete>
+              </OptionsDeleteCancel>
+            </DeleteAccountPopupWrapper>
+          </DeleteAccountPopupContainer>
+        )
+      }
 
     </MainContainer >
 

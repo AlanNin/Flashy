@@ -18,6 +18,7 @@ import CardLibraryShared from "../components/CardLibraryShared";
 import NotFound404Component from "../components/NotFound404Component";
 import moment from "moment";
 import "moment/locale/es";
+import { toast } from 'react-toastify';
 
 import {
   EmailShareButton,
@@ -389,7 +390,7 @@ const UnfollowPlaylistCancel = styled.div`
     font-size: 17px;
 `;
 
-const UnfollowPlaylistDelete = styled.div`
+const UnfollowPlaylistUnfollow = styled.div`
     cursor: pointer;
     &:hover {
     background: rgba(45, 45, 45);
@@ -597,19 +598,8 @@ const SharedPlaylist = () => {
   };
 
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareLink)
-      .then(() => {
-        setIsPopUpShareVisible(true);
-
-        const timeout = setTimeout(() => {
-          setIsPopUpShareVisible(false);
-        }, 4000);
-
-        return () => clearTimeout(timeout);
-      })
-      .catch((err) => {
-        console.error('Error al copiar el URL', err);
-      });
+    navigator.clipboard.writeText(shareLink);
+    toast.success('Share Link copied in clipboard');
   };
 
   useEffect(() => {
@@ -846,9 +836,9 @@ const SharedPlaylist = () => {
                 <UnfollowPlaylistCancel onClick={() => handleUnfollowConfirmation(false)}>
                   Cancel
                 </UnfollowPlaylistCancel>
-                <UnfollowPlaylistDelete onClick={() => handleUnfollowConfirmation(true)}>
+                <UnfollowPlaylistUnfollow onClick={() => handleUnfollowConfirmation(true)}>
                   Unfollow
-                </UnfollowPlaylistDelete>
+                </UnfollowPlaylistUnfollow>
               </OptionsUnfollowCancel>
             </UnfollowPlaylistPopupWrapper>
           </UnfollowPlaylistPopupContainer>

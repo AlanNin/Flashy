@@ -23,7 +23,7 @@ import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png";
 import FollowingIcon from "../assets/FollowingIcon.png";
-import EmptyWatchHistoryIcon from "../assets/NotSubbedIcono.png";
+import SadFaceIcon from "../assets/NotSubbedIcono.png";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
 import CardLibrary from "../components/CardLibrary";
 import CreateNewPlaylist from "../components/CreateNewPlaylist";
@@ -933,7 +933,7 @@ const VideosContainerNoVideoText = styled.h1`
 `;
 
 // USER VALIDATION
-const EmptyHistoryMessageContainer = styled.div`
+const NoUserContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -943,13 +943,13 @@ const EmptyHistoryMessageContainer = styled.div`
     margin-top: 318px;
 `;
 
-const EmptyHistoryImg = styled.img`
+const NoUserImg = styled.img`
     height: 96px;
     width: 96px;
     padding: 20 px;
 `;
 
-const EmptyHistoryMessage1 = styled.span`
+const NoUserMessage1 = styled.span`
     margin-top: 10px;  
     color: rgba(224, 175, 208, 0.8);
     font-weight: bold;
@@ -957,7 +957,7 @@ const EmptyHistoryMessage1 = styled.span`
     font-size: 30px;
 `;
 
-const EmptyHistoryMessage2 = styled.span`
+const NoUserMessage2 = styled.span`
     margin-top: 10px;    
     color: ${({ theme }) => theme.text};
     font-weight: bold;
@@ -1005,13 +1005,13 @@ const Library = () => {
 
   const translations = {
     en: {
-      emptyHistoryMessage1userless: "Seems like you currently are not logged in as a user :(",
-      emptyHistoryMessage2userless: "Log in to enjoy your personalized playlists and save the videos that you love!",
+      notlogged: "Seems like you currently are not logged in as a user :(",
+      notlogged2: "Log in to enjoy your personalized playlists and save the videos that you love!",
       signin: "Sign in",
     },
     es: {
-      emptyHistoryMessage1userless: "Parece que aún no has iniciado sesión como usuario :(",
-      emptyHistoryMessage2userless: "Inicia sesión para disfrutar de tus listas de reproducción personalizadas!",
+      notlogged: "Parece que aún no has iniciado sesión como usuario :(",
+      notlogged2: "Inicia sesión para disfrutar de tus listas de reproducción personalizadas!",
       signin: "Iniciar Sesión",
     },
   };
@@ -1282,7 +1282,7 @@ const Library = () => {
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard ');
+    toast.success('Share Link copied in clipboard');
   };
 
 
@@ -1670,10 +1670,10 @@ const Library = () => {
 
         </>
       ) : (
-        <EmptyHistoryMessageContainer>
-          <EmptyHistoryImg src={EmptyWatchHistoryIcon} />
-          <EmptyHistoryMessage1>{translations[language].emptyHistoryMessage1userless}</EmptyHistoryMessage1>
-          <EmptyHistoryMessage2>{translations[language].emptyHistoryMessage2userless}</EmptyHistoryMessage2>
+        <NoUserContainer>
+          <NoUserImg src={SadFaceIcon} />
+          <NoUserMessage1>{translations[language].notlogged}</NoUserMessage1>
+          <NoUserMessage2>{translations[language].notlogged2}</NoUserMessage2>
           <Link
             to="../signin"
             style={{
@@ -1686,7 +1686,7 @@ const Library = () => {
               <ButtonLoginText> {translations[language].signin} </ButtonLoginText>
             </ItemLogin>
           </Link>
-        </EmptyHistoryMessageContainer>
+        </NoUserContainer>
       )}
 
       {popupNewPlaylist && (

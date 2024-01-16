@@ -13,6 +13,8 @@ const MainContainer = styled.div`
   background-color: rgba(15, 12, 18);
   margin: auto;
   max-width: 1920px;
+  overflow: hidden;
+  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const Header = styled.h1`
@@ -29,6 +31,8 @@ const Container = styled.div`
   flex-wrap: wrap;
   z-index: 1;
   gap: 16px;
+  width: 100%;
+  height: 100%;
 `;
 
 const Wrapper = styled.div`
@@ -93,7 +97,7 @@ const Home = ({ type = "random" }) => {
 
 
   return (
-    <MainContainer>
+    <MainContainer NoVideosFound={NoVideosFound}>
 
       <Header>{translations[language].explore}</Header>
 

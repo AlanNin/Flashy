@@ -32,6 +32,15 @@ export const userSlice = createSlice({
         userVerified: (state, action) => {
             state.currentUser = action.payload;
         },
+        userUpdateNotifications: (state, action) => {
+            state.currentUser.newNotifications += 1;
+        },
+        userClearNotifications: (state, action) => {
+            state.currentUser.newNotifications = 0;
+        },
+        userToggleNotifications: (state, action) => {
+            state.currentUser.notificationsEnabled = !state.currentUser.notificationsEnabled;
+        },
         subscription: (state, action) => {
             if (state.currentUser.subscribedUsers.includes(action.payload)) {
                 state.currentUser.subscribedUsers.splice(
@@ -47,7 +56,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, userUpdated, userVerified, subscription } =
+export const { loginStart, loginSuccess, loginFailure, logout, userUpdated, userVerified, userUpdateNotifications, userClearNotifications, userToggleNotifications, subscription } =
     userSlice.actions;
 
 export default userSlice.reducer;

@@ -14,6 +14,7 @@ const MainContainer = styled.div`
   width: 100%;
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
+  overflow: hidden;
   margin-bottom: 175px;
 `;
 

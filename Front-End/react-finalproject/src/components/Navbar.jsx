@@ -18,14 +18,19 @@ import AboutIcono from "../assets/AboutIcono.png";
 import AyudaIcono from "../assets/AyudaIcono.png";
 import TikTokIcono2 from "../assets/TikTokIcono2.png";
 import DiscordIcono2 from "../assets/DiscordIcono2.png";
+import SettingsIcon from "../assets/SettingsIcon2.png";
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, resetUserState } from "../redux/userSlice";
 import UploadVideoIcono from "../assets/UploadVideoIcono.png";
 import NotificationIcon from "../assets/NotificationIcon.png";
 import NotificationFilledIcon from "../assets/NotificationFilledIcon.png";
+import NotificationDisabledIcon from "../assets/NotificationDisabledIcon.png";
 import Upload from "./Upload";
 import NotificationCenter from "./NotificationCenter";
+import axios from "axios";
+import io from 'socket.io-client';
+import { userUpdateNotifications, userClearNotifications } from "../redux/userSlice";
 
 const Container = styled.div`
   position: fixed;
@@ -360,16 +365,39 @@ const LogoutUserImg = styled.img`
 `;
 
 // NOTIFICATION CENTER
+
+
 const NotificationCenterImg = styled.img`
+  height: 100%;
+  width: 100%;
+  margin-right: 0px;
+`;
+
+const NotificationCenterCounter = styled.h1`
+  position: absolute;
+  font-family: "Roboto Condensed", Helvetica;
+  font-size: 11px;
+  background: rgba(255, 0, 192, 0.8);
+  color: ${({ theme }) => theme.text};
+  border-radius: 50%;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 15px;
+  left: 30px;
+`;
+
+const NotificationCenterImgContainer = styled.div`
   height: 25px;
   width: 25px;
-  cursor: pointer;
   margin-right: 0px;
   padding: 5px;
   border-radius: 50%;
   transition: background 0.3s ease;
+  cursor: ${({ notificationsEnabled }) => (!notificationsEnabled ? 'not-allowed' : 'pointer')};
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: ${({ notificationsEnabled }) => (!notificationsEnabled ? '' : 'rgba(255, 255, 255, 0.3)')};
   }
 `;
 
@@ -387,7 +415,8 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       now: "Now",
       search: "Search",
       signin: "Sign in",
-      profile: "Profile",
+      profile: "My Channel",
+      settings: "Settings",
       help: "Help",
       terms: "Terms",
       privacy: "Privacy",
@@ -400,7 +429,8 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       now: "Ahora",
       search: "Buscar",
       signin: "Iniciar Sesión",
-      profile: "Perfil",
+      profile: "Mi canal",
+      settings: "Ajustes",
       help: "Ayuda",
       terms: "Términos",
       privacy: "Privacidad",
@@ -503,9 +533,98 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
 
   // NOTIFICATION CENTER
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const notificationButtonRef = useRef(null);
+
+  // FETCH INITIAL NOTIFICATIONS
+  useEffect(() => {
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    fetchNotifications();
+  }, [isNotificationCenterOpen]);
+
+  // UPDATE ON NOTIFICATION
+  useEffect(() => {
+
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    const socket = io('http://localhost:8800');
+
+    // Escucha el evento 'newVideo' del servidor
+    socket.on('newVideo', ({ videoId, userId }) => {
+      validateNotification(userId);
+    })
+
+    return () => {
+      // Desconecta el socket cuando el componente se desmonta
+      socket.disconnect();
+    };
+  }, []);
 
   const handleNotificationCenter = () => {
+
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    if (!isNotificationCenterOpen) {
+      clearNotifications();
+    }
+
     setIsNotificationCenterOpen(!isNotificationCenterOpen);
+
+  };
+
+  const validateNotification = async (userId) => {
+
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/users/${userId}/subscribers`);
+
+      if (response.data.subscribers.includes(currentUser?._id)) {
+        dispatch(userUpdateNotifications());
+        fetchNotifications();
+      } else {
+        //
+      }
+
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    try {
+      const response = await axios.get("/users/notifications", {
+      });
+      setNotifications(response.data.notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const clearNotifications = async () => {
+    if (!currentUser?.notificationsEnabled) {
+      return;
+    }
+
+    try {
+      await axios.put(`/users/notifications/reset-new-notifications`);
+      dispatch(userClearNotifications());
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
   };
 
   // HIDE NAVBAR SIGN IN SIGN UP, MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
@@ -546,7 +665,17 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
           <ImgRedes onClick={redDiscord} src={DiscordIcono2} />
           {currentUser ? (
             <UserContainer>
-              <NotificationCenterImg src={isNotificationCenterOpen ? NotificationFilledIcon : NotificationIcon} onClick={() => handleNotificationCenter()} />
+              <NotificationCenterImgContainer onClick={() => handleNotificationCenter()} ref={notificationButtonRef} notificationsEnabled={currentUser?.notificationsEnabled}>
+                <NotificationCenterImg
+                  src={!currentUser?.notificationsEnabled ? NotificationDisabledIcon : currentUser?.newNotifications > 0 ? NotificationFilledIcon : isNotificationCenterOpen ? NotificationFilledIcon : NotificationIcon}
+
+                />
+                {currentUser?.notificationsEnabled && currentUser?.newNotifications > 0 && (
+                  <NotificationCenterCounter>
+                    {currentUser?.newNotifications}
+                  </NotificationCenterCounter>
+                )}
+              </NotificationCenterImgContainer>
               <UploadVideoImg src={UploadVideoIcono} onClick={() => setOpen(true)} />
               <ItemUser onClick={toggleDropdown} ref={dropdownButtonRef}>
                 <UserImg src={currentUser.img} />
@@ -570,7 +699,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
             <DisplayName>{currentUser.displayname}</DisplayName>
             <Email>{currentUser.email}</Email>
             <WrapperMenuUser>
-              <Link to="/profile" style={{
+              <Link to={`/channel/@${currentUser?.name}`} style={{
                 width: "100%",
                 textDecoration: "none",
                 color: "inherit"
@@ -579,6 +708,19 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
 
                   <MenuUserImg src={ProfileIcono} />
                   <MenuUserText>{translations[language].profile}</MenuUserText>
+
+                </MenuUserDiv>
+              </Link>
+
+              <Link to="/settings" style={{
+                width: "100%",
+                textDecoration: "none",
+                color: "inherit"
+              }}>
+                <MenuUserDiv onClick={toggleDropdown}>
+
+                  <MenuUserImg src={SettingsIcon} />
+                  <MenuUserText>{translations[language].settings}</MenuUserText>
 
                 </MenuUserDiv>
               </Link>
@@ -639,7 +781,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       </Container >
 
       {open && <Upload setOpen={setOpen} />}
-      {isNotificationCenterOpen && <NotificationCenter setIsNotificationCenterOpen={setIsNotificationCenterOpen} />}
+      {isNotificationCenterOpen && <NotificationCenter notifications={notifications} handleNotificationCenter={handleNotificationCenter} notificationButtonRef={notificationButtonRef} />}
     </>
   );
 };

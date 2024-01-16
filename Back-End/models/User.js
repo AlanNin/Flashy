@@ -71,6 +71,13 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    description: {
+        type: String,
+    },
+    videosPosted: {
+        type: Number,
+        default: 0
+    },
     isVerified: {
         type: Boolean,
         default: false,
@@ -101,6 +108,10 @@ const UserSchema = new mongoose.Schema({
     subscribedUsers: {
         type: [String],
     },
+    newNotifications: {
+        type: Number,
+        default: 0
+    },
     notificationsEnabled: {
         type: Boolean,
         default: true,
@@ -109,6 +120,10 @@ const UserSchema = new mongoose.Schema({
         type: Map,
         of: Number,
         default: {},
+    },
+    videoHistory: {
+        type: [VideoHistorySchema],
+        default: [],
     },
     videoHistory: {
         type: [VideoHistorySchema],

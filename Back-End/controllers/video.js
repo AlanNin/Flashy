@@ -1,23 +1,19 @@
 import User from "../models/User.js";
 import Video from "../models/Video.js";
-import natural from 'natural';
-import stringSimilarity from 'string-similarity';
 import { createError } from "../error.js";
-import path from 'path';
-import fs from 'fs';
-import axios from 'axios';
 import Mux from '@mux/mux-node';
 import { v2 as cloudinary } from 'cloudinary';
+import { io } from '../index.js';
 
-const accessToken = '4c34dd9f-d2a7-447f-91c6-9b922f77d550';
-const secret = '0uKUvBxqbOrPa+ZusHAa/zsz245OnkRptCkbiqvAoFoAV8sV7fl/8p12rG3eYSQTfJeDxzNaBTW';
+const accessToken = process.env.MuxAccessToken;
+const secret = process.env.MuxSecret;
 
 const mux = new Mux(accessToken, secret);
 
 cloudinary.config({
-    cloud_name: 'dnepj9jjf',
-    api_key: '161251231549537',
-    api_secret: 'jHEIoLaGJP-xWJ-2qvJgvTCaUFU'
+    cloud_name: process.env.CloudinaryCloudName,
+    api_key: process.env.CloudinaryApiKey,
+    api_secret: process.env.CloudinaryApiSecret
 });
 
 export const addVideo = async (req, res, next) => {
@@ -81,18 +77,29 @@ export const addVideo = async (req, res, next) => {
                 }
             }
 
-            // Notifica a los suscriptores
-            const creator = await User.findById(userId);
-            const subscribers = await User.find({ _id: { $in: creator.subscribers } });
+            if (savedVideo.privacy === 'public') {
+                // Notifica a los suscriptores
+                const creator = await User.findById(userId);
+                const subscribers = await User.find({ _id: { $in: creator.subscribers } });
 
-            const notificationPromises = subscribers.map(async (subscriber) => {
-                subscriber.notifications.push({
-                    videoId,
+                const notificationPromises = subscribers.map(async (subscriber) => {
+                    subscriber.notifications.push({
+                        videoId,
+                    });
+
+                    subscriber.newNotifications += 1;
+
+                    await subscriber.save();
                 });
-                await subscriber.save();
-            });
 
-            await Promise.all(notificationPromises);
+                await Promise.all(notificationPromises);
+
+                io.emit('newVideo', { videoId, userId: savedVideo.userId });
+            }
+
+            await User.findByIdAndUpdate(userId, {
+                $inc: { videosPosted: 1 }
+            });
 
             res.status(200).json(savedVideo);
 
@@ -139,18 +146,31 @@ export const addVideo = async (req, res, next) => {
                 }
             }
 
-            // Notifica a los suscriptores
-            const creator = await User.findById(userId);
-            const subscribers = await User.find({ _id: { $in: creator.subscribers } });
+            if (savedVideo.privacy === 'public') {
+                // Notifica a los suscriptores
+                const creator = await User.findById(userId);
+                const subscribers = await User.find({ _id: { $in: creator.subscribers } });
 
-            const notificationPromises = subscribers.map(async (subscriber) => {
-                subscriber.notifications.push({
-                    videoId,
+                const notificationPromises = subscribers.map(async (subscriber) => {
+                    subscriber.notifications.push({
+                        videoId,
+                    });
+
+                    subscriber.newNotifications += 1;
+
+                    await subscriber.save();
                 });
-                await subscriber.save();
-            });
 
-            await Promise.all(notificationPromises);
+                await Promise.all(notificationPromises);
+
+
+
+                io.emit('newVideo', { videoId, userId: savedVideo.userId });
+            }
+
+            await User.findByIdAndUpdate(userId, {
+                $inc: { videosPosted: 1 }
+            });
 
             res.status(200).json(savedVideo);
 
@@ -252,6 +272,11 @@ export const deleteVideo = async (req, res, next) => {
         if (!video) return next(createError(404, "Video not found!"));
 
         if (req.user.id === video.userId) {
+
+            await User.findByIdAndUpdate(video.userId, {
+                $inc: { videosposted: -1 }
+            });
+
             await Video.findByIdAndDelete(videoId);
             res.status(200).json("The video has been deleted.");
         } else {

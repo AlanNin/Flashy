@@ -16,6 +16,8 @@ const MainContainer = styled.div`
   min-height: 100vh;  // Asegura que el contenedor tenga al menos el 100% de la altura de la pantalla
   background-color: rgba(15, 12, 18);
   z-index: 1;
+  overflow: hidden;
+  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const Header = styled.h1`
@@ -31,7 +33,7 @@ const Container = styled.div`
   justify-content: flex-start;  // Ajusta la propiedad justify-content
   flex-wrap: wrap;
   z-index: 1;
-  gap: 118px;
+  gap: 14px;
 `;
 
 const Wrapper = styled.div`
@@ -174,7 +176,7 @@ const Home = ({ type = "sub" }) => {
 
 
   return (
-    <MainContainer>
+    <MainContainer NoVideosFound={NoVideosFound}>
 
       <Header>{translations[language].explore}</Header>
 

@@ -210,16 +210,30 @@ export const update = async (req, res, next) => {
 export const remove = async (req, res, next) => {
     if (req.params.id === req.user.id) {
         try {
-            await User.findByIdAndDelete(req.params.id
-            );
-            res.status(200).json("¡El usuario ha sido eliminado!");
+            // Obtén el usuario
+            const user = await User.findById(req.params.id);
+
+            if (!user) {
+                return next(createError(404, 'Usuario no encontrado.'));
+            }
+
+            // Elimina todos los videos del usuario
+            await Video.deleteMany({ userId: req.params.id });
+
+            // Elimina todos los comentarios del usuario
+            await Comment.deleteMany({ userId: req.params.id });
+
+            // Elimina al usuario
+            await User.findByIdAndDelete(req.params.id);
+
+            res.status(200).json('¡El usuario y sus datos relacionados han sido eliminados!');
         } catch (error) {
             next(error);
         }
     } else {
-        return next(createError(403, "¡No puedes eliminar este usuario!"))
+        return next(createError(403, '¡No puedes eliminar este usuario!'));
     }
-}
+};
 
 const sendRecoverPassword = async (user) => {
 
@@ -419,6 +433,25 @@ export const getUser = async (req, res, next) => {
     }
 }
 
+// GET USER BY USERNAME
+export const getUserByUsername = async (req, res, next) => {
+    try {
+        const userName = req.params.username; // Assuming the parameter in the route is the username
+
+        // Find the user by name
+        const user = await User.findOne({ name: userName });
+
+        if (!user) {
+            return next(createError(404, "User not found!"));
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 export const subscribe = async (req, res, next) => {
     try {
         // Verifica si el usuario ya está suscrito
@@ -441,7 +474,6 @@ export const subscribe = async (req, res, next) => {
             res.status(200).json("Subscription successful.");
         } else {
             res.status(400).json("User is already subscribed.");
-            console.log("xd");
         }
     } catch (err) {
         next(err);
@@ -1359,8 +1391,8 @@ export const getNotifications = async (req, res, next) => {
         const user = await User.findById(userId);
 
         if (user) {
-            // Obtener las notificaciones del usuario
-            const notifications = user.notifications;
+            // Obtener las notificaciones del usuario y ordenarlas por fecha descendente
+            const notifications = user.notifications.sort((a, b) => b.createdAt - a.createdAt);
 
             res.status(200).json({ notifications });
         } else {
@@ -1369,5 +1401,134 @@ export const getNotifications = async (req, res, next) => {
     } catch (error) {
         next(error);
         console.error(error);
+    }
+};
+
+// MARK NOTIFICATION AS READ
+export const markNotificationAsRead = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const notificationId = req.params.notificationId; // Assuming you have a route parameter for the notificationId
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        // Find the notification by ID
+        const notification = user.notifications.find(notification => notification._id.toString() === notificationId);
+
+        if (!notification) {
+            return res.status(404).json({ error: "Notification not found." });
+        }
+
+        // Update the read field to true
+        notification.read = true;
+
+        // Save the updated user
+        await user.save();
+
+        res.status(200).json({ success: true, message: "Notification marked as read." });
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};
+
+// UPDATE NEW NOTIFICATIONS
+export const incrementNewNotifications = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Increment the newNotifications field by 1
+        user.newNotifications += 1;
+
+        // Save the updated user
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'New notification count incremented.' });
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};
+
+// CLEAR NEW NOTIFICATIONS
+export const resetNewNotifications = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Reset the newNotifications field to 0
+        user.newNotifications = 0;
+
+        // Save the updated user
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'New notification count reset to 0.' });
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};
+
+// GET USER SUSCRIBERS
+export const getSubscribers = async (req, res, next) => {
+    try {
+        const userId = req.params.userId;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        if (user) {
+            // Return the array of subscriber IDs
+            res.status(200).json({ subscribers: user.subscribers });
+        } else {
+            res.status(404).json({ error: "User not found." });
+        }
+    } catch (error) {
+        next(error);
+        console.error(error);
+    }
+};
+
+// TOGGLE NOTIFICATIONS
+export const toggleNotificationsEnabled = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Encuentra el usuario por su ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Alterna el valor de notificationsEnabled
+        user.notificationsEnabled = !user.notificationsEnabled;
+
+        // Guarda el usuario actualizado
+        await user.save();
+
+        // Devuelve la respuesta
+        res.status(200).json({ success: true, notificationsEnabled: user.notificationsEnabled });
+    } catch (error) {
+        console.error(error);
+        next(error);
     }
 };

@@ -38,7 +38,7 @@ const Image = styled.img`
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: black;
+  background-color: rgba(1, 1, 1, 0.5);
   object-fit: cover;
 `;
 
@@ -67,7 +67,7 @@ const Title = styled.h1`
   font-family: "Roboto Condensed", Helvetica;
   font-weight: normal;
   color: ${({ theme }) => theme.text};
-  width: 240px;
+  width: 234px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -78,13 +78,21 @@ const Title = styled.h1`
   overflow-wrap: break-word;
 `;
 
+const UnreadDot = styled.h1`
+  font-size: 20px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: normal;
+  color: #FF00C0;
+  margin-left: -5px;
+  position: absolute;
+`;
+
 const TimeAgo = styled.h1`
   font-size: 14px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: normal;
   color: ${({ theme }) => theme.textSoft};
 `;
-
 
 
 const ChannelContainer = styled.div`
@@ -94,24 +102,26 @@ const ChannelContainer = styled.div`
   height: max-content;
   width: max-content;
   margin-right: 15px;
+  margin-left: 6px;
 `;
 
 const ChannelImage = styled.img`
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  background-color: black;
+  background-color: rgba(1, 1, 1, 0.5);
   cursor: pointer;
   margin-left: 5px;
 `;
 
-const CardNotification = ({ notification }) => {
+
+const CardNotification = ({ notification, setNotificationsLoaded, handleNotificationCenter }) => {
   const { language, setLanguage } = useLanguage();
   const [video, setVideo] = useState({})
   const [channel, setChannel] = useState({})
 
+  // FETCH DATA
   useEffect(() => {
-
     const fetchData = async () => {
       try {
         const videoRes = await axios.get(`/videos/find/${notification.videoId}`);
@@ -119,6 +129,7 @@ const CardNotification = ({ notification }) => {
 
         setVideo(videoRes.data);
         setChannel(channelRes.data);
+        setNotificationsLoaded(true);
 
       } catch (err) {
         console.log(err);
@@ -128,6 +139,16 @@ const CardNotification = ({ notification }) => {
     fetchData();
 
   }, [notification]);
+
+  // MARK AS READ
+  const markNotificationAsRead = async () => {
+    try {
+      handleNotificationCenter();
+      await axios.put(`/users/notifications/${notification._id}/mark-as-read`);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
 
   // FORMATS
   if (language === "es") {
@@ -175,8 +196,13 @@ const CardNotification = ({ notification }) => {
 
 
   return (
-    <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+    <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }} onClick={markNotificationAsRead}>
       <Container>
+
+        {!notification.read && (
+          <UnreadDot> • </UnreadDot>
+        )}
+
         <Details>
           <TextsHeader>
             <ChannelContainer>

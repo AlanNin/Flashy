@@ -39,6 +39,12 @@ import {
     recoverPasswordUpdatePassword,
     sendRecoverUsernameRequest,
     getNotifications,
+    markNotificationAsRead,
+    incrementNewNotifications,
+    resetNewNotifications,
+    getSubscribers,
+    toggleNotificationsEnabled,
+    getUserByUsername,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -53,6 +59,9 @@ router.delete("/:id/remove", verifyToken, remove)
 
 // GET A USER
 router.get("/find/:id", getUser)
+
+// GET A USER BY USERNAME
+router.get("/findbyusername/:username", getUserByUsername)
 
 // SUBSCRIBE A USER
 router.put("/sub/:id", verifyToken, subscribe)
@@ -159,5 +168,19 @@ router.post('/recoverusername', sendRecoverUsernameRequest);
 // GET NOTIFICATIONS
 router.get('/notifications', verifyToken, getNotifications);
 
+// MARK NOTIFICATION AS READ
+router.put("/notifications/:notificationId/mark-as-read", verifyToken, markNotificationAsRead);
+
+// INCREMENT NEW NOTIFICATIONS
+router.put('/notifications/increment-new-notifications', verifyToken, incrementNewNotifications);
+
+// CLEAR NEW NOTIFICATIONS
+router.put('/notifications/reset-new-notifications', verifyToken, resetNewNotifications);
+
+// GET USER SUSCRIBERS
+router.get('/:userId/subscribers', getSubscribers);
+
+// TOGGLE NOTIFICATIONS
+router.post('/toggle-notifications', verifyToken, toggleNotificationsEnabled);
 
 export default router;

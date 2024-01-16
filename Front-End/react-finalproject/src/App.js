@@ -18,6 +18,7 @@ import Library from "./pages/Library";
 import SharedPlaylist from "./pages/SharedPlaylist";
 import FlashyContent from "./pages/FlashyContent";
 import Settings from "./pages/Settings";
+import Channel from "./pages/Channel";
 import NotFound404 from "./pages/NotFound404";
 import ConfirmUser from "./pages/ConfirmUser";
 import ConfirmEmailChange from "./pages/ConfirmEmailChange";
@@ -123,9 +124,9 @@ function App() {
                     <Route path="library" element={<Library />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="search" element={<Search />} />
-                    <Route path="signin" element={!currentUser ? <Signin /> : <NotFound404 />} />
-                    <Route path="signup" element={!currentUser ? <Signup /> : <NotFound404 />} />
-                    <Route path="recovery" element={!currentUser ? <Recovery /> : <NotFound404 />} />
+                    <Route path="signin" element={<Signin />} />
+                    <Route path="signup" element={<Signup />} />
+                    <Route path="recovery" element={<Recovery />} />
 
                     {/* Flashy Content */}
                     <Route path="music" element={<FlashyContent />} />
@@ -164,6 +165,13 @@ function App() {
                       element={<ConfirmEmailChange />}
                     >
                       <Route path=":token" element={<ConfirmEmailChange />} />
+                    </Route>
+
+                    <Route
+                      path="channel"
+                      element={<Channel />}
+                    >
+                      <Route path=":userid" element={<Channel />} />
                     </Route>
 
                     {/* HANDLE UNDEFINED ROUTE */}

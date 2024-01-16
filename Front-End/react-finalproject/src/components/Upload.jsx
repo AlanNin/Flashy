@@ -103,8 +103,8 @@ const fadeIn = keyframes`
 
 const Container = styled.div`
     position: relative;
-    width: 35%;
-    height: 90%;
+    width: 657px;
+    height: 837.9px;
     background: linear-gradient(#1D1D1D, #1A191B,#191819, #141214, #201D21   99% );
     color: ${({ theme }) => theme.text};
     padding: 20px 50px 0px 50px;;

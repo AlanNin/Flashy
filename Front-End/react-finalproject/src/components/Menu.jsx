@@ -700,7 +700,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
           </ItemLightMode>
 
           <Link
-            to={currentUser ? "settings" : "signin"}
+            to={currentUser ? `/channel/@${currentUser?.name}` : "signin"}
             style={{
               width: "100%",
               textDecoration: "none",

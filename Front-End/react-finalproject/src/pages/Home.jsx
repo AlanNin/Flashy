@@ -17,6 +17,7 @@ const MainContainer = styled.div`
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
   margin-bottom: 175px;
+  overflow-x: clip;
 `;
 
 const ShareContainer = styled.div`
@@ -80,6 +81,7 @@ const Wrapper = styled.div`
   background-color: rgba(15, 12, 18);
 `;
 
+
 const Home = ({ type }) => {
   const { language, setLanguage } = useLanguage();
   const [videos, setVideos] = useState([])
@@ -124,21 +126,10 @@ const Home = ({ type }) => {
   // STOP SCROLL WHEN ADDING TO PLAYLIST 
   const [addingToPlaylist, setAddingToPlaylist] = useState(false);
 
-  useEffect(() => {
-    if (addingToPlaylist) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [addingToPlaylist]);
-
   // CHIPI CHIPI CHAPA CHAPA DUBI DUBI DABA DABA 
   const selectRandomImage = () => {
     const random = Math.random();
-    const probability = 0.1; // Probabilidad 10%
+    const probability = 0.01; // Probabilidad 1%
 
     if (random < probability) {
       return ChipiChipiChapaChapa;
@@ -163,7 +154,6 @@ const Home = ({ type }) => {
         </ShareDiv>
         <GifH src={selectRandomImage()} />
       </ShareContainer>
-
 
       <TrendSlider />
 
