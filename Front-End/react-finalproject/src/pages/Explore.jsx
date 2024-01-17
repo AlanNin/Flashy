@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import SadFace from "../assets/NotSubbedIcono.png";
 import styled from "styled-components";
 import Card from "../components/Card";
+import Footer from "../components/Footer";
 import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
 
 const MainContainer = styled.div`
-  position: relative;
+  position: relative;    
+  display: flex;
+  flex-direction: column;
   width: 100%;
   top: 0;
   min-height: 100vh;
@@ -14,7 +17,6 @@ const MainContainer = styled.div`
   margin: auto;
   max-width: 1920px;
   overflow: hidden;
-  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const Header = styled.h1`
@@ -36,7 +38,7 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  padding: 32px 55px 32px 58px;
+  padding: 32px 55px 0px 58px;
 `;
 
 const NoVideosWrapper = styled.div`
@@ -97,7 +99,7 @@ const Home = ({ type = "random" }) => {
 
 
   return (
-    <MainContainer NoVideosFound={NoVideosFound}>
+    <MainContainer>
 
       <Header>{translations[language].explore}</Header>
 
@@ -119,6 +121,9 @@ const Home = ({ type = "random" }) => {
         </NoVideosWrapper>
       }
 
+      {!NoVideosFound &&
+        <Footer />
+      }
     </MainContainer>
 
   );

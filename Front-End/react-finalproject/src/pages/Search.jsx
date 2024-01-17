@@ -5,9 +5,12 @@ import styled from "styled-components";
 import SadFace from "../assets/NotSubbedIcono.png";
 import Card from "../components/Card";
 import { useLanguage } from '../utils/LanguageContext';
+import Footer from "../components/Footer";
 
 const MainContainer = styled.div`
-  position: relative;
+  position: relative;    
+  display: flex;
+  flex-direction: column;
   top: 0;
   margin: auto;
   min-height: 100vh;
@@ -15,7 +18,6 @@ const MainContainer = styled.div`
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
   overflow: hidden;
-  margin-bottom: 175px;
 `;
 
 const Container = styled.div`
@@ -94,6 +96,16 @@ const Search = () => {
         },
     };
 
+    // RESET SCROLL
+    const scrollToTop = () => {
+        window.scrollTo(0, 0);
+    };
+
+
+    useEffect(() => {
+        scrollToTop();
+    }, []);
+
 
     useEffect(() => {
         setNoVideosFound(false);
@@ -128,6 +140,9 @@ const Search = () => {
                 </NoVideosWrapper>
             }
 
+            {!NoVideosFound &&
+                <Footer />
+            }
         </MainContainer>
     );
 };

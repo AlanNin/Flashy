@@ -31,6 +31,7 @@ import NotificationCenter from "./NotificationCenter";
 import axios from "axios";
 import io from 'socket.io-client';
 import { userUpdateNotifications, userClearNotifications } from "../redux/userSlice";
+import Help from "./Help";
 
 const Container = styled.div`
   position: fixed;
@@ -271,7 +272,7 @@ const Email = styled.h3`
   font-weight: normal;
   color: white;
   margin-right: auto;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `;
 
 const UserOptions = styled.div`
@@ -283,13 +284,14 @@ const UserOptions = styled.div`
   top: 50px;
   border-radius: 12px 0px 12px 12px;
   background: rgba(36, 36, 36);
-  padding: 20px 20px 20px 20px; 
+  padding: 20px 20px 10px 20px; 
   gap: 10px;
 `;
 
 const WrapperMenuUser = styled.div`
-  padding: 0px 0px;
-  background-color: transparent;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
 `;
 
 const MenuUserDiv = styled.div`
@@ -297,7 +299,7 @@ const MenuUserDiv = styled.div`
   align-items: center;
   gap: 10.5px;
   cursor: pointer;
-  padding: 22px 140px 22px 0px;
+  padding: 22px 20px 22px 0px;
   border-radius: 30px;
   height: 0px;
   transition: background-color 0.5s;
@@ -327,16 +329,18 @@ const MenuUserText = styled.h3`
 `;
 
 const MenuUserLogoutDiv = styled.div`
+  position: absolute;  
   display: flex;
   align-items: center;
   gap: 10.5px;
   cursor: pointer;
-  padding: 22px 10px 22px 120px;  /* Adjusted padding order for better alignment */
   border-radius: 30px;
-  height: 0px;
+  padding: 5px 10px;
   font-family: "Roboto Condensed", Helvetica;
   font-size: 18px;
   color: ${({ theme }) => theme.text};
+  top: 15px;
+  right: 10px;
 `;
 
 const LogoutUserText = styled.h3`
@@ -415,11 +419,9 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       now: "Now",
       search: "Search",
       signin: "Sign in",
-      profile: "My Channel",
+      channel: "Channel",
       settings: "Settings",
       help: "Help",
-      terms: "Terms",
-      privacy: "Privacy",
       about: "About",
       logout: "Log out",
 
@@ -429,11 +431,9 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       now: "Ahora",
       search: "Buscar",
       signin: "Iniciar Sesión",
-      profile: "Mi canal",
+      channel: "Canal",
       settings: "Ajustes",
       help: "Ayuda",
-      terms: "Términos",
-      privacy: "Privacidad",
       about: "Acerca  de",
       logout: "Cerrar Sesión",
     },
@@ -627,6 +627,32 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     }
   };
 
+  // HELP
+  const [helpPopup, setHelpPopup] = useState(false);
+
+  const handleHelp = () => {
+    toggleDropdown();
+    setHelpPopup(true);
+  };
+
+  const handleCloseHelp = () => {
+    setHelpPopup(false);
+  };
+
+  // STOP SCROLL HELP
+  useEffect(() => {
+    if (helpPopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [helpPopup]);
+
+
   // HIDE NAVBAR SIGN IN SIGN UP, MANTENER ABAJO AL FINAL DE CODIGO, ANTES DE RETURN
   const isSigninOrSignup = location.pathname === '/signin' || location.pathname === '/signup' || location.pathname === '/recovery';
 
@@ -699,6 +725,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
             <DisplayName>{currentUser.displayname}</DisplayName>
             <Email>{currentUser.email}</Email>
             <WrapperMenuUser>
+
               <Link to={`/channel/@${currentUser?.name}`} style={{
                 width: "100%",
                 textDecoration: "none",
@@ -707,7 +734,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
                 <MenuUserDiv onClick={toggleDropdown}>
 
                   <MenuUserImg src={ProfileIcono} />
-                  <MenuUserText>{translations[language].profile}</MenuUserText>
+                  <MenuUserText>{translations[language].channel}</MenuUserText>
 
                 </MenuUserDiv>
               </Link>
@@ -725,36 +752,12 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
                 </MenuUserDiv>
               </Link>
 
-              <Link to="/help" style={{
-                width: "100%",
-                textDecoration: "none",
-                color: "inherit"
-              }}>
-                <MenuUserDiv onClick={toggleDropdown}>
-                  <MenuUserImg src={AyudaIcono} />
-                  <MenuUserText>{translations[language].help}</MenuUserText>
-                </MenuUserDiv>
-              </Link>
-              <Link to="/terms" style={{
-                width: "100%",
-                textDecoration: "none",
-                color: "inherit"
-              }}>
-                <MenuUserDiv onClick={toggleDropdown}>
-                  <MenuUserImg src={TermsIcono} />
-                  <MenuUserText>{translations[language].terms}</MenuUserText>
-                </MenuUserDiv>
-              </Link>
-              <Link to="/privacy" style={{
-                width: "100%",
-                textDecoration: "none",
-                color: "inherit"
-              }}>
-                <MenuUserDiv onClick={toggleDropdown}>
-                  <MenuUserImg src={PrivacyIcono} />
-                  <MenuUserText>{translations[language].privacy}</MenuUserText>
-                </MenuUserDiv>
-              </Link>
+
+              <MenuUserDiv onClick={handleHelp}>
+                <MenuUserImg src={AyudaIcono} />
+                <MenuUserText>{translations[language].help}</MenuUserText>
+              </MenuUserDiv>
+
               <Link to="/about" style={{
                 width: "100%",
                 textDecoration: "none",
@@ -765,7 +768,9 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
                   <MenuUserText>{translations[language].about}</MenuUserText>
                 </MenuUserDiv>
               </Link>
+
             </WrapperMenuUser>
+
             <Link to="/" style={{
               width: "100%",
               textDecoration: "none",
@@ -776,10 +781,14 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
                 <LogoutUserImg src={LogoutIcono} />
               </MenuUserLogoutDiv>
             </Link>
+
           </UserOptions>
         )}
       </Container >
 
+      {helpPopup && (
+        <Help handleCloseHelp={handleCloseHelp} />
+      )}
       {open && <Upload setOpen={setOpen} />}
       {isNotificationCenterOpen && <NotificationCenter notifications={notifications} handleNotificationCenter={handleNotificationCenter} notificationButtonRef={notificationButtonRef} />}
     </>

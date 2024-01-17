@@ -20,6 +20,8 @@ import {
     addAllowedUserToPrivateVideo,
     removeAllowedUserFromPrivateVideo,
     getAllowedUsersForVideo,
+    getAllUserVideos,
+    getAllPublicUserVideos,
 } from "../controllers/video.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -30,10 +32,10 @@ router.use(cors());
 router.post("/", verifyToken, addVideo)
 
 // UPDATE A VIDEO
-router.put("/:id", verifyToken, updateVideo)
+router.put("/:id/update", verifyToken, updateVideo)
 
 // DELETE A VIDEO
-router.delete("/:id", verifyToken, deleteVideo)
+router.delete("/:id/delete", verifyToken, deleteVideo)
 
 // GET A VIDEO
 router.get("/find/:id", getVideo)
@@ -82,5 +84,11 @@ router.delete('/:id/allowedUsers', verifyToken, removeAllowedUserFromPrivateVide
 
 // GET ALLOWED USERS TO PRIVATE VIDEO
 router.get('/:id/allowedUsers', getAllowedUsersForVideo);
+
+// GET ALL USER VIDEOS
+router.get('/user/allvideos', verifyToken, getAllUserVideos);
+
+// GET PUBLIC VIDEOS FROM USER 
+router.get('/user/:userId/publicVideos', getAllPublicUserVideos);
 
 export default router;

@@ -10,9 +10,12 @@ import Card from "../components/Card";
 import { useLanguage } from '../utils/LanguageContext';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import Footer from "../components/Footer";
 
 const MainContainer = styled.div`
-  position: relative;
+position: relative;    
+display: flex;
+flex-direction: column;
   width: 100%;
   top: 0;
   min-height: 100vh;
@@ -20,7 +23,6 @@ const MainContainer = styled.div`
   margin: auto;
   max-width: 1920px;
   overflow: hidden;
-  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const HeaderDiv = styled.div`
@@ -145,7 +147,7 @@ const Home = () => {
 
 
   return (
-    <MainContainer NoVideosFound={NoVideosFound}>
+    <MainContainer>
 
       <HeaderDiv tag={tag}>
         <HeaderSubHeaderDiv>
@@ -177,6 +179,10 @@ const Home = () => {
           <NovideosImg src={SadFace} />
           <NoVideos1>{translations[language].novideo1}</NoVideos1>
         </NoVideosWrapper>
+      }
+
+      {!NoVideosFound &&
+        <Footer />
       }
 
     </MainContainer>

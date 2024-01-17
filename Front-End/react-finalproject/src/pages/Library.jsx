@@ -680,7 +680,7 @@ const UnfollowPlaylistCancel = styled.div`
     font-size: 17px;
 `;
 
-const UnfollowPlaylistDelete = styled.div`
+const UnfollowPlaylistUnfollow = styled.div`
     cursor: pointer;
     &:hover {
     background: rgba(45, 45, 45);
@@ -1241,7 +1241,7 @@ const Library = () => {
     setInputs({ description: undefined });
   };
 
-  const handleSavePlaylisDescription = async () => {
+  const handleSavePlaylistDescription = async () => {
     try {
       if (inputs.description === "") {
         await axios.delete(`/users/playlists/${selectedPlaylist?._id}/delete-description`);
@@ -1612,7 +1612,7 @@ const Library = () => {
                         </EditPlaylistInfoDescriptionCharCounter>
                         <EditPlaylistInfoDescriptionButtons>
                           <EditPlaylistInfoDescriptionCancel onClick={handleEditPlaylistDescription}> Cancel </EditPlaylistInfoDescriptionCancel>
-                          <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylisDescription}> Save </EditPlaylistInfoDescriptionSave>
+                          <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylistDescription}> Save </EditPlaylistInfoDescriptionSave>
                         </EditPlaylistInfoDescriptionButtons>
                       </div>
                     ) : (
@@ -1729,9 +1729,9 @@ const Library = () => {
                 <UnfollowPlaylistCancel onClick={() => handleUnfollowConfirmation(false)}>
                   Cancel
                 </UnfollowPlaylistCancel>
-                <UnfollowPlaylistDelete onClick={() => handleUnfollowConfirmation(true)}>
+                <UnfollowPlaylistUnfollow onClick={() => handleUnfollowConfirmation(true)}>
                   Unfollow
-                </UnfollowPlaylistDelete>
+                </UnfollowPlaylistUnfollow>
               </OptionsUnfollowCancel>
             </UnfollowPlaylistPopupWrapper>
           </UnfollowPlaylistPopupContainer>

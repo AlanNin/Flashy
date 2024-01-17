@@ -5,6 +5,7 @@ import BuscarIcono from "../assets/BuscarIcono.png";
 import ClearHistory from "../assets/BorrarComentarioIcono.png";
 import EmptyWatchHistoryIcon from "../assets/NotSubbedIcono.png";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
+import Footer from "../components/Footer";
 import { useLanguage } from '../utils/LanguageContext';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +13,8 @@ import axios from "axios";
 
 const MainContainer = styled.div`
     position: relative;    
-    display: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-height: 100vh;
     background-color: rgba(15, 12, 18);
@@ -558,6 +560,10 @@ const History = () => {
 
                     </ClearHistoryPopupContainer>
                 )
+            }
+
+            {historyLoaded && videos.length > 0 &&
+                <Footer />
             }
 
         </MainContainer >

@@ -183,22 +183,54 @@ export const addVideo = async (req, res, next) => {
 };
 
 export const updateVideo = async (req, res, next) => {
+    const userId = req.user.id;
+    const videoId = req.params.id;
+    const { privacy, ...videoData } = req.body;
+
     try {
-        const video = await Video.findById(req.params.id);
-        if (!video) return next(createError(404, "Video not found!"));
-        if (req.user.id === video.userId) {
-            const updatedVideo = await Video.findByIdAndUpdate(
-                req.params.id,
-                {
-                    $set: req.body,
-                },
-                { new: true }
-            );
-            res.status(200).json(updatedVideo);
-        } else {
-            return next(createError(403, "You can update only your video!"));
+        // Verificar si el usuario tiene permisos para actualizar el video
+        const existingVideo = await Video.findById(videoId);
+        if (!existingVideo || existingVideo.userId.toString() !== userId) {
+            throw createError(403, "No tienes permisos para actualizar este video.");
         }
+
+        // Actualizar información del video
+        await Video.findByIdAndUpdate(videoId, { privacy, ...videoData });
+
+        // Actualizar subtítulos si se proporcionan
+        if (videoData.subtitles && videoData.subtitles.length > 0) {
+            const updatedSubtitles = await Promise.all(videoData.subtitles.map(async (subtitle) => {
+                try {
+                    // Sube el archivo de subtítulos a Cloudinary
+                    const cloudinaryResponse = await cloudinary.uploader.upload(subtitle.url, {
+                        resource_type: 'raw', // Indica que el recurso no es una imagen
+                        public_id: `subtitle_${videoId}_${subtitle.name}`,
+                    });
+
+                    // Retorna un objeto actualizado para este subtítulo
+                    return {
+                        name: subtitle.name,
+                        url: cloudinaryResponse.secure_url,
+                    };
+                } catch (uploadError) {
+                    console.error(`Error uploading subtitle "${subtitle.name}":`, uploadError);
+                    // Puedes manejar el error de carga de subtítulos aquí
+                    // Puedes retornar el subtítulo original sin cambios o hacer otra lógica de manejo de errores
+                    return subtitle;
+                }
+            }));
+
+            // Actualiza solo si hay subtítulos
+            if (updatedSubtitles.length > 0) {
+                await Video.findByIdAndUpdate(videoId, {
+                    subtitles: updatedSubtitles,
+                });
+            }
+        }
+
+        res.status(200).json({ message: "Video actualizado correctamente." });
     } catch (err) {
+        console.error("Error al actualizar el video:", err);
         next(err);
     }
 };
@@ -640,6 +672,66 @@ export const getVideoProgress = async (req, res, next) => {
             // Si no hay progreso registrado, devuelve 0 o cualquier valor predeterminado
             res.status(200).json({ progress: 0 });
         }
+    } catch (err) {
+        next(err);
+    }
+};
+
+// GET All VIDEOS FROM USER 
+export const getAllUserVideos = async (req, res, next) => {
+    const userId = req.user.id;
+    const { sort } = req.query;
+
+    try {
+        let userVideos;
+
+        switch (sort) {
+            case 'latest':
+                userVideos = await Video.find({ userId: userId }).sort({ createdAt: -1 });
+                break;
+            case 'popular':
+                userVideos = await Video.find({ userId: userId }).sort({ views: -1 });
+                break;
+            case 'oldest':
+                userVideos = await Video.find({ userId: userId }).sort({ createdAt: 1 });
+                break;
+            default:
+                userVideos = await Video.find({ userId: userId });
+        }
+
+        res.status(200).json(userVideos);
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+
+// GET PUBLIC VIDEOS FROM USER 
+export const getAllPublicUserVideos = async (req, res, next) => {
+    const userId = req.params.userId;
+    const { sort } = req.query; // Obtén el parámetro de consulta "sort"
+
+    try {
+        let userPublicVideos;
+
+        // Verifica el valor de "sort" y aplica la ordenación correspondiente
+        switch (sort) {
+            case 'latest':
+                userPublicVideos = await Video.find({ userId: userId, privacy: 'public' }).sort({ createdAt: -1 });
+                break;
+            case 'popular':
+                userPublicVideos = await Video.find({ userId: userId, privacy: 'public' }).sort({ views: -1 });
+                break;
+            case 'oldest':
+                userPublicVideos = await Video.find({ userId: userId, privacy: 'public' }).sort({ createdAt: 1 });
+                break;
+            default:
+                // Si no se proporciona un valor válido para "sort", devolver todos los videos públicos sin ordenar
+                userPublicVideos = await Video.find({ userId: userId, privacy: 'public' });
+        }
+
+        res.status(200).json(userPublicVideos);
     } catch (err) {
         next(err);
     }

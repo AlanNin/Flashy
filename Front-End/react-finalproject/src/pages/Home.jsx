@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Card from "../components/Card";
 import HomeSlideShow from "../components/HomeSlideShow/SlideShow";
 import TrendSlider from "../components/TrendSlider";
+import Footer from "../components/Footer";
 import { useLanguage } from '../utils/LanguageContext';
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +17,6 @@ const MainContainer = styled.div`
   min-height: 100vh;
   background-color: rgba(15, 12, 18);
   max-width: 1920px;
-  margin-bottom: 175px;
   overflow-x: clip;
 `;
 
@@ -123,9 +123,6 @@ const Home = ({ type }) => {
     fetchVideos();
   }, [type, currentUser]);
 
-  // STOP SCROLL WHEN ADDING TO PLAYLIST 
-  const [addingToPlaylist, setAddingToPlaylist] = useState(false);
-
   // CHIPI CHIPI CHAPA CHAPA DUBI DUBI DABA DABA 
   const selectRandomImage = () => {
     const random = Math.random();
@@ -163,11 +160,13 @@ const Home = ({ type }) => {
 
         <Container>
           {videos.map((video) => (
-            <Card key={video._id} video={video} setAddingToPlaylist={setAddingToPlaylist} addingToPlaylist={addingToPlaylist} />
+            <Card key={video._id} video={video} />
           ))}
         </Container>
 
       </Wrapper>
+
+      <Footer />
 
     </MainContainer>
 

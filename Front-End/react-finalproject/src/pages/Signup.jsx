@@ -817,6 +817,16 @@ const Signup = () => {
 
   }, [currentUser]);
 
+  // LINKS
+  const handleGoTerms = () => {
+    navigate("/terms");
+  };
+
+  const handleGoContact = () => {
+    navigate("/contact");
+  };
+
+
   const translations = {
     en: {
       title: "Sign up",
@@ -830,9 +840,9 @@ const Signup = () => {
       placeholderpassword: "Password",
       placeholderconfirmpassword: "Confirm Password",
       doyoualreadyhaveanaccount: "DO YOU ALREADY HAVE AN ACCOUNT?",
-      support: "SUPPORT",
+      contact: "CONTACT",
       privacynotice: "PRIVACY NOTICE",
-      termsofservice: "TERMS OF SERVICE",
+      termsofservice: "TERMS OF SERVICE AND CONDITIONS OF USE",
       cookiepreferences: "COOKIE PREFERENCES",
       subtextlink1: "THIS SITE IS PROTECTED BY HCAPTCHA AND ITS ",
       subtextlink2: " AND ",
@@ -870,9 +880,9 @@ const Signup = () => {
       placeholderpassword: "Contraseña",
       placeholderconfirmpassword: "Confirmar contraseña",
       doyoualreadyhaveanaccount: "¿YA TIENES UNA CUENTA?",
-      support: "SOPORTE",
+      contact: "CONTACTO",
       privacynotice: "AVISO DE PRIVACIDAD",
-      termsofservice: "TÉRMINOS DE USO",
+      termsofservice: "TÉRMINOS DE USO Y CONDICIONES DE USO",
       cookiepreferences: "PREFERENCIAS DE COOKIES",
       subtextlink1: "ESTA PÁGINA ESTÁ PROTEGIDA POR HCAPTCHA Y SU ",
       subtextlink2: " Y LOS ",
@@ -1118,10 +1128,8 @@ const Signup = () => {
           <MoreInfo>
 
             <More>
-              <Links>{translations[language].support}</Links>
-              <Links>{translations[language].privacynotice}</Links>
-              <Links>{translations[language].termsofservice}</Links>
-              <Links>{translations[language].cookiepreferences}</Links>
+              <Links onClick={handleGoContact}>{translations[language].contact}</Links>
+              <Links onClick={handleGoTerms}>{translations[language].termsofservice}</Links>
 
 
               <LanguageSwitch onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>

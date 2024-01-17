@@ -13,7 +13,6 @@ import FollowingIcon from "../assets/FollowingIcon.png";
 import CopyIcono from "../assets/CopyIcono.png";
 import WhatsappIcon from "../assets/WhatsappIcon.png";
 import CloseXGr from "../assets/CloseXGr.png";
-import GIF404 from "../assets/GIF404.gif";
 import CardLibraryShared from "../components/CardLibraryShared";
 import NotFound404Component from "../components/NotFound404Component";
 import moment from "moment";
@@ -705,7 +704,7 @@ const SharedPlaylist = () => {
 
       {playlistExists ? (
         <>
-          {selectedPlaylist?.privacy === 'private' ? (
+          {selectedPlaylist?.privacy === 'private' && selectedPlaylist?.creatorId !== currentUser._id ? (
             <>
               <NotAllowedContainerBg>
                 <NotAllowedContainer>

@@ -62,7 +62,7 @@ const HeaderTitle = styled.h1`
 `;
 
 const HeaderSettingsImg = styled.img`
-    wwidth: 29px;
+    width: 29px;
     height: 29px;
     padding: 6px;
     border-radius: 50%;
@@ -189,8 +189,6 @@ const NotificationCenter = ({ notifications, handleNotificationCenter, notificat
                 <HeaderSettingsImg src={SettingsIcon} onClick={handleGoToNotificationSettings} />
             </Header>
             <IsShowingContainer notificationsLoaded={notificationsLoaded}>
-
-
 
                 <Wrapper>
                     <CardContainer>

@@ -1034,11 +1034,9 @@ const TrendSlider = ({ type = "trend" }) => {
   }, [MoreInfoInputs.userId, MoreInfoInputs.videoId]);
 
   // REDIRECTS
-
-  const handleGoToChannel = (channelId) => {
-    navigate(`/channel/${channelId}`);
-    // Reiniciar la página después de la redirección
-    navigate('/channel', { replace: true });
+  const navigate = useNavigate();
+  const handleGoToChannel = () => {
+    navigate(`/channel/@${channel?.name}`);
   };
 
   // SHARE
@@ -1137,7 +1135,7 @@ const TrendSlider = ({ type = "trend" }) => {
                     ref={videoPlayer}
                     url={MoreInfoInputs.videoUrl}
                     controls={false}
-                    autoplay={true}
+                    autoPlay={true}
                     playing={true}
                     muted={isVideoMuted}
                     width='910px'
@@ -1190,9 +1188,11 @@ const TrendSlider = ({ type = "trend" }) => {
                   </WatchNowPopupDiv>
                 </Link>
 
-                <SaveButtonDiv onClick={handleSaveVideo}>
-                  <SaveImg src={Save4Popup} />
-                </SaveButtonDiv>
+                {currentUser && (
+                  <SaveButtonDiv onClick={handleSaveVideo}>
+                    <SaveImg src={Save4Popup} />
+                  </SaveButtonDiv>
+                )}
 
               </WatchNowSaveDiv>
 
@@ -1205,9 +1205,9 @@ const TrendSlider = ({ type = "trend" }) => {
                   <ChannelContainer>
                     <ChannelImagePopup
                       src={channel.img}
-                      onClick={() => handleGoToChannel(channelId)}
+                      onClick={() => handleGoToChannel()}
                     />
-                    <ChannelNamePopup onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelNamePopup>
+                    <ChannelNamePopup onClick={() => handleGoToChannel()} > {channel.displayname} </ChannelNamePopup>
 
                     {MoreInfoInputs.tags.length === 0 && (
                       <ShareButtonNoTag onClick={handleShare} ref={buttonShareRef}>
@@ -1259,7 +1259,7 @@ const TrendSlider = ({ type = "trend" }) => {
                       <TagsDiv>
                         <TagsLabel style={{ color: 'tu-color-aquí' }}>Tags:&nbsp;</TagsLabel>
                         {MoreInfoInputs.tags.map((tag, index) => (
-                          <TagsTxt key={index}>{index > 0 ? ', ' : ''}{tag.charAt(0).toUpperCase() + tag.slice(1)}</TagsTxt>
+                          <TagsTxt key={index}>{index > 0 ? ', ' : ''}{tag.charAt(0).toUpperCase() + tag?.slice(1)}</TagsTxt>
                         ))}
                       </TagsDiv>
                     )}

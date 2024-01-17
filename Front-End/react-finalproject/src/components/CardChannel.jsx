@@ -1,30 +1,42 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled, { css, keyframes } from "styled-components";
-import axios from 'axios';
-import ImageSlider from "./ImageSlider"
-import VideoSlide from "./VideoSlide";
+import axios from "axios";
 import { Link, useNavigate, useHistory } from 'react-router-dom';
+import styled, { css, keyframes } from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
-import { useLanguage } from '../../utils/LanguageContext';
+import { useLanguage } from '../utils/LanguageContext';
 import moment from "moment";
 import "moment/locale/es";
-import CloseX from "../../assets/CloseX.png";
-import MuteIcono from "../../assets/MuteIcono.png";
-import NoMuteIcono from "../../assets/NoMuteIcono.png";
-import WatchNowIcono from "../../assets/VerAhoraIcono.png";
-import Save4Popup from "../../assets/Save4Popup.png";
-import VideoLikeIcono from "../../assets/VideoLikeIcono.png";
-import VideoDislikeIcono from "../../assets/VideoDislikeIcono.png";
-import ViewsIconG from '../../assets/ViewsIcono2.png';
-import LanguageIconoG from '../../assets/LanguageIconoG.png';
-import SubtitleIconoG from '../../assets/SubtitleIconoG.png';
-import VideoShareIcono from "../../assets/VideoShareIconoPopup.png";
-import WhatsappIcon from "../../assets/WhatsappIcon.png";
-import CopyIcono from "../../assets/CopyIcono.png";
-import CloseXGr from "../../assets/CloseXGr.png"
+import ViewsIcon from '../assets/ViewsTedenciaIcono.png';
+import PlayButton from "../assets/VerAhoraIcono.png";
+import Save4Card from "../assets/Save4Card.png";
+import ArrowDown from "../assets/ArrowDown.png";
+import FechaIcono from "../assets/FechaIconoG.png"
+import DuracionIcono from "../assets/DuracionIconoG.png"
+import LanguageIcono from '../assets/IdiomaIconoG.png';
+import CloseX from "../assets/CloseX.png";
+import MuteIcono from "../assets/MuteIcono.png";
+import NoMuteIcono from "../assets/NoMuteIcono.png";
+import WatchNowIcono from "../assets/VerAhoraIcono.png";
+import Save4Popup from "../assets/Save4Popup.png";
+import VideoLikeIcono from "../assets/VideoLikeIcono.png";
+import VideoDislikeIcono from "../assets/VideoDislikeIcono.png";
+import ViewsIconG from '../assets/ViewsIcono2.png';
+import LanguageIconoG from '../assets/LanguageIconoG.png';
+import SubtitleIconoG from '../assets/SubtitleIconoG.png';
+import VideoShareIcono from "../assets/VideoShareIconoPopup.png";
+import WhatsappIcon from "../assets/WhatsappIcon.png";
+import CopyIcono from "../assets/CopyIcono.png";
+import RemoveTrashcan from "../assets/RemoveTrashcan.png";
+import AjustesIcono from "../assets/AjustesIcono.png";
+import CloseXGr from "../assets/CloseXGr.png";
 import ReactPlayer from 'react-player';
-import Card4CardPopup from "../Card4CardPopup";
-import PlaylistSelectBoxVideo from "../../components/PlaylistSelectBoxVideo";
+import Card4CardPopup from "./Card4CardPopup";
+import PlaylistSelectBoxVideo from "./PlaylistSelectBoxVideo";
+import EditVideo from "./EditVideo";
+import PublicIcon from "../assets/PublicIcon.png";
+import PrivateIcon from "../assets/PrivateIcon.png";
+import UnlistedIcon from "../assets/UnlistedIcon.png";
+
 import { toast } from 'react-toastify';
 
 import {
@@ -43,16 +55,357 @@ import {
   XIcon,
 } from "react-share";
 
-const SlideShowContainer = styled.div`
-  background-size: cover;
-  background-position: center center;
-  position: flex;
-  top: -56px;
-  height: 540px;
+const ImageContainer = styled.div`
+  position: relative;
   width: 100%;
+  height: 200px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
+// CONTAINER HOVER ...
+const ContainerHoverInfo = styled.div`
+  visibility: hidden; 
+  width: 100%;
+  height: max-content;
+  position: absolute;
+  background: rgba(19, 16, 22);
+  box-shadow: 0px 4px 7px 3px rgba(0, 0, 0, 0.9);
+  border-radius: 0px 0px 5px 5px;
+  padding-bottom: 5px;
+  z-index: 2;
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+`;
+
+const ButtonsContainer = styled.div`
+  width: 100%;
+  height: max-content;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0px 10px;
+  display: flex;
+  gap: 10px;
+`;
+
+const ButtonDivStyles = styled.div`
+  position: relative;
+  display: flex;
+  padding: 4px;
+  height: max-content;
+  width: max-content;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(94, 80, 117, 0.2);
+  border: 1px solid #403f3f;
+  transition: background 0.3s ease;
+  &:hover {
+    background: rgba(26, 26, 26, 0.5);
+  }
+  cursor: pointer;
+`;
+
+const ButtonImgStyles = styled.img`
+  width: 20px;
+  height: 20px;
+`;
+
+const PlayButtonImg = styled(ButtonImgStyles)`
+  margin-left: 3px;
+`;
+
+const PlayButtonDiv = styled(ButtonDivStyles)`
+  padding: 6px 5px;
+  background: rgba(12, 7, 15, 0.9);
+  transition: background 0.3s ease;
+  border: 0px solid transparent;
+
+  &:hover {
+    background: rgba(28, 25, 36, 0.5);
+  }
+`;
+
+const MoreButtonImg = styled(ButtonImgStyles)`
+  margin-top: 1px;
+  margin-bottom: -1px;
+`;
+
+
+const ConfigButtonDiv = styled(ButtonDivStyles)`
+  margin-left: auto;
+`;
+
+const MoreButtonDiv = styled(ButtonDivStyles)`
+  margin-right: 20px;
+  margin-left: ${({ isCurrentUserUploader }) => (!isCurrentUserUploader ? 'auto' : '')};
+`;
+
+const ProgressContainer = styled.div`
+  postition: relative;  
+  display: flex;
+  align-items: center;
+  margin-left: 14px;
+  padding-bottom: 5px;
+  margin-top: 5px;
+`;
+
+const ProgressBar = styled.div`
+  width: 78%;
+  height: 2px;
+  background-color: rgba(117, 116, 116, 0.1);
+  border-radius: 1px;
+  bottom: 0px;
+  z-index: 2;
+  display: flex;
+`;
+
+const ProgressIndicator = styled.div`
+  height: 100%;
+  width: ${(props) => `${props.progress}%`};
+  background-color: rgba(145, 1, 111);
+  border-radius: 1px;
+`;
+
+const ProgressTxt = styled.div`
+  font-size: 11px;
+  color: ${({ theme }) => theme.textSoft};
+  margin-left: 15px;
+  font-family: "Roboto Condensed", Helvetica;
+`;
+
+/// ...
+
+const Container = styled.div`
+  width: 339px;
+  margin-bottom: 0px;
+  transition: transform 0.3s ease;
+  transform-origin: center center;
+  position: relative;
+  z-index: 1;
+
+  ${props =>
+    (props.isTransitioning) &&
+    css`
+      z-index: 2;
+    `}
+
+  &:hover {
+    z-index: 2;
+    transform: translateY(-45px) scale(1.3); 
+    transition: transform 0.3s ease 0.5s;
+
+    /* Cambia la visibilidad del ContainerHoverInfo */
+    & ${ContainerHoverInfo} {
+      transition-delay: 0.5s;
+      visibility: visible;
+      animation: fadeIn 0.5s ease-in-out 0.3s forwards;
+    }
+
+    & ${ImageContainer} {
+      transition-delay: 0.5s;
+      border-radius: 5px 5px 0px 0px;
+    }
+  }
+
+  &:not(:hover) {
+    /* Otros estilos cuando no hay hover */
+    & ${ContainerHoverInfo} {
+      transition-delay: 0.3s;
+      visibility: hidden;
+      opacity: 0;
+      animation: fadeOut 0.3s ease-in-out forwards;
+      z-index: 1;
+    }
+  }
+`;
+
+const ImageContainerDif = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(195deg, rgba(0, 0, 0, 0.00) 22%, #000 98%), linear-gradient(160deg, rgba(0, 0, 0, 0.00) 60%, #000 98%);
   z-index: 1;
 `;
 
+const Image = styled.img`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  background-color: black;
+`;
+
+const InfoViews = styled.div`
+  position: absolute;
+  margin: 10px;
+  height: 20px;
+  width: max-content;
+  background-color: rgba(196, 90, 172, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 3px 10px;
+  z-index: 2;
+  left: 0px;
+  gap: 2px;
+`;
+
+const ImgViews = styled.img`
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
+  z-index: 2;
+`;
+
+
+const TxtViews = styled.h1`
+  font-size: 15px;
+  color: white;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: 400;
+  text-align: center;
+  margin-top: 1px;  
+`;
+
+const InfoPrivacy = styled.div`
+  position: absolute;
+  margin: 10px;
+  height: 20px;
+  width: max-content;
+  background-color: rgba(14, 8, 20, 0.8);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  z-index: 2;
+  right: 0px;
+`;
+
+const ImgPrivacy = styled.img`
+  height: 15px;
+  width: 15px;
+  z-index: 2;
+`;
+
+const InsideContainer = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 15px 15px 15px;
+  bottom: 0px;
+  z-index: 2;
+`;
+
+const Title = styled.h1`
+  font-size: 16px;
+  font-family: "Roboto Condensed", Helvetica;
+  font-weight: normal;
+  max-width: 95%;
+  color: ${({ theme }) => theme.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+`;
+
+const Details = styled.div`
+  display: flex;
+  gap: 14px;
+  flex: 1;
+  margin-left: 10px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  align-items: center;
+  text-align: center;
+`;
+
+const ChannelImage = styled.img`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #999;
+  cursor: pointer;
+  margin-left: 4px;
+`;
+
+const ChannelName = styled.h2`
+  font-size: 12px;
+  color: ${({ theme }) => theme.textSoft};
+  margin-left: -7px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-family: "Roboto Condensed", Helvetica;
+  max-width: 75px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
+const DetailContainer = styled.div`
+  font-size: 12px;
+  padding: 5px 0px;
+  color: ${({ theme }) => theme.textSoft};
+  display: flex;
+  align-items: center;
+  text-align: center;
+  font-family: "Roboto Condensed", Helvetica;
+  margin-right: 5px;
+`;
+
+const EstiloIconos = styled.img`
+  width: 14px;
+  height: 14px;
+  margin-right: 3px;
+  margin-top: -2px;
+`;
+
+const DetailTagContainer = styled.div`
+  font-size: 10px;
+  padding: 5px 5px 0px 5px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-top: -5px;
+  font-family: "Roboto Condensed", Helvetica;
+  margin-left: 4px;
+`;
+
+const TagContainer = styled.div`
+  font-size: 14px;
+  padding: 5px;
+  color: ${({ theme }) => theme.textSoft};
+  display: flex;
+  align-items: center;
+  text-align: center;
+  font-family: "Roboto Condensed", Helvetica;
+`;
 
 // POP UP MORE INFO
 
@@ -115,9 +468,7 @@ const PopupContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 5;
   animation: ${popUpAnimation} 0.3s ease-in-out forwards;
-
 
     ${props => props.closing && css`
       animation: ${popDownAnimation} 0.5s ease-in-out forwards;
@@ -732,7 +1083,6 @@ const ProgressContainerPopup = styled.div`
   height: max-content;
 `;
 
-
 const ProgressBarPopup = styled.div`
   width: 72%;
   height: 2px;
@@ -773,17 +1123,98 @@ const LabelFooter = styled.h1`
     justify-content: center;
 `;
 
-const HomeSlideShow = ({ type = "mostliked" }) => {
-  const { language, setLanguage } = useLanguage();
+// DELETE VIDEO
 
-  // POPUP CARD RELATED
+const DeleteVideoContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #000000b9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+`;
+
+const DeleteVideoPopupWrapper = styled.div`
+    width: max-content;
+    height: max-content;
+    background: #1D1D1D;
+    color: ${({ theme }) => theme.text};
+    padding: 30px 30px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+`;
+
+const DeleteVideoPopupTitle = styled.h1`
+    font-weight: bold;
+    font-size: 24px;
+    font-family: "Roboto Condensed", Helvetica;
+`;
+
+const DeleteVideoPopupTxt = styled.h1`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: normal;
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: ${({ theme }) => theme.textSoft};
+    max-width: 400px;
+`;
+
+const DeleteVideoPopupVideoName = styled.span`
+    font-family: "Roboto Condensed", Helvetica;
+    font-weight: bold;
+    font-size: 17px;
+    color: ${({ theme }) => theme.textSoft};
+`;
+
+const OptionsDeleteCancel = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+`;
+
+const DeleteVideoCancel = styled.div`
+    margin-right: 10px;
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
+const DeleteVideoDelete = styled.div`
+    cursor: pointer;
+    &:hover {
+    background: rgba(45, 45, 45);
+    }
+    padding: 8px 10px;
+    border-radius: 15px;
+    font-family: "Roboto Condensed", Helvetica;
+    font-size: 17px;
+`;
+
+const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOpen, setFetchUpdated }) => {
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
   const [progress, setProgress] = useState(0);
+  const { language, setLanguage } = useLanguage();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTransitionExpanded, setIsTransitionExpanded] = useState(false);
   const [isMoreInfo, setIsMoreInfo] = useState(false);
   const [isMoreInfoClosing, setIsMoreInfoClosing] = useState(false);
   const [videoPopupEnded, setVideoPopupEnded] = useState(false);
-  const [MoreInfoInputs, setMoreInfoInputs] = useState({});
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const moreInfoRef = useRef(null);
   const videoPlayer = useRef(null);
@@ -792,7 +1223,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   const shareRef = useRef(null);
   const shareRefBg = useRef(null);
   const buttonShareRef = useRef(null);
-  const currentURL = window.location.href + 'video/' + MoreInfoInputs.videoId;
+  const currentURL = window.location.href + 'video/' + video?._id;
 
   // SHOW POPUP MORE INFO
   const handleShowMoreInfo = () => {
@@ -804,6 +1235,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     setIsMoreInfoClosing(true);
     setTimeout(() => {
       setIsMoreInfo(false);
+      setIsTransitionExpanded(false);
       setIsMoreInfoClosing(false);
       setVideoPopupEnded(false);
       setIsVideoMuted(true);
@@ -817,10 +1249,15 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
 
   // SHOW POPUP MORE INFO FROM IMAGE CONTAINER
   const handleShowMoreInfoFromImage = () => {
-    setIsMoreInfo(true);
+    if (isTransitionExpanded) {
+      navigate(`/video/${video?._id}`);
+    } else {
+      setIsMoreInfo(true);
+    }
+    setIsTransitionExpanded(false);
   };
 
-  // CLOSE POPUP MORE INFO ON CLICK OUTSIDE
+  // CLOSE POPUP MORE INFO ON CLICK OUTSIDE 
   useEffect(() => {
     const handleClickOutsidePopupMoreInfo = (event) => {
       const isScrollbarClick = event.clientX >= document.documentElement.clientWidth - 7;
@@ -849,6 +1286,16 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     setVideoPopupEnded(true);
   };
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      views: "views",
+    },
+    es: {
+      views: "visitas",
+    },
+  };
+
   if (language === "es") {
     moment.locale("es");
   } else {
@@ -864,7 +1311,7 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     } else if (views >= 1000) {
       return `${(views / 1000).toFixed(1)}K`;
     } else {
-      return views.toString();
+      return views?.toString();
     }
   };
 
@@ -902,38 +1349,42 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     return date.toLocaleDateString('en-US', options);
   };
 
+  const timeago = timestamp => {
+    const relativeTime = moment(timestamp).fromNow();
+    return relativeTime.charAt(0).toUpperCase() + relativeTime?.slice(1).toLowerCase();
+  };
+
   // FETCH DATA
   useEffect(() => {
 
-    if (MoreInfoInputs.userId !== undefined) {
+    const fetchChannel = async () => {
+      const res = await axios.get(`/users/find/${video.userId}`);
+      setChannel(res.data);
+    };
 
-      const fetchChannel = async () => {
-        const res = await axios.get(`/users/find/${MoreInfoInputs.userId}`);
-        setChannel(res.data);
-      };
-
-      const fetchProgress = async () => {
-        if (currentUser) {
-          const userProgressRes = await axios.get(`/videos/userProgress/${MoreInfoInputs.videoId}`);
-          setProgress(userProgressRes?.data?.progress);
-        }
-      };
-
-      fetchChannel();
-
+    const fetchProgress = async () => {
       if (currentUser) {
-        fetchProgress();
+        const userProgressRes = await axios.get(`/videos/userProgress/${video?._id}`);
+        setProgress(userProgressRes?.data?.progress);
       }
+    };
 
+    fetchChannel();
+
+    if (currentUser) {
+      fetchProgress();
     }
 
-  }, [MoreInfoInputs.userId, MoreInfoInputs.videoId]);
+  }, [video.userId, video?._id]);
 
   // REDIRECTS
-  const navigate = useNavigate();
-  const handleGoToChannel = () => {
-    navigate(`/channel/@${channel?.name}`);
+
+  const handleGoToChannel = (channelId) => {
+    navigate(`/channel/${channelId}`);
+    // Reiniciar la página después de la redirección
+    navigate('/channel', { replace: true });
   };
+
   // SHARE
   const handleShare = () => {
     setShareLink(currentURL);
@@ -944,7 +1395,6 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     navigator.clipboard.writeText(shareLink);
     toast.success('Share Link copied in clipboard ');
   };
-
 
   useEffect(() => {
     const handleClickOutsideShare = (event) => {
@@ -965,71 +1415,21 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   }, []);
 
   // FETCH RECOMMENDATIONS
-  const [videosR, setVideosR] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [cardLoaded, setCardLoaded] = useState(false);
-  const videoId = MoreInfoInputs.videoId;
-  const filteredVideos = videosR.filter((video) => video._id !== videoId);
+  const videoId = video?._id;
+  const filteredVideos = videos.filter((video) => video?._id !== videoId);
 
   useEffect(() => {
     setCardLoaded(false);
     const fetchVideos = async () => {
-      const res = await axios.get(`/videos/tags?tags=${MoreInfoInputs.tags}`);
-      setVideosR(res.data);
+      const res = await axios.get(`/videos/tags?tags=${video.tags}`);
+      setVideos(res.data);
       setCardLoaded(true);
     };
     fetchVideos();
 
-  }, [MoreInfoInputs.tags]);
-
-  //...
-
-  const [videos, setVideos] = useState([])
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const res = await axios.get(`/videos/${type}`);
-        setVideos(res.data);
-
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      }
-    };
-    fetchVideos()
-  }, [type]);
-
-  const translations = {
-    en: {
-      spotlight: "Spotlight",
-      watchnow: "Watch Now",
-      moreinfo: "More Information",
-    },
-    es: {
-      spotlight: "Destacados",
-      watchnow: "Ver Ahora",
-      moreinfo: "Más Información",
-    },
-  };
-
-  const slides = videos.slice(0, 10).map((video, index) => ({
-    url: video.imgUrlLandscape,
-    title: video.title,
-    content: <VideoSlide video={video} translations={translations} language={language} index={index} setIsMoreInfo={setIsMoreInfo} setMoreInfoInputs={setMoreInfoInputs} />,
-  }));
-
-
-  const [parentWidth, setParentWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setParentWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  }, [video.tags]);
 
   // SAVE VIDEO
   const [popupSaveVideo, setPopupSaveVideo] = useState(false);
@@ -1040,19 +1440,66 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   };
 
   useEffect(() => {
-    // Cuando el popup se abre, deshabilitar el scroll
     if (popupSaveVideo) {
       document.body.style.overflow = 'hidden';
     } else {
-      // Cuando el popup se cierra, habilitar el scroll
       document.body.style.overflow = 'auto';
     }
-
-    // Limpiar el efecto al desmontar el componente
     return () => {
       document.body.style.overflow = 'auto';
     };
   }, [popupSaveVideo]);
+
+  // CONFIGURE VIDEO
+  const [popupEditVideo, setPopupEditVideo] = useState(false);
+
+  const handleEditVideo = () => {
+    setPopupEditVideo(!popupEditVideo);
+    setAnyPopupOpen(!anyPopupOpen);
+  };
+
+  useEffect(() => {
+    if (popupEditVideo) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [popupEditVideo]);
+
+  // DELETE VIDEO
+  const [popupDeleteVideo, setPopupDeleteVideo] = useState(false);
+
+  const handleDeletePlaylist = async () => {
+    setPopupDeleteVideo(true);
+  };
+
+  const handleDeleteConfirmation = async (confirmed) => {
+    setPopupDeleteVideo(false);
+
+    if (confirmed) {
+      try {
+        await axios.delete(`/videos/${video?._id}/delete`);
+        setFetchUpdated(true);
+      } catch (error) {
+        console.error('Error deleting video:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (popupDeleteVideo) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [popupDeleteVideo]);
 
   // STOP SCROLL ON POPUP MORE INFO
   useEffect(() => {
@@ -1069,16 +1516,17 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
 
   return (
     <div>
+
       {isMoreInfo && (
         <PopupContainerBg closing={isMoreInfoClosing}>
-          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef} filteredVideosLenght={filteredVideos.length}>
+          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef} filteredVideosLenght={filteredVideos?.length}>
             <PopupImageVideoContainer>
 
               <VideoWrapper videoPopupEnded={videoPopupEnded}>
-                <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                   <ReactPlayer
                     ref={videoPlayer}
-                    url={MoreInfoInputs.videoUrl}
+                    url={video.videoUrl}
                     controls={false}
                     autoPlay={true}
                     playing={true}
@@ -1091,11 +1539,11 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                 </Link>
               </VideoWrapper>
 
-              <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-                <PopupImage src={MoreInfoInputs.imgUrlLandscape} videoPopupEnded={videoPopupEnded} />
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                <PopupImage src={video.imgUrlLandscape} videoPopupEnded={videoPopupEnded} />
               </Link>
 
-              <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                 <PopupImageGradientOverlay />
               </Link>
 
@@ -1107,27 +1555,27 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                 <MuteImg src={isVideoMuted ? MuteIcono : NoMuteIcono} />
               </MuteButtonDiv>
 
-              <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-                <VideoTitle progress={progress} currentUser={currentUser}>{MoreInfoInputs.title}</VideoTitle>
+              <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                <VideoTitle progress={progress} currentUser={currentUser}>{video.title}</VideoTitle>
               </Link>
 
               {currentUser && progress > 0 && (
 
                 <ProgressContainerPopup>
-                  <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', display: 'inherit', position: 'inherit', width: 'inherit', height: 'inherit', alignItems: 'inherit' }}>
+                  <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', display: 'inherit', position: 'inherit', width: 'inherit', height: 'inherit', alignItems: 'inherit' }}>
 
                     <ProgressBarPopup>
                       <ProgressIndicatorPopup progress={progress} />
                     </ProgressBarPopup>
 
-                    <ProgressTxtPopup> {formatDurationProgress(progress)} of {formatDurationProgress(MoreInfoInputs.duration)} </ProgressTxtPopup>
+                    <ProgressTxtPopup> {formatDurationProgress(progress)} of {formatDurationProgress(video.duration)} </ProgressTxtPopup>
                   </Link>
 
                 </ProgressContainerPopup>
               )}
 
               <WatchNowSaveDiv>
-                <Link to={`/video/${MoreInfoInputs.videoId}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
+                <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
                   <WatchNowPopupDiv>
                     <WatchNowPopupImg src={WatchNowIcono} /> Watch Now
                   </WatchNowPopupDiv>
@@ -1138,7 +1586,6 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                     <SaveImg src={Save4Popup} />
                   </SaveButtonDiv>
                 )}
-
               </WatchNowSaveDiv>
 
             </PopupImageVideoContainer>
@@ -1150,11 +1597,11 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
                   <ChannelContainer>
                     <ChannelImagePopup
                       src={channel.img}
-                      onClick={() => handleGoToChannel()}
+                      onClick={() => handleGoToChannel(channelId)}
                     />
-                    <ChannelNamePopup onClick={() => handleGoToChannel()} > {channel?.displayname} </ChannelNamePopup>
+                    <ChannelNamePopup onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelNamePopup>
 
-                    {MoreInfoInputs.tags?.length === 0 && (
+                    {video.tags?.length === 0 && (
                       <ShareButtonNoTag onClick={handleShare} ref={buttonShareRef}>
                         <ShareButtonImgNoTag src={VideoShareIcono} /> Share
                       </ShareButtonNoTag>
@@ -1163,53 +1610,53 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
 
                   <InfoDiv>
                     <VideoDate>
-                      {formatDate(MoreInfoInputs.createdAt)}
+                      {formatDate(video.createdAt)}
                     </VideoDate>
 
                     <InfoItem>
-                      <InfoElementImg src={ViewsIconG} /> {MoreInfoInputs?.views}
+                      <InfoElementImg src={ViewsIconG} /> {formatViews(video?.views)}
                     </InfoItem>
 
 
                     <InfoItem>
-                      <InfoElementImg src={VideoLikeIcono} /> {MoreInfoInputs.likes?.length}
+                      <InfoElementImg src={VideoLikeIcono} /> {video.likes?.length}
                     </InfoItem>
 
                     <InfoItem>
-                      <InfoElementImg src={VideoDislikeIcono} /> {MoreInfoInputs.dislikes?.length}
+                      <InfoElementImg src={VideoDislikeIcono} /> {video.dislikes?.length}
                     </InfoItem>
 
                     <InfoItem>
-                      <InfoElementImg src={LanguageIconoG} /> {MoreInfoInputs?.language}
+                      <InfoElementImg src={LanguageIconoG} /> {video.language}
                     </InfoItem>
 
                     <InfoItem>
                       <InfoElementImg src={SubtitleIconoG} />
-                      {MoreInfoInputs?.subtitles && MoreInfoInputs.subtitles?.length > 0
-                        ? MoreInfoInputs?.subtitles[0].name + (MoreInfoInputs?.subtitles[1] ? ', ' + MoreInfoInputs.subtitles[1]?.name : '') + (MoreInfoInputs.subtitles[2] ? ', ' + MoreInfoInputs.subtitles[2].name : '') + (MoreInfoInputs.subtitles[3] ? ', ' + MoreInfoInputs.subtitles[3].name : '')
+                      {video.subtitles && video.subtitles?.length > 0
+                        ? video.subtitles[0].name + (video.subtitles[1] ? ', ' + video.subtitles[1].name : '') + (video.subtitles[2] ? ', ' + video.subtitles[2].name : '') + (video.subtitles[3] ? ', ' + video.subtitles[3].name : '')
                         : 'No Subtitles'}
                     </InfoItem>
 
                   </InfoDiv>
 
                   <VideoDescPopup>
-                    {MoreInfoInputs?.desc}
+                    {video.desc}
                   </VideoDescPopup>
                 </PopupBelowDivColumn>
 
                 <PopupBelowDivColumn style={{ marginRight: '100px' }}>
                   <RightItemsDiv>
 
-                    {MoreInfoInputs.tags?.length > 0 && (
+                    {video.tags?.length > 0 && (
                       <TagsDiv>
                         <TagsLabel style={{ color: 'tu-color-aquí' }}>Tags:&nbsp;</TagsLabel>
-                        {MoreInfoInputs.tags.map((tag, index) => (
+                        {video.tags.map((tag, index) => (
                           <TagsTxt key={index}>{index > 0 ? ', ' : ''}{tag.charAt(0).toUpperCase() + tag?.slice(1)}</TagsTxt>
                         ))}
                       </TagsDiv>
                     )}
                   </RightItemsDiv>
-                  {MoreInfoInputs.tags?.length > 0 && (
+                  {video.tags?.length > 0 && (
                     <ShareButton onClick={handleShare} ref={buttonShareRef}>
                       <ShareButtonImg src={VideoShareIcono} /> Share
                     </ShareButton>
@@ -1222,14 +1669,14 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
 
                 <ContainerRecommendation>
                   {cardLoaded ? (
-                    filteredVideos.length === 0 ? (
+                    filteredVideos?.length === 0 ? (
                       <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
                         No recommended videos found.
                       </p>
                     ) : (
                       <CardContainerRecommendation>
                         {filteredVideos.map((video) => (
-                          <Card4CardPopup type="sm" key={MoreInfoInputs.videoId} video={video} />
+                          <Card4CardPopup type="sm" key={video?._id} video={video} />
                         ))}
                         <LabelFooter> @Flashy_Content </LabelFooter>
                       </CardContainerRecommendation>
@@ -1246,13 +1693,123 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
 
             </PopupWrapper>
           </PopupContainer>
-        </PopupContainerBg>
-      )}
+        </PopupContainerBg >
+      )
+      }
+
+      <Container
+        onMouseEnter={() => {
+          setIsTransitioning(true);
+          setIsTransitionExpanded(false);
+          setTimeout(() => {
+            setIsTransitionExpanded(true);
+          }, 800);
+        }}
+        onMouseLeave={() => {
+          setIsTransitionExpanded(false);
+          setIsTransitioning(true);
+          setTimeout(() => {
+            setIsTransitioning(false);
+          }, 300);
+        }}
+        isTransitioning={isTransitioning}
+      >
+        <ImageContainer onClick={handleShowMoreInfoFromImage}>
+          <Image
+            src={video.imgUrl}
+          />
+
+          <InfoViews>
+            <ImgViews src={ViewsIcon} />
+            <TxtViews> {formatViews(video?.views)} </TxtViews>
+          </InfoViews>
+
+          {isCurrentUserUploader && (
+            <InfoPrivacy>
+              <ImgPrivacy src={video?.privacy === 'public' ? PublicIcon : video?.privacy === 'private' ? PrivateIcon : UnlistedIcon} />
+            </InfoPrivacy>
+          )}
+
+          <InsideContainer>
+            <Title> {video.title} </Title>
+          </InsideContainer>
+
+          <ImageContainerDif />
+
+        </ImageContainer>
+
+        <ContainerHoverInfo>
+          <ButtonsContainer>
+
+            <Link to={`/video/${video?._id}`} style={{ textDecoration: "none" }}>
+              <PlayButtonDiv>
+                <PlayButtonImg src={PlayButton} />
+              </PlayButtonDiv>
+            </Link>
+
+            {currentUser && (
+              <ButtonDivStyles onClick={handleSaveVideo}>
+                <ButtonImgStyles src={Save4Card} />
+              </ButtonDivStyles>
+            )}
+
+            {isCurrentUserUploader && (
+              <ConfigButtonDiv onClick={handleDeletePlaylist}>
+                <ButtonImgStyles src={RemoveTrashcan} />
+              </ConfigButtonDiv>
+            )}
+
+            {isCurrentUserUploader && (
+              <ButtonDivStyles onClick={handleEditVideo}>
+                <ButtonImgStyles src={AjustesIcono} />
+              </ButtonDivStyles>
+            )}
+
+            <MoreButtonDiv isCurrentUserUploader={isCurrentUserUploader} onClick={handleShowMoreInfo}>
+              <MoreButtonImg src={ArrowDown} />
+            </MoreButtonDiv>
+
+          </ButtonsContainer>
+
+          <Details>
+            <ChannelImage
+              src={channel.img}
+              onClick={() => handleGoToChannel(channelId)}
+            />
+            <ChannelName onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelName>
+
+            <DetailContainer> <EstiloIconos src={FechaIcono} /> {timeago(video.createdAt)}</DetailContainer>
+            <DetailContainer> <EstiloIconos src={DuracionIcono} /> {formatDuration(video.duration)}</DetailContainer>
+            <DetailContainer> <EstiloIconos src={LanguageIcono} /> {video.language}</DetailContainer>
+          </Details>
+
+          <DetailTagContainer>
+            {video.tags?.slice(0, 4).map((tag, index) => (
+              <React.Fragment key={index}>
+                <TagContainer>
+                  {tag.charAt(0).toUpperCase() + tag?.slice(1)}
+                </TagContainer>
+                {index < video.tags?.slice(0, 4)?.length - 1 && (
+                  <span style={{ color: 'gray', fontSize: '12px' }}> • </span>
+                )}
+              </React.Fragment>
+            ))}
+          </DetailTagContainer>
 
 
-      <SlideShowContainer>
-        <ImageSlider slides={slides} parentWidth={parentWidth} />
-      </SlideShowContainer>
+
+          {currentUser && progress > 0 && (
+            <ProgressContainer>
+              <ProgressBar>
+                <ProgressIndicator progress={progress} />
+              </ProgressBar>
+
+              <ProgressTxt> {formatDurationProgress(progress)} of {formatDurationProgress(video.duration)} </ProgressTxt>
+
+            </ProgressContainer>
+          )}
+        </ContainerHoverInfo>
+      </Container >
 
       {
         popupSaveVideo && (
@@ -1260,9 +1817,44 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
             <PlaylistSelectBoxVideo
               closePopup={handleSaveVideo}
               userId={currentUser?._id}
-              videoId={MoreInfoInputs?.videoId}
+              videoId={video?._id}
             />
           </div>
+        )
+      }
+
+      {
+        popupEditVideo && (
+          <div>
+            <EditVideo
+              closePopup={handleEditVideo}
+              video={video}
+              setFetchUpdated={setFetchUpdated}
+            />
+          </div>
+        )
+      }
+
+      {
+        popupDeleteVideo && (
+          <DeleteVideoContainer
+            onDeleteConfirmed={() => handleDeleteConfirmation(true)}
+            onCancel={() => handleDeleteConfirmation(false)}
+          >
+            <DeleteVideoPopupWrapper>
+              <DeleteVideoPopupTitle> Delete Video </DeleteVideoPopupTitle>
+              <DeleteVideoPopupTxt> Are you sure you want to delete <DeleteVideoPopupVideoName>{video?.title}</DeleteVideoPopupVideoName>? </DeleteVideoPopupTxt>
+              <DeleteVideoPopupTxt style={{ marginTop: '-25px' }}> Note: This action is permanent and cannot be undone. </DeleteVideoPopupTxt>
+              <OptionsDeleteCancel>
+                <DeleteVideoCancel onClick={() => handleDeleteConfirmation(false)}>
+                  Cancel
+                </DeleteVideoCancel>
+                <DeleteVideoDelete onClick={() => handleDeleteConfirmation(true)}>
+                  Delete
+                </DeleteVideoDelete>
+              </OptionsDeleteCancel>
+            </DeleteVideoPopupWrapper>
+          </DeleteVideoContainer>
         )
       }
 
@@ -1351,8 +1943,8 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
         )
       }
 
-    </div>
+    </div >
   );
 };
 
-export default HomeSlideShow;
+export default CardChannel;

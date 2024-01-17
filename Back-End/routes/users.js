@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import {
     update,
+    upsertUserDescription,
     remove,
     getUser,
     subscribe,
@@ -45,6 +46,7 @@ import {
     getSubscribers,
     toggleNotificationsEnabled,
     getUserByUsername,
+    getAllPlaylists,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -53,6 +55,9 @@ router.use(cors());
 
 // UPDATE USER
 router.put("/:id/update", verifyToken, update)
+
+// AÑADIR O EDITAR DESCRIPCIÓN DEL USUARIO
+router.post('/updateDescription/', verifyToken, upsertUserDescription);
 
 // REMOVE USER
 router.delete("/:id/remove", verifyToken, remove)
@@ -119,6 +124,9 @@ router.get("/:userId/playlists", verifyToken, getAllUserPlaylists);
 
 // GET ALL PLAYLISTS CREATED BY USER AND FOLLOWED
 router.get("/:userId/playlists-followed", verifyToken, getAllUserPlaylistsAndFollowed);
+
+// GET ALL PLAYLISTS CREATED BY USER
+router.get("/playlists/", verifyToken, getAllPlaylists);
 
 // GET PUBLIC PLAYLISTS
 router.get("/:userId/playlists/public", verifyToken, getPublicPlaylists);

@@ -8,16 +8,17 @@ import NotSubbedIcono from "../assets/NotSubbedIcono.png";
 import { useLanguage } from '../utils/LanguageContext';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
-
+import Footer from "../components/Footer";
 
 const MainContainer = styled.div`
-  display: relative;
+  position: relative;    
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  min-height: 100vh;  // Asegura que el contenedor tenga al menos el 100% de la altura de la pantalla
+  min-height: 100vh;
   background-color: rgba(15, 12, 18);
   z-index: 1;
   overflow: hidden;
-  margin-bottom: ${({ NoVideosFound }) => (NoVideosFound ? '0px' : '120px')}; 
 `;
 
 const Header = styled.h1`
@@ -37,7 +38,7 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  padding: 32px 55px;
+  padding: 32px 55px 0px 55px;
 `;
 
 const NotAuthWrapper = styled.div`
@@ -176,7 +177,7 @@ const Home = ({ type = "sub" }) => {
 
 
   return (
-    <MainContainer NoVideosFound={NoVideosFound}>
+    <MainContainer>
 
       <Header>{translations[language].explore}</Header>
 
@@ -225,6 +226,10 @@ const Home = ({ type = "sub" }) => {
           <NotSubbed1>{translations[language].novideo1}</NotSubbed1>
           <NotSubbed2>{translations[language].novideo2}</NotSubbed2>
         </NotSubbedWrapper>
+      }
+
+      {!NoVideosFound && (!currentUser?.subscribedUsers.length > 0) &&
+        <Footer />
       }
 
     </MainContainer>

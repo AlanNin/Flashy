@@ -207,6 +207,31 @@ export const update = async (req, res, next) => {
 };
 
 
+export const upsertUserDescription = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { description } = req.body;
+
+        // Verificar si el usuario existe
+        const user = await User.findById(userId);
+
+        if (user) {
+            // Actualizar la descripción si existe, de lo contrario, crear un nuevo campo
+            user.description = description;
+            await user.save();
+
+            const updatedUser = await User.findById(userId);
+            res.status(200).json(updatedUser);
+
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado.' });
+        }
+    } catch (error) {
+        next(error);
+        console.error(error);
+    }
+};
+
 export const remove = async (req, res, next) => {
     if (req.params.id === req.user.id) {
         try {
@@ -825,7 +850,6 @@ export const addPlaylist = async (req, res, next) => {
 
         const user = await User.findById(userId);
 
-        // Crear la nueva playlist sin agregar video
         const newPlaylist = {
             name: playlistName,
             image: playlistImageURL,
@@ -1072,16 +1096,6 @@ export const getPlaylistById = async (req, res, next) => {
 
         const playlistImage = foundPlaylist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
 
-        // Verificar si la privacidad de la playlist no es "privada"
-        if (foundPlaylist.privacy === 'private') {
-
-            const playlistDetails = {
-                privacy: foundPlaylist.privacy,
-            };
-
-            res.status(200).json(playlistDetails);
-        }
-
         const playlistDetails = {
             _id: foundPlaylist._id,
             name: foundPlaylist.name,
@@ -1245,39 +1259,128 @@ export const getAllUserPlaylistsAndFollowed = async (req, res, next) => {
     }
 };
 
-// GET PUBLIC PLAYLISTS
-export const getPublicPlaylists = async (req, res, next) => {
+// GET ALL PLAYLISTS CREATED BY USER
+export const getAllPlaylists = async (req, res, next) => {
     try {
         const userId = req.user.id;
+        const { sort } = req.query;
 
-        const user = await User.findById(userId);
+        let playlists;
 
-        // Filtrar las playlists para incluir solo las públicas
-        const publicPlaylists = user.playlists.filter(playlist => playlist.privacy === 'public');
+        switch (sort) {
+            case 'latest':
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    options: { sort: { lastUpdated: -1 } }
+                });
+                break;
+            case 'oldest':
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    options: { sort: { lastUpdated: 1 } }
+                });
+                break;
+            default:
+                playlists = await User.findById(userId).populate('playlists');
+        }
 
-        const playlistsWithDetails = await Promise.all(publicPlaylists.map(async (playlist) => {
-            // Obtener la información completa de cada video usando los IDs
-            const videos = await Video.find({ _id: { $in: playlist.videos } });
-            const videosLength = videos.length;
+        // Formatea la respuesta según tus necesidades
+        const formattedPlaylists = await Promise.all(playlists.playlists.map(async (playlist) => {
+            const videosLength = playlist.videos.length;
+            const lastVideoId = playlist.videos[videosLength - 1];
 
-            // Configurar la imagen por defecto como la imagen del último video agregado
-            const lastVideo = videos[videos.length - 1];
+            const lastVideo = await Video.findById(lastVideoId);
+
             const defaultImage = lastVideo ? lastVideo.imgUrl : null;
+
+            const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
 
             return {
                 _id: playlist._id,
                 name: playlist.name,
-                image: playlist.image || defaultImage,
+                image: playlistImage,
                 privacy: playlist.privacy,
+                lastUpdated: playlist.lastUpdated,
                 videosLength,
             };
         }));
 
-        res.status(200).json(playlistsWithDetails);
+        res.status(200).json(formattedPlaylists);
     } catch (error) {
         next(error);
     }
 };
+
+
+// GET PUBLIC PLAYLISTS
+export const getPublicPlaylists = async (req, res, next) => {
+    try {
+        const userId = req.params.userId;
+        const { sort } = req.query;
+
+        let playlists;
+
+        switch (sort) {
+            case 'latest':
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    match: { privacy: 'public' },
+                    options: { sort: { lastUpdated: -1 } }
+                });
+                break;
+            case 'popular':
+                // Puedes agregar la lógica de popularidad según tus necesidades
+                // En este ejemplo, simplemente se obtienen todas las listas de reproducción públicas
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    match: { privacy: 'public' },
+                });
+                break;
+            case 'oldest':
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    match: { privacy: 'public' },
+                    options: { sort: { lastUpdated: 1 } }
+                });
+                break;
+            default:
+                playlists = await User.findById(userId).populate({
+                    path: 'playlists',
+                    match: { privacy: 'public' },
+                });
+        }
+
+        // Filtra nuevamente las listas de reproducción para asegurarse de que sean públicas
+        const publicPlaylists = playlists.playlists.filter(playlist => playlist.privacy === 'public');
+
+        const formattedPlaylists = await Promise.all(publicPlaylists.map(async (playlist) => {
+            const videosLength = playlist.videos.length;
+            const lastVideoId = playlist.videos[videosLength - 1];
+
+            // Consulta adicional para obtener información completa del último video
+            const lastVideo = await Video.findById(lastVideoId);
+
+            const defaultImage = lastVideo ? lastVideo.imgUrl : null;
+
+            const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+            return {
+                _id: playlist._id,
+                name: playlist.name,
+                image: playlistImage,
+                privacy: playlist.privacy,
+                lastUpdated: playlist.lastUpdated,
+                videosLength,
+            };
+        }));
+
+        res.status(200).json(formattedPlaylists);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 // FOLLOW A PLAYLIST
 export const followPlaylist = async (req, res, next) => {

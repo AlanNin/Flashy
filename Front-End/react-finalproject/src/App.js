@@ -19,6 +19,9 @@ import SharedPlaylist from "./pages/SharedPlaylist";
 import FlashyContent from "./pages/FlashyContent";
 import Settings from "./pages/Settings";
 import Channel from "./pages/Channel";
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
 import NotFound404 from "./pages/NotFound404";
 import ConfirmUser from "./pages/ConfirmUser";
 import ConfirmEmailChange from "./pages/ConfirmEmailChange";
@@ -127,6 +130,9 @@ function App() {
                     <Route path="signin" element={<Signin />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="recovery" element={<Recovery />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="terms" element={<Terms />} />
+                    <Route path="contact" element={<Contact />} />
 
                     {/* Flashy Content */}
                     <Route path="music" element={<FlashyContent />} />

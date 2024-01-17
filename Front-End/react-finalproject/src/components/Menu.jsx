@@ -675,7 +675,7 @@ const Menu = ({ darkMode, setDarkMode, menuVisible, toggleMenu }) => {
             }}
           >
             <Item onClick={toggleMenu}>
-              <Img src={AjustesIcono} />
+              <Img src={AjustesIcono} style={{ height: '25px' }} />
               <ButtonText> {translations[language].settings} </ButtonText>
             </Item>
           </Link>

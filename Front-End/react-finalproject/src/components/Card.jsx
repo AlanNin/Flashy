@@ -117,8 +117,8 @@ const ButtonDivStyles = styled.div`
 `;
 
 const ButtonImgStyles = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 `;
 
 const PlayButtonImg = styled(ButtonImgStyles)`
@@ -239,7 +239,7 @@ const Image = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover; 
-  background: black;
+  background-color: black;
 `;
 
 const InfoViews = styled.div`
@@ -1093,7 +1093,7 @@ const LabelFooter = styled.h1`
 `;
 
 
-const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
+const Card = ({ video }) => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [channel, setChannel] = useState({});
@@ -1268,10 +1268,8 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
   // REDIRECTS
 
-  const handleGoToChannel = (channelId) => {
-    navigate(`/channel/${channelId}`);
-    // Reiniciar la página después de la redirección
-    navigate('/channel', { replace: true });
+  const handleGoToChannel = () => {
+    navigate(`/channel/@${channel?.name}`);
   };
 
   // SHARE
@@ -1326,7 +1324,6 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
   const handleSaveVideo = () => {
     setPopupSaveVideo(!popupSaveVideo);
-    setAddingToPlaylist(!addingToPlaylist);
   };
 
   useEffect(() => {
@@ -1358,7 +1355,7 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
       {isMoreInfo && (
         <PopupContainerBg closing={isMoreInfoClosing}>
-          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef} filteredVideosLenght={filteredVideos.length}>
+          <PopupContainer closing={isMoreInfoClosing} ref={moreInfoRef} filteredVideosLenght={filteredVideos?.length}>
             <PopupImageVideoContainer>
 
               <VideoWrapper videoPopupEnded={videoPopupEnded}>
@@ -1367,7 +1364,7 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
                     ref={videoPlayer}
                     url={video.videoUrl}
                     controls={false}
-                    autoplay={true}
+                    autoPlay={true}
                     playing={true}
                     muted={isVideoMuted}
                     width='910px'
@@ -1420,10 +1417,11 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
                   </WatchNowPopupDiv>
                 </Link>
 
-                <SaveButtonDiv onClick={handleSaveVideo}>
-                  <SaveImg src={Save4Popup} />
-                </SaveButtonDiv>
-
+                {currentUser && (
+                  <SaveButtonDiv onClick={handleSaveVideo}>
+                    <SaveImg src={Save4Popup} />
+                  </SaveButtonDiv>
+                )}
               </WatchNowSaveDiv>
 
             </PopupImageVideoContainer>
@@ -1435,11 +1433,11 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
                   <ChannelContainer>
                     <ChannelImagePopup
                       src={channel.img}
-                      onClick={() => handleGoToChannel(channelId)}
+                      onClick={() => handleGoToChannel()}
                     />
-                    <ChannelNamePopup onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelNamePopup>
+                    <ChannelNamePopup onClick={() => handleGoToChannel()} > {channel.displayname} </ChannelNamePopup>
 
-                    {video.tags.length === 0 && (
+                    {video.tags?.length === 0 && (
                       <ShareButtonNoTag onClick={handleShare} ref={buttonShareRef}>
                         <ShareButtonImgNoTag src={VideoShareIcono} /> Share
                       </ShareButtonNoTag>
@@ -1457,11 +1455,11 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
 
                     <InfoItem>
-                      <InfoElementImg src={VideoLikeIcono} /> {video.likes.length}
+                      <InfoElementImg src={VideoLikeIcono} /> {video.likes?.length}
                     </InfoItem>
 
                     <InfoItem>
-                      <InfoElementImg src={VideoDislikeIcono} /> {video.dislikes.length}
+                      <InfoElementImg src={VideoDislikeIcono} /> {video.dislikes?.length}
                     </InfoItem>
 
                     <InfoItem>
@@ -1470,7 +1468,7 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
                     <InfoItem>
                       <InfoElementImg src={SubtitleIconoG} />
-                      {video.subtitles && video.subtitles.length > 0
+                      {video.subtitles && video.subtitles?.length > 0
                         ? video.subtitles[0].name + (video.subtitles[1] ? ', ' + video.subtitles[1].name : '') + (video.subtitles[2] ? ', ' + video.subtitles[2].name : '') + (video.subtitles[3] ? ', ' + video.subtitles[3].name : '')
                         : 'No Subtitles'}
                     </InfoItem>
@@ -1485,16 +1483,16 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
                 <PopupBelowDivColumn style={{ marginRight: '100px' }}>
                   <RightItemsDiv>
 
-                    {video.tags.length > 0 && (
+                    {video.tags?.length > 0 && (
                       <TagsDiv>
                         <TagsLabel style={{ color: 'tu-color-aquí' }}>Tags:&nbsp;</TagsLabel>
                         {video.tags.map((tag, index) => (
-                          <TagsTxt key={index}>{index > 0 ? ', ' : ''}{tag.charAt(0).toUpperCase() + tag.slice(1)}</TagsTxt>
+                          <TagsTxt key={index}>{index > 0 ? ', ' : ''}{tag.charAt(0).toUpperCase() + tag?.slice(1)}</TagsTxt>
                         ))}
                       </TagsDiv>
                     )}
                   </RightItemsDiv>
-                  {video.tags.length > 0 && (
+                  {video.tags?.length > 0 && (
                     <ShareButton onClick={handleShare} ref={buttonShareRef}>
                       <ShareButtonImg src={VideoShareIcono} /> Share
                     </ShareButton>
@@ -1507,7 +1505,7 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
 
                 <ContainerRecommendation>
                   {cardLoaded ? (
-                    filteredVideos.length === 0 ? (
+                    filteredVideos?.length === 0 ? (
                       <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
                         No recommended videos found.
                       </p>
@@ -1579,9 +1577,11 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
               </PlayButtonDiv>
             </Link>
 
-            <ButtonDivStyles onClick={handleSaveVideo}>
-              <ButtonImgStyles src={Save4Card} />
-            </ButtonDivStyles>
+            {currentUser && (
+              <ButtonDivStyles onClick={handleSaveVideo}>
+                <ButtonImgStyles src={Save4Card} />
+              </ButtonDivStyles>
+            )}
 
             <MoreButtonDiv onClick={handleShowMoreInfo}>
               <MoreButtonImg src={ArrowDown} />
@@ -1592,9 +1592,9 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
           <Details>
             <ChannelImage
               src={channel.img}
-              onClick={() => handleGoToChannel(channelId)}
+              onClick={() => handleGoToChannel()}
             />
-            <ChannelName onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelName>
+            <ChannelName onClick={() => handleGoToChannel()} > {channel.displayname} </ChannelName>
 
             <DetailContainer> <EstiloIconos src={FechaIcono} /> {timeago(video.createdAt)}</DetailContainer>
             <DetailContainer> <EstiloIconos src={DuracionIcono} /> {formatDuration(video.duration)}</DetailContainer>
@@ -1602,12 +1602,12 @@ const Card = ({ video, setAddingToPlaylist, addingToPlaylist }) => {
           </Details>
 
           <DetailTagContainer>
-            {video.tags.slice(0, 4).map((tag, index) => (
+            {video.tags?.slice(0, 4).map((tag, index) => (
               <React.Fragment key={index}>
                 <TagContainer>
-                  {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                  {tag.charAt(0).toUpperCase() + tag?.slice(1)}
                 </TagContainer>
-                {index < video.tags.slice(0, 4).length - 1 && (
+                {index < video.tags?.slice(0, 4)?.length - 1 && (
                   <span style={{ color: 'gray', fontSize: '12px' }}> • </span>
                 )}
               </React.Fragment>

@@ -903,18 +903,14 @@ const Settings = () => {
     }
   }, [currentUser]);
 
-  /*
   // RESET SCROLL
   const scrollToTop = () => {
     window.scrollTo(0, 0);
   };
 
-
   useEffect(() => {
     scrollToTop();
   }, []);
-
-  */
 
   // SETTINGS SECTIONS DEFINITION
   const settingSections = [

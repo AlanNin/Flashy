@@ -16,10 +16,11 @@ import PlaylistSelectBox from './PlaylistSelectBox';
 import DropdownLanguage from './DropdownLanguage';
 import DropdownSubtitle from './DropdownSubtitle';
 import SharePrivateComponent from "./SharePrivateComponent";
+import { toast } from 'react-toastify';
 
 // ASSETS
 import UploadVid from "../assets/UploadVid.png"
-import CloseXGr from "../assets/CloseXGr.png"
+import CloseXGr from "../assets/CloseXGr.png";
 import ExpandArrow from "../assets/ExpandArrow.png";
 import PublicIcon from "../assets/PublicIcon.png";
 import PrivateIcon from "../assets/PrivateIcon.png";
@@ -266,6 +267,7 @@ const DescCharCountInput = styled.label`
   pointer-events: none;
   transition: transform 0.2s ease-out;
 `;
+
 const TagCharCountInput = styled.label`
   position: absolute;
   bottom: 20px;
@@ -1311,7 +1313,19 @@ const Upload = ({ setOpen }) => {
         e.preventDefault();
 
         const droppedFile = e.dataTransfer.files[0];
+
         if (droppedFile) {
+            // Verificar el formato del archivo
+            const allowedFormats = ["ogm", "wmv", "mpg", "webm", "ogv", "mov", "asx", "mpeg", "mp4", "m4v", "avi"];
+            const fileExtension = droppedFile.name.split(".").pop().toLowerCase();
+
+            if (!allowedFormats.includes(fileExtension)) {
+                // Mostrar un mensaje de error si el formato no es permitido
+                toast.error(`This format is not valid`);
+                return;
+            }
+
+            // El formato del archivo es válido, establecer el estado
             setVideo(droppedFile);
         }
     };
@@ -1328,8 +1342,20 @@ const Upload = ({ setOpen }) => {
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
+
         if (selectedFile) {
-            setVideo(e.target.files[0]);
+            // Verificar el formato del archivo
+            const allowedFormats = ["ogm", "wmv", "mpg", "webm", "ogv", "mov", "asx", "mpeg", "mp4", "m4v", "avi"];
+            const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+            if (!allowedFormats.includes(fileExtension)) {
+                toast.error(`This format is not valid`);
+                e.target.value = null;
+                return;
+            }
+
+            // El formato del archivo es válido, establecer el estado
+            setVideo(selectedFile);
         }
     };
 
@@ -1560,7 +1586,7 @@ const Upload = ({ setOpen }) => {
                                                 <UploadIconSubText>You can also open the file explorer in the button below</UploadIconSubText>
                                                 <SelectFilesButton
                                                     type="file"
-                                                    accept="video/*"
+                                                    accept="video/ogm, video/wmv, video/mpg, video/webm, video/ogv, video/mov, video/asx, video/mpeg, video/mp4, video/m4v, video/avi,"
                                                     ref={fileInputRef}
                                                     onChange={handleFileChange}
                                                 />
@@ -1569,8 +1595,7 @@ const Upload = ({ setOpen }) => {
                                         <TermsAndConditionsDiv>
                                             <Terms1>
                                                 Upon submitting videos to Flashy, you agree to adhere to Flashy's
-                                                <TermsLinks onClick={TermsFlashy}> Terms of Service </TermsLinks>
-                                                and <TermsLinks onClick={CommunityFlashy}> Community Guidelines</TermsLinks>.
+                                                <TermsLinks onClick={TermsFlashy}> Terms of Service and Conditions of Use. </TermsLinks>
                                             </Terms1>
                                             <Terms2>
                                                 Please ensure that you do not infringe on the copyright or privacy rights of others.

@@ -138,6 +138,7 @@ const ChannelName = styled.h2`
 
 const Card4CardPopup = ({ type, video }) => {
   const { language, setLanguage } = useLanguage();
+  const navigate = useNavigate();
 
   if (language === "es") {
     moment.updateLocale("es", {
@@ -231,43 +232,54 @@ const Card4CardPopup = ({ type, video }) => {
     return <div>{noVideosMessage}</div>;
   }
 
+  const handleGoToChannel = () => {
+    navigate(`/channel/@${channel?.name}`);
+  };
+
+  const handleGoToVideo = () => {
+    navigate(`/video/${video._id}`);
+  };
+
+
   return (
-    <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
-      <Container>
+    <Container>
+
+      <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
         <ImageContainer>
           <Image
             src={video?.imgUrl}
           />
         </ImageContainer>
-        <Details>
-          <Texts>
-            <TextsHeader>
-              <Title> {video?.title} </Title>
+      </Link >
 
+      <Details>
+        <Texts>
+          <TextsHeader>
+            <Title> {video?.title} </Title>
 
-              <ChannelContainer>
+            <Link to={`/channel/@${channel?.name}`} style={{ textDecoration: "none" }}>
+              <ChannelContainer style={{ zIndex: '3' }}>
                 <ChannelImage
                   src={channel.img}
-                  onClick={() => handleGoToChannel(channelId)}
                 />
-                <ChannelName onClick={() => handleGoToChannel(channelId)} > {channel.displayname} </ChannelName>
+                <ChannelName> {channel.displayname} </ChannelName>
               </ChannelContainer>
+            </Link >
 
-              <EstiloIconos src={DuracionIcono} />
-              <EstiloTextos> {formatDuration(video?.duration)} </EstiloTextos>
+            <EstiloIconos src={DuracionIcono} />
+            <EstiloTextos> {formatDuration(video?.duration)} </EstiloTextos>
 
-              <EstiloIconos src={ViewsIcon} />
-              <EstiloTextos> {formatViews(video?.views)} </EstiloTextos>
+            <EstiloIconos src={ViewsIcon} />
+            <EstiloTextos> {formatViews(video?.views)} </EstiloTextos>
 
-            </TextsHeader>
+          </TextsHeader>
 
-            <Desc> {video?.desc} </Desc>
+          <Desc> {video?.desc} </Desc>
 
-          </Texts>
-        </Details>
+        </Texts>
+      </Details>
 
-      </Container>
-    </Link>
+    </Container>
   );
 };
 
