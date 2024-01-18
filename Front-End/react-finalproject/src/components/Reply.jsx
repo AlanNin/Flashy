@@ -709,13 +709,90 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   const [channel, setChannel] = useState({});
   const isUploader = reply.userId === UserUploader;
 
-  // TRANSLATIONS
   const translations = {
     en: {
       signin: "Sign in",
+      edited: "Edited",
+      edit: "Edit",
+      remove: "Remove",
+      close: "Close",
+      report: "Report",
+      reload: "Reload",
+      cancel: "Cancel",
+      goback: "Go back",
+      reply: "Reply",
+      view: "View",
+      replies: "Replies",
+      replyvalidation: "You need to be logged in to reply to this reply.",
+      likevalidation: "You need to be logged in to like this reply.",
+      dislikevalidation: "You need to be logged in to dislike this reply.",
+      reportvalidation: "You need to be logged in to report to this reply.",
+      removecomment: "Remove Reply",
+      removecommenttxt: "This reply will be removed permanently",
+      reportcomment: "Report Reply",
+      reportcommenttxt: "Please select the reason for this report",
+      alreadyreportcomment: "You have already reported this reply.",
+      reportsubmitted: "Report Submitted",
+      reportsubmittedtxt: "Thanks. We've received your report, if this reply goes against our guidelines we'll take actions.",
+
+      spam: "Spam",
+      spamtxt: "Unwanted, unsolicited messages sent in bulk.",
+      pornographycontent: "Pornography content",
+      pornographycontenttxt: "Explicit sexual material created for adult entertainment.",
+      child: "Child Abuse",
+      childtxt: "Harm to children through abuse or neglect.",
+      hate: "Hate Speech",
+      hatetxt: "Discriminatory speech promoting hostility and harm.",
+      terrorism: "Promotes Terrorism",
+      terrorismtxt: "Encouraging or supporting acts of terrorism.",
+      harrassment: "Harrassment or Bullying",
+      harrassmenttxt: "Aggressive behavior that harms or intimidates others.",
+      suicide: "Suicide or Self Injury",
+      suicidetxt: "False or inaccurate information that spreads and can cause confusion.",
+      missinformation: "Missinformation",
+      missinformationtxt: "Incorrect or misleading information.",
     },
     es: {
       signin: "Iniciar Sesión",
+      edited: "Editado",
+      edit: "Editar",
+      remove: "Eliminar",
+      close: "Cerrar",
+      report: "Reportar",
+      reload: "Recargar",
+      cancel: "Cancelar",
+      goback: "Regresar",
+      reply: "Responder",
+      view: "Ver",
+      replies: "Respuestas",
+      replyvalidation: "Necesitas iniciar sesión para responder a este respuesta.",
+      likevalidation: "Necesitas iniciar sesión para dar me gusta a este respuesta.",
+      dislikevalidation: "Necesitas iniciar sesión para dar no me gusta a este respuesta.",
+      reportvalidation: "Necesitas haber iniciado sesión para reportar este respuesta.",
+      removecomment: "Eliminar Respuesta",
+      removecommenttxt: "Este respuesta será eliminado permanentamente",
+      reportcomment: "Reportar respuesta",
+      reportcommenttxt: "Por favor seleccionar una razón para este reporte",
+      alreadyreportcomment: "Ya has reportado este respuesta.",
+      reportsubmitted: "Reporte enviado",
+      reportsubmittedtxt: "Gracias. Recibimos su informe. Si este respuesta va en contra de nuestras pautas, tomaremos medidas.",
+
+      spam: "Spam",
+      spamtxt: "Mensajes no solicitados enviados continuamente.",
+      pornographycontent: "Contenido pornográfico",
+      pornographycontenttxt: "Material sexual explícito creado para entretenimiento para adultos.",
+      child: "Abuso Infantil",
+      childtxt: "Daño a los niños por abuso o negligencia.",
+      hate: "Discurso de Odio",
+      hatetxt: "Discurso discriminatorio que promueve la hostilidad y el daño.",
+      terrorism: "Promueve el Terrorismo",
+      terrorismtxt: "Fomenta o apoya actos de terrorismo.",
+      harrassment: "Acoso o Intimidación",
+      harrassmenttxt: "Comportamiento agresivo que daña o intimida a otras.",
+      suicide: "Suicidio o Autolesión",
+      suicidetxt: "Información falsa o inexacta que se difunda y pueda causar confusión.",
+      missinformation: "Desinformación",
+      missinformationtxt: "Información incorrecta o engañosa.",
     },
   };
 
@@ -1108,7 +1185,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           </Name>
           <Date> • {timeago(currentReply.createdAt)} </Date>
           {reply.edited && (
-            <EditedLabel> Edited </EditedLabel>
+            <EditedLabel> {translations[language].edited}  </EditedLabel>
           )}
           {!isEditing && !isReplying && (
             <ReplyMenu
@@ -1124,19 +1201,19 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
                   <EditReply onClick={handleEditReply}>
                     <RemoveEditReportReplyImg src={EditarComentarioIcono} />
-                    Edit
+                    {translations[language].edit}
                   </EditReply>
 
                   <RemoveReply onClick={handleDeleteReply}>
                     <RemoveEditReportReplyImg src={BorrarComentarioIcono} />
-                    Remove
+                    {translations[language].remove}
                   </RemoveReply>
 
                 </>
               ) : (
                 <ReportReply onClick={handleReportReply}>
                   <RemoveEditReportReplyImg src={ReportarComentarioIcono} />
-                  Report
+                  {translations[language].report}
                 </ReportReply>
               )}
 
@@ -1144,7 +1221,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
               {!currentUser && isReportPopupVisible && (
                 <ReportNotLogged ref={reportRef}>
 
-                  <ReportLoggedTxt> You need to be logged in to report to this comment. </ReportLoggedTxt>
+                  <ReportLoggedTxt> {translations[language].reportvalidation} </ReportLoggedTxt>
 
                   <Link
                     to="../../signin"
@@ -1170,15 +1247,15 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
               onCancel={() => handleDeleteConfirmation(false)}
             >
               <RemoveReplyWrapper>
-                <RemoveReplyTitle> Remove Reply </RemoveReplyTitle>
-                <RemoveReplyTxt> This Reply will be removed permanently. </RemoveReplyTxt>
+                <RemoveReplyTitle> {translations[language].removecomment} </RemoveReplyTitle>
+                <RemoveReplyTxt> {translations[language].removecommenttxt} </RemoveReplyTxt>
 
                 <RemoveDeleteCancel>
                   <RemoveReplyCancel onClick={() => handleDeleteConfirmation(false)}>
-                    Cancel
+                    {translations[language].cancel}
                   </RemoveReplyCancel>
                   <RemoveReplyDelete onClick={() => handleDeleteConfirmation(true)}>
-                    Delete
+                    {translations[language].remove}
                   </RemoveReplyDelete>
                 </RemoveDeleteCancel>
 
@@ -1193,8 +1270,8 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
             <ReportReplyContainer
             >
               <ReportReplyWrapper>
-                <ReportReplyTitle> Report Reply </ReportReplyTitle>
-                <ReportReplyTxt> Please select the reason for this report </ReportReplyTxt>
+                <ReportReplyTitle> {translations[language].reportcomment} </ReportReplyTitle>
+                <ReportReplyTxt> {translations[language].reportcommenttxt} </ReportReplyTxt>
 
                 <ReportReasonOption>
                   <input
@@ -1205,11 +1282,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Spam")}
                     checked={selectedReportReason === "Spam"}
                   />
-                  <label htmlFor="Spam"> Spam </label>
+                  <label htmlFor="Spam"> {translations[language].spam} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Unwanted, unsolicited messages sent in bulk. </HoverInfoText>
+                    <HoverInfoText> {translations[language].spamtxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1223,11 +1300,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Pornography Content")}
                     checked={selectedReportReason === "Pornography Content"}
                   />
-                  <label htmlFor="PornographyContent"> Pornography content </label>
+                  <label htmlFor="PornographyContent"> {translations[language].pornographycontent} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                    <HoverInfoText> {translations[language].pornographycontenttxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1241,11 +1318,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Child Abuse")}
                     checked={selectedReportReason === "Child Abuse"}
                   />
-                  <label htmlFor="ChildAbuse"> Child Abuse </label>
+                  <label htmlFor="ChildAbuse"> {translations[language].child} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Harm to children through abuse or neglect. </HoverInfoText>
+                    <HoverInfoText> {translations[language].childtxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1259,11 +1336,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Hate Speech")}
                     checked={selectedReportReason === "Hate Speech"}
                   />
-                  <label htmlFor="HateSpeech"> Hate Speech </label>
+                  <label htmlFor="HateSpeech"> {translations[language].hate}  </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Discriminatory speech promoting hostility and harm. </HoverInfoText>
+                    <HoverInfoText> {translations[language].hatetxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1277,11 +1354,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Promotes Terrorism")}
                     checked={selectedReportReason === "Promotes Terrorism"}
                   />
-                  <label htmlFor="PromotesTerrorism"> Promotes Terrorism </label>
+                  <label htmlFor="PromotesTerrorism"> {translations[language].terrorism} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Encouraging or supporting acts of terrorism. </HoverInfoText>
+                    <HoverInfoText> {translations[language].terrorismtxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1296,11 +1373,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Harrassment or Bullying")}
                     checked={selectedReportReason === "Harrassment or Bullying"}
                   />
-                  <label htmlFor="HarrassmentorBullying"> Harrassment or Bullying </label>
+                  <label htmlFor="HarrassmentorBullying"> {translations[language].harrassment} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Aggressive behavior that harms or intimidates others. </HoverInfoText>
+                    <HoverInfoText> {translations[language].harrassmenttxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1314,11 +1391,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Suicide or Self Injury")}
                     checked={selectedReportReason === "Suicide or Self Injury"}
                   />
-                  <label htmlFor="SuicideorSelfInjury"> Suicide or Self Injury </label>
+                  <label htmlFor="SuicideorSelfInjury">  {translations[language].suicide}  </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> False or inaccurate information that spreads and can cause confusion. </HoverInfoText>
+                    <HoverInfoText> {translations[language].suicidetxt}</HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
@@ -1332,21 +1409,21 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     onChange={() => setSelectedReportReason("Missinformation")}
                     checked={selectedReportReason === "Missinformation"}
                   />
-                  <label htmlFor="Missinformation"> Missinformation </label>
+                  <label htmlFor="Missinformation"> {translations[language].missinformation} </label>
 
                   <ReportReplyInfo>
                     <InfoIcon src={ReportarComentarioInfoIcono} />
-                    <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                    <HoverInfoText> {translations[language].missinformationtxt} </HoverInfoText>
                   </ReportReplyInfo>
 
                 </ReportReasonOption>
 
                 <ReportReportCancel>
                   <ReportReplyCancel onClick={handleReportReply}>
-                    Cancel
+                    {translations[language].cancel}
                   </ReportReplyCancel>
                   <ReportReplyReport onClick={() => handleReportReplyWithReason(selectedReportReason)}>
-                    Report
+                    {translations[language].report}
                   </ReportReplyReport>
                 </ReportReportCancel>
 
@@ -1358,11 +1435,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           {showReportReasonPopup && existingReport && (
             <ReportReplyContainer>
               <ReportReplyWrapper>
-                <ReportReplyTitle> Report Reply </ReportReplyTitle>
-                <ReportReplyTxt> You have already reported this reply </ReportReplyTxt>
+                <ReportReplyTitle> {translations[language].reportcomment} </ReportReplyTitle>
+                <ReportReplyTxt> {translations[language].alreadyreportcomment}  </ReportReplyTxt>
                 <ReportReportCancel>
                   <ReportReplyReport onClick={handleReportReply}>
-                    Go back
+                    {translations[language].goback}
                   </ReportReplyReport>
                 </ReportReportCancel>
               </ReportReplyWrapper>
@@ -1372,11 +1449,11 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           {showReportSubmittedPopup && (
             <ReportReplyContainer>
               <ReportReplyWrapper>
-                <ReportReplyTitle> Report Submitted </ReportReplyTitle>
-                <ReportReplyTxt> Thanks. We've received your report, if this reply goes against our guidelines we'll take actions.   </ReportReplyTxt>
+                <ReportReplyTitle> {translations[language].reportsubmitted} </ReportReplyTitle>
+                <ReportReplyTxt> {translations[language].reportsubmittedtxt} </ReportReplyTxt>
                 <ReportSubmitedButton>
                   <ReportReplyReport onClick={handleReportReplySubmitedClose}>
-                    Reload
+                    {translations[language].reload}
                   </ReportReplyReport>
                 </ReportSubmitedButton>
               </ReportReplyWrapper>
@@ -1407,7 +1484,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
               <ButtonsDiv style={{ marginRight: '8px' }}>
                 <CloseButton onClick={handleCancelEdit}> Close </CloseButton>
                 <EditButton disabled={!editedReplyText.trim()} onClick={handleSaveEdit}>
-                  Edit
+                  {translations[language].edit}
                 </EditButton>
               </ButtonsDiv>
             </PostEdit>
@@ -1433,13 +1510,13 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
         <CommentOptions isEditing={isEditing}>
           <Replyy onClick={handleReplyClick}>
             <ReplyImg src={RespuestaIcono} />
-            <ReplyText> Reply </ReplyText>
+            <ReplyText> {translations[language].reply}  </ReplyText>
           </Replyy>
 
           {!currentUser && isReplyPopupVisible && (
             <ReplyNotLogged ref={replyRef}>
 
-              <ReplyLoggedTxt> You need to be logged in to reply to this comment. </ReplyLoggedTxt>
+              <ReplyLoggedTxt> {translations[language].replyvalidation} </ReplyLoggedTxt>
 
               <Link
                 to="../../signin"
@@ -1467,7 +1544,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           {!currentUser && isLikePopupVisible && (
             <LikeNotLogged ref={likeRef}>
 
-              <LikeNotLoggedTxt> You need to be logged in to like this comment. </LikeNotLoggedTxt>
+              <LikeNotLoggedTxt> {translations[language].likevalidation} </LikeNotLoggedTxt>
 
               <Link
                 to="../../signin"
@@ -1495,7 +1572,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
           {!currentUser && isDislikePopupVisible && (
             <DislikeNotLogged ref={dislikeRef}>
 
-              <DislikeLoggedTxt> You need to be logged in to dislike this comment. </DislikeLoggedTxt>
+              <DislikeLoggedTxt> {translations[language].dislikevalidation}  </DislikeLoggedTxt>
 
               <Link
                 to="../../signin"
@@ -1531,9 +1608,9 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
                     setIsReplying(false);
                   }}
                 >
-                  Close
+                  {translations[language].close}
                 </CloseButton>
-                <ReplyButton onClick={handleReplySubmit}>Reply</ReplyButton>
+                <ReplyButton onClick={handleReplySubmit}> {translations[language].reply} </ReplyButton>
               </ButtonsDiv>
             </PostReply>
           </ReplyToReply>

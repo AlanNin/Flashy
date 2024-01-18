@@ -98,6 +98,25 @@ const ContactTxt = styled.p`
 `;
 
 const Contact = () => {
+  const { language, setLanguage } = useLanguage();
+
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      home: "Home",
+      contact: "Contact",
+      p2: "Flashy Representative Contact",
+      p3: "- Alan Nin",
+      p4: "alanbusinessnin@gmail.com",
+    },
+    es: {
+      home: "Inicio",
+      contact: "Contacto",
+      p2: "Contacto de Representante de Flashy",
+      p3: "- Alan Nin",
+      p4: "alanbusinessnin@gmail.com",
+    },
+  };
   const navigate = useNavigate();
 
   const handleGoHome = () => {
@@ -120,17 +139,17 @@ const Contact = () => {
       <Wrapper>
 
         <HeaderDiv>
-          <Label onClick={handleGoHome}> Home </Label> &nbsp;&nbsp;•&nbsp;&nbsp; <SpanSoft> Contact </SpanSoft>
+          <Label onClick={handleGoHome}> {translations[language].home} </Label> &nbsp;&nbsp;•&nbsp;&nbsp; <SpanSoft> {translations[language].contact} </SpanSoft>
         </HeaderDiv>
 
-        <TitleLabel> Flashy Representative Contact </TitleLabel>
+        <TitleLabel> {translations[language].p2} </TitleLabel>
 
         <ParragraphDiv>
           <Parragraph>
-            - Alan Nin
+            {translations[language].p3}
           </Parragraph>
           <ContactTxt>
-            alanbusinessnin@gmail.com
+            {translations[language].p4}
           </ContactTxt>
         </ParragraphDiv>
 

@@ -311,7 +311,7 @@ const SharePopupContent = styled.p`
 `;
 
 
-const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
+const CardLibraryShared = ({ video, index }) => {
   const { language, setLanguage } = useLanguage();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -440,7 +440,6 @@ const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
 
   const handleSaveVideoAndUpdate = () => {
     setPopupSaveVideo(!popupSaveVideo);
-    setWasPlaylistVideosUpdated(true);
   };
 
   useEffect(() => {
@@ -527,6 +526,20 @@ const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
     return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
   };
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      views: "Views",
+      share: "Share",
+      save: "Save to playlist",
+    },
+    es: {
+      views: "Visitas",
+      share: "Compartir",
+      save: "Guardar en playlist",
+    },
+  };
+
   return (
     <MainContainer isMenuDotsVisible={isMenuDotsVisible}>
       <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
@@ -542,7 +555,7 @@ const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
               <Title> {video?.title} </Title>
               <VideoInfDiv>
                 <VideoInfTxt> {channel?.displayname} </VideoInfTxt>
-                <VideoInfTxt> •  {`\u00A0`} {formatViews(video?.views)} views </VideoInfTxt>
+                <VideoInfTxt> •  {`\u00A0`} {formatViews(video?.views)} {translations[language].views} </VideoInfTxt>
                 <VideoInfTxt> • {`\u00A0`} {timeago(video?.createdAt)} </VideoInfTxt>
               </VideoInfDiv>
             </Texts>
@@ -563,11 +576,11 @@ const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
         <MenuOptions className="HistoryMenuOptions">
           <MenuOption onClick={handleShare}>
             <MenuOptionImg src={VideoShareIconoOutline} style={{ height: '23px' }} />
-            Share
+            {translations[language].share}
           </MenuOption>
           <MenuOption onClick={handleSaveVideo}>
             <MenuOptionImg src={VideoPlaylistIcono} style={{ height: '23px' }} />
-            Save
+            {translations[language].save}
           </MenuOption>
         </MenuOptions>
       )}
@@ -576,7 +589,7 @@ const CardLibraryShared = ({ video, index, setWasPlaylistVideosUpdated }) => {
         isSharePopupVisible && (
           <SharePopupContainerBg ref={shareRefBg}>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share </ShareLabel>
+              <ShareLabel> {translations[language].share} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

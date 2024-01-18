@@ -5,6 +5,7 @@ import ResetIcon from "../assets/ResetIcon.png";
 import PublicIcon from "../assets/PublicIcon.png";
 import PrivateIcon from "../assets/PrivateIcon.png";
 import UnlistedIcon from "../assets/UnlistedIcon.png";
+import { useLanguage } from '../utils/LanguageContext';
 import SharePrivateIcon from "../assets/AllowUserIcon.png";
 import {
     getStorage,
@@ -144,7 +145,7 @@ const HeaderCloseX = styled.img`
     transition: background 0.3s ease;
     cursor: pointer;
     position: absolute;
-    right: 90px;
+    right: ${({ language }) => (language === 'en' ? '90px' : '110px')};
     top: 20px;
 
     &:hover {
@@ -430,7 +431,7 @@ const PrivacyImg = styled.img`
 `;
 
 const PrivacyDesc = styled.h1`
-    font-size: 16px;
+    font-size: 14px;
     color: ${({ theme }) => theme.textSoft};
     font-weight: normal;
     font-family: "Roboto Condensed", Helvetica;
@@ -517,6 +518,74 @@ const ButtonSave = styled.button`
 
 
 const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
+    const { language, setLanguage } = useLanguage();
+
+    // TRANSLATIONS
+    const translations = {
+        en: {
+            updatevideo: "Update Video",
+            save: "Save",
+            general: "General Information",
+            thumbnails: "Thumbnails",
+            language: "Language",
+            privacy: "Privacy",
+            videotitle: "Video Title (Required)",
+            videodesc: "Video Description (Required)",
+            videotags: "Video Tags",
+            thumbnail: "Thumbnail",
+            thumbnailss: "Thumbnail uploaded successfully!",
+            vthumbnail: "Vertical Thumbnail",
+            vthumbnailss: "Vertical thumbnail uploaded successfully!",
+            lthumbnail: "Landscape Thumbnail",
+            lthumbnailss: "Landscape thumbnail uploaded successfully!",
+            subtitles: "Subtitles",
+            visibility: "Visibility",
+            public: "Public",
+            publictxt: "By setting your video you will allow anyone to view, like, and share your content.",
+            private: "Private",
+            privatetxt: "Keep your video private by adjusting the privacy settings to ensure it's only visible to selected individuals.",
+            invite: "INVITE USERS",
+            unlisted: "Unlisted",
+            unlistedtxt: "Choose unlisted for an exclusive touch. Keep your video private, sharing only with those you select.",
+            uploading: "Uploading:",
+            toasterror: "This format is not valid",
+            toastpending: "Updating video",
+            toastsuccess: "Video updated successfully",
+            toasterrorpromise: "There was an error updating the video",
+        },
+        es: {
+            updatevideo: "Actualizar Video",
+            save: "Guardar",
+            general: "Información General",
+            thumbnails: "Miniaturas",
+            language: "Idioma",
+            privacy: "Privacidad",
+            videotitle: "Título del video (Requerido)",
+            videodesc: "Descripción del video (Requerido)",
+            videotags: "Etiquetas del video",
+            thumbnail: "Miniatura",
+            thumbnailss: "Miniatura subida con éxito",
+            vthumbnail: "Miniatura Vertical",
+            vthumbnailss: "Miniatura vertical subida con éxito",
+            lthumbnail: "Miniatura Horizontal",
+            lthumbnailss: "Miniatura horizontal subida con éxito",
+            subtitles: "Subtítulos",
+            visibility: "Visibilidad",
+            public: "Público",
+            publictxt: "Al configurar su video, permitirá que cualquiera vea, dé me gusta y comparta su contenido.",
+            private: "Privado",
+            privatetxt: "Mantenga su video privado ajustando la configuración de privacidad para garantizar que solo sea visible para personas seleccionadas.",
+            invite: "INIVITAR USUARIOS",
+            unlisted: "Sin listar",
+            unlistedtxt: "Elija no listado para darle un toque exclusivo. Mantén tu video privado y compártelo solo con aquellos que selecciones.",
+            uploading: "Subiendo:",
+            toasterror: "Este formato no es válido",
+            toastpending: "Actualizando video",
+            toastsuccess: "Video actualizado con éxito",
+            toasterrorpromise: "Hubo un error al actualizar el video",
+        },
+    };
+
 
     // EDIT SECTIONS DEFINITION
     const editSections = [
@@ -583,7 +652,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                 setImg(selectedFile);
 
             } else {
-                toast.error(`This format is not valid`);
+                toast.error(translations[language].toasterror);
             }
         }
     };
@@ -598,7 +667,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                 setImgVertical(e.target.files[0]);
 
             } else {
-                toast.error(`This format is not valid`);
+                toast.error(translations[language].toasterror);
             }
         }
     };
@@ -612,7 +681,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
             if (allowedTypes.includes(selectedFile.type)) {
                 setImgLandscape(e.target.files[0]);
             } else {
-                toast.error(`This format is not valid`);
+                toast.error(translations[language].toasterror);
             }
         }
     };
@@ -759,9 +828,9 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                     language: inputs?.language === video?.language ? null : inputs?.language,
                     subtitles: inputs?.subtitles !== undefined ? inputs?.subtitles : undefined,
                 }), {
-                pending: 'Updating video',
-                success: 'Video updated successfully',
-                error: 'There was an error updating the video'
+                pending: translations[language].toastpending,
+                success: translations[language].toastsuccess,
+                error: translations[language].toasterrorpromise
             }
             );
             closePopup();
@@ -780,11 +849,11 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
                 <Header>
                     <HeaderFlex>
-                        <HeaderTitle> Update Video </HeaderTitle>
+                        <HeaderTitle> {translations[language].updatevideo} </HeaderTitle>
                         <ButtonSave onClick={handleSave}>
-                            Save
+                            {translations[language].save}
                         </ButtonSave>
-                        <HeaderCloseX src={CloseXGr} onClick={closePopup} />
+                        <HeaderCloseX src={CloseXGr} onClick={closePopup} language={language} />
                     </HeaderFlex>
 
                     <SectionContainer>
@@ -794,7 +863,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             }}
                             editSection={editSection === editSections[0] ? true : false}
                         >
-                            General Information
+                            {translations[language].general}
                         </SectionItem>
 
                         <SectionItem
@@ -803,7 +872,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             }}
                             editSection={editSection === editSections[1] ? true : false}
                         >
-                            Thumbnails
+                            {translations[language].thumbnails}
                         </SectionItem>
 
                         <SectionItem
@@ -812,7 +881,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             }}
                             editSection={editSection === editSections[2] ? true : false}
                         >
-                            Language
+                            {translations[language].language}
                         </SectionItem>
                         <SectionItem
                             onClick={() => {
@@ -820,7 +889,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             }}
                             editSection={editSection === editSections[3] ? true : false}
                         >
-                            Privacy
+                            {translations[language].privacy}
                         </SectionItem>
 
                     </SectionContainer>
@@ -831,7 +900,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
                     {editSection === editSections[0] && (
                         <>
-                            <Label> General Information </Label>
+                            <Label> {translations[language].general} </Label>
                             <InputContainer>
                                 <Input
                                     type="text"
@@ -840,7 +909,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                     onChange={handleChangeTitle}
                                     value={inputs.title !== undefined ? inputs.title : video?.title}
                                 />
-                                <TitleInput> Video Title (Required) </TitleInput>
+                                <TitleInput> {translations[language].videotitle} </TitleInput>
                                 <TitleCharCountInput> {inputs.title === undefined ? video?.title?.length : inputs.title?.length}/150 </TitleCharCountInput>
                             </InputContainer>
 
@@ -851,7 +920,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                     onChange={handleChangeDesc}
                                     value={inputs.desc !== undefined ? inputs.desc : video?.desc}
                                 />
-                                <TitleInput style={{ background: inputs.desc?.length > 0 ? 'rgba(31, 30, 30)' : '', borderRadius: '8px', marginLeft: '-5px', padding: '5px', zIndex: '4' }}>Video Description (Required)</TitleInput>
+                                <TitleInput style={{ background: inputs.desc?.length > 0 ? 'rgba(31, 30, 30)' : '', borderRadius: '8px', marginLeft: '-5px', padding: '5px', zIndex: '4' }}>{translations[language].videodesc}</TitleInput>
                                 <DescCharCountInput style={{ background: inputs.desc?.length > 0 ? 'rgba(31, 30, 30)' : '', bottom: '25px', borderRadius: '8px', marginRight: '-5px', padding: '5px', zIndex: '4' }}> {inputs.desc === undefined ? video?.desc?.length : inputs.desc?.length}/500 </DescCharCountInput>
                             </InputContainer>
 
@@ -863,7 +932,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                     onChange={handleChangeTags}
                                     value={inputs.tags !== undefined ? inputs.tags : video?.tags}
                                 />
-                                <TitleInput> Video Tags </TitleInput>
+                                <TitleInput> {translations[language].videotags} </TitleInput>
                                 <TitleCharCountInput> {inputs.tags === undefined ? video?.tags?.length : inputs.tags?.length}/120 </TitleCharCountInput>
                             </InputContainer>
                         </>
@@ -872,18 +941,18 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                     {editSection === editSections[1] && (
                         <>
                             <TitleAndPreview>
-                                <Label style={{ marginBottom: '5px' }}> Thumbnail </Label>
+                                <Label style={{ marginBottom: '5px' }}> {translations[language].thumbnail} </Label>
                             </TitleAndPreview>
 
 
                             {imgPerc > 0 ? (
                                 imgPerc < 100 ? (
                                     <div style={{ display: 'flex', marginBottom: '2px' }}>
-                                        <UploadImage imgPerc={imgPerc}>Uploading: {imgPerc}%</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgPerc}%</UploadImage>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', marginBottom: '2px' }}>
-                                        <UploadImage imgPerc={imgPerc}>Thumbnail uploaded successfully!</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].thumbnailss}</UploadImage>
                                         <SideDropdownImg src={ResetIcon} onClick={resetThumbnail} />
                                     </div>
                                 )
@@ -899,17 +968,17 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
 
                             <TitleAndPreview>
-                                <Label style={{ marginBottom: '5px', marginTop: '30px' }}> Vertical Thumbnail </Label>
+                                <Label style={{ marginBottom: '5px', marginTop: '30px' }}> {translations[language].vthumbnail} </Label>
                             </TitleAndPreview>
 
                             {imgVerticalPerc > 0 ? (
                                 imgVerticalPerc < 100 ? (
                                     <div style={{ display: 'flex', marginBottom: '9px' }}>
-                                        <UploadImage imgPerc={imgPerc}>Uploading: {imgVerticalPerc}%</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgVerticalPerc}%</UploadImage>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', marginBottom: '9px' }}>
-                                        <UploadImage imgPerc={imgPerc}>Vertical thumbnail uploaded successfully!</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].vthumbnailss}</UploadImage>
                                         <SideDropdownImg src={ResetIcon} onClick={resetVerticalThumbnail} />
                                     </div>
                                 )
@@ -927,7 +996,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             <TitleAndPreviewLandscape imgPerc={imgPerc} imgVerticalPerc={imgVerticalPerc}>
 
                                 <TitleAndPreview>
-                                    <Label style={{ marginBottom: '5px', marginTop: '30px' }}> Landscape Thumbnail </Label>
+                                    <Label style={{ marginBottom: '5px', marginTop: '30px' }}> {translations[language].lthumbnail} </Label>
                                 </TitleAndPreview>
 
                             </TitleAndPreviewLandscape>
@@ -935,11 +1004,11 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                             {imgLandscapePerc > 0 ? (
                                 imgLandscapePerc < 100 ? (
                                     <div>
-                                        <UploadImage imgPerc={imgPerc}>Uploading: {imgLandscapePerc}%</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgLandscapePerc}%</UploadImage>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex' }}>
-                                        <UploadImage imgPerc={imgPerc}>Landscape thumbnail uploaded successfully!</UploadImage>
+                                        <UploadImage imgPerc={imgPerc}>{translations[language].lthumbnailss}</UploadImage>
                                         <SideDropdownImg src={ResetIcon} onClick={resetLandscapeThumbnail} />
                                     </div>
                                 )
@@ -959,7 +1028,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
                     {editSection === editSections[2] && (
                         <ContainerLanguageSub>
-                            <Label> Language </Label>
+                            <Label> {translations[language].language} </Label>
 
                             <SelecterAndFlags>
                                 <div style={{ marginLeft: '20px' }}>
@@ -1032,7 +1101,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                 )}
                             </SelecterAndFlags>
 
-                            <Label style={{ marginTop: '40px' }}> Subtitles </Label>
+                            <Label style={{ marginTop: '40px' }}> {translations[language].subtitle} </Label>
 
 
                             <DropDownSubtitlesContainer style={{ marginLeft: '20px', }}>
@@ -1051,7 +1120,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
                     {editSection === editSections[3] && (
                         <>
-                            <Label style={{ marginBottom: '20px' }}> Visibility </Label>
+                            <Label style={{ marginBottom: '20px' }}> {translations[language].visibility} </Label>
                             <ContainerSelectPrivacy>
 
                                 <DivSelectPrivacy
@@ -1060,11 +1129,11 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                 >
                                     <DivSelectPrivacyColumn selected={inputs.privacy === "public"}>
                                         <DivSelectPrivacyFlex>
-                                            <PrivacyImg src={PublicIcon} />Public
+                                            <PrivacyImg src={PublicIcon} />{translations[language].public}
                                         </DivSelectPrivacyFlex>
 
                                         <PrivacyDesc>
-                                            By setting your video to public, you can make it accessible to a wide audience... This feature will allow anyone to view, like, and share your content.
+                                            {translations[language].publictxt}
                                         </PrivacyDesc>
                                     </DivSelectPrivacyColumn>
 
@@ -1077,17 +1146,17 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                 >
                                     <DivSelectPrivacyColumn selected={inputs.privacy === "private"}>
                                         <DivSelectPrivacyFlex>
-                                            <PrivacyImg src={PrivateIcon} />Private
+                                            <PrivacyImg src={PrivateIcon} />{translations[language].private}
                                         </DivSelectPrivacyFlex>
 
                                         <PrivacyDesc privateSelected={privateSelected}>
-                                            Keep your video private by adjusting the privacy settings to ensure it's only visible to selected individuals.
+                                            {translations[language].privatetxt}
                                         </PrivacyDesc>
 
                                         {privateSelected && (
                                             <>
                                                 <SharePrivateButton onClick={handleSharePrivate}>
-                                                    <SharePrivateImg src={SharePrivateIcon} /> INVITE USERS
+                                                    <SharePrivateImg src={SharePrivateIcon} /> {translations[language].invite}
                                                 </SharePrivateButton>
                                             </>
                                         )}
@@ -1103,11 +1172,11 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
                                 >
                                     <DivSelectPrivacyColumn selected={inputs.privacy === "unlisted"}>
                                         <DivSelectPrivacyFlex>
-                                            <PrivacyImg src={UnlistedIcon} />Unlisted
+                                            <PrivacyImg src={UnlistedIcon} />{translations[language].unlisted}
                                         </DivSelectPrivacyFlex>
 
                                         <PrivacyDesc>
-                                            Choose unlisted for an exclusive touch. Keep your video private, sharing only with those you select. Make each view more personal and special.
+                                            {translations[language].unlistedtxt}
                                         </PrivacyDesc>
                                     </DivSelectPrivacyColumn>
 

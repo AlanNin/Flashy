@@ -11,11 +11,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 // CONTAINER
 const MainContainer = styled.div`
-  padding: 55px 0px;
+  padding: 55px 0px 10px 0px;
   position: relative;
   width: 100%;
   height: max-content;
-  background-color: rgba(15, 12, 18);
+  background-color: ${({ theme }) => theme.background};
   margin-top: auto;
 `;
 
@@ -99,7 +99,7 @@ const AppName = styled.h1`
   font-weight: 700;
   margin-left: -2px;
   margin-top: 2px;
-  color: white;
+  color: ${({ theme }) => theme.text};
 `;
 
 const DivRedes = styled.div`
@@ -117,7 +117,7 @@ const Follow = styled.h1`
   font-family: "Roboto Condensed", Helvetica;
   font-size: 16px;
   font-weight: 400;
-  color: #C6C6C6;
+  color: ${({ theme }) => theme.textSoft};
   white-space: nowrap;
 
 `;
@@ -165,17 +165,25 @@ const Footer = () => {
     navigate("/contact");
   };
 
+  // TRANSLATIONS
   const translations = {
     en: {
       join: "Join",
       now: "Now",
+      terms: "Terms of service",
+      contact: "Contact",
+      store: "Flashy does not store any files on our server, we only linked to the media which is hosted on 3rd party services.",
+      rights: "© Flashy. All rights reserved.",
     },
     es: {
       join: "Unete",
       now: "Ahora",
+      terms: "Tértminos de servicio",
+      contact: "Contacto",
+      store: "Flashy no almacena ningún archivo en nuestro servidor, solo nos vinculamos a los medios alojados en servicios de terceros.",
+      rights: "© Flashy. Todos los derechos reservados.",
     },
   };
-
 
   return (
     <MainContainer>
@@ -204,22 +212,22 @@ const Footer = () => {
 
         <Div2>
           <Span onClick={handleGoToTermsOfService}>
-            Terms of service
+            {translations[language].terms}
           </Span>
           <Span onClick={handleGoToContact}>
-            Contact
+            {translations[language].contact}
           </Span>
         </Div2>
 
         <Div3>
           <SpanSoft>
-            Flashy does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
+            {translations[language].store}
           </SpanSoft>
         </Div3>
 
         <Div3>
           <SpanSoft>
-            © Flashy. All rights reserved.
+            {translations[language].rights}
           </SpanSoft>
         </Div3>
 

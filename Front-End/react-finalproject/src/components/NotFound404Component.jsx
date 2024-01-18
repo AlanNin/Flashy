@@ -4,6 +4,7 @@ import Space404 from "../assets/Space404.jpg";
 import AstroGif from "../assets/AstroGif.gif";
 import Logo404 from "../assets/Logo404.png";
 import { Link, useNavigate, useHistory } from 'react-router-dom';
+import { useLanguage } from '../utils/LanguageContext';
 
 const transformMixin = (foo) => `
   @each $prefix in '-webkit-', '-moz-', '-ms-', '' {
@@ -192,6 +193,20 @@ const Button = styled.a`
 `;
 
 const NotFound404 = () => {
+  const { language, setLanguage } = useLanguage();
+
+  const translations = {
+    en: {
+      message: "There is no life here, try to find something else",
+      gohome: "Go Home",
+    },
+    es: {
+      message: "No hay vida aquí, intenta encontrar algo más",
+      gohome: "Ir al incio",
+    },
+  };
+
+
   return (
     <>
       <Background src={Space404} />
@@ -206,11 +221,11 @@ const NotFound404 = () => {
         </Planet>
         <Message>
           <MessageTxt>
-            There is no life here, try to find something else
+            {translations[language].message}
           </MessageTxt>
         </Message>
         <Link to={"/"} style={{ position: 'absolute', width: 'max-content', height: 'max-content', top: '0em', left: 'calc(50% - 102px)' }}>
-          <Button>Go Home</Button>
+          <Button> {translations[language].gohome} </Button>
         </Link>
 
         <AstroGifImg src={AstroGif} />

@@ -4,6 +4,7 @@ import CardNotification from "./CardNotification";
 import SettingsIcon from "../assets/SettingsIcon.png";
 import NoNotificationsImg from "../assets/NoNotificationsImg.webp";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from '../utils/LanguageContext';
 
 const Container = styled.div`
     position: fixed;
@@ -139,11 +140,24 @@ const NotificationsEmptyTxt = styled.h1`
 `;
 
 const NotificationCenter = ({ notifications, handleNotificationCenter, notificationButtonRef }) => {
-
+    const { language, setLanguage } = useLanguage();
     const [notificationsLoaded, setNotificationsLoaded] = useState(false);
     const [notificationsEmpty, setNotificationsEmpty] = useState(false);
     const notificationRef = useRef(null);
     const navigate = useNavigate();
+
+    // TRANSLATIONS
+    const translations = {
+        en: {
+            notifications: "Notifications",
+            nonotifications: "You don't have any notification ",
+
+        },
+        es: {
+            notifications: "Notificaciones",
+            nonotifications: "No tienes ninguna notificación",
+        },
+    };
 
     // CLOSE POPUP ON CLICK OUTSIDE 
     useEffect(() => {
@@ -185,7 +199,7 @@ const NotificationCenter = ({ notifications, handleNotificationCenter, notificat
     return (
         <Container notificationsLoaded={notificationsLoaded} ref={notificationRef}>
             <Header>
-                <HeaderTitle> Notifications </HeaderTitle>
+                <HeaderTitle>  {translations[language].notifications}  </HeaderTitle>
                 <HeaderSettingsImg src={SettingsIcon} onClick={handleGoToNotificationSettings} />
             </Header>
             <IsShowingContainer notificationsLoaded={notificationsLoaded}>
@@ -209,7 +223,7 @@ const NotificationCenter = ({ notifications, handleNotificationCenter, notificat
             {notificationsEmpty && (
                 <NotificationsEmptyDiv>
                     <NotificationsEmptyImg src={NoNotificationsImg} />
-                    <NotificationsEmptyTxt> You don't have any notification </NotificationsEmptyTxt>
+                    <NotificationsEmptyTxt>  {translations[language].nonotifications}  </NotificationsEmptyTxt>
                 </NotificationsEmptyDiv>
             )}
 

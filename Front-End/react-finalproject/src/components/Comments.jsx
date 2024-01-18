@@ -134,6 +134,7 @@ const Comments = ({ videoId, UserUploader }) => {
   const { currentUser } = useSelector((state) => state.user);
   const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState('');
+  const { language, setLanguage } = useLanguage();
 
   const fetchComments = async () => {
     try {
@@ -180,11 +181,31 @@ const Comments = ({ videoId, UserUploader }) => {
     fetchComments();
   }, [videoId]);
 
+
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      comments: "COMMENTS",
+      commentsvalidation: "Please sign in to comment in this video.",
+      commentsas: "Comment as",
+      close: "Close",
+      comment: "Comment",
+    },
+    es: {
+      comments: "COMENTARIOS",
+      commentsvalidation: "Por favor inicia sesión para comentar en este video.",
+      commentsas: "Comentar como",
+      close: "Cerrar",
+      comment: "Comentar",
+    },
+  };
+
+
   return (
     <Container>
-      <TitleHeader> COMMENTS </TitleHeader>
+      <TitleHeader> {translations[language].comments} </TitleHeader>
       {!currentUser && (
-        <NotLoggedText> Please sign in to comment in this video. </NotLoggedText>
+        <NotLoggedText> {translations[language].commentsvalidation} </NotLoggedText>
       )}
 
       {currentUser && (
@@ -195,7 +216,7 @@ const Comments = ({ videoId, UserUploader }) => {
           />
           <PostComment>
             <UserComment>
-              Comment as <UserCommentName> {currentUser?.displayname} </UserCommentName>{" "}
+              {translations[language].commentsas}  <UserCommentName> {currentUser?.displayname} </UserCommentName>{" "}
             </UserComment>
             <Textarea
               placeholder="Leave a comment..."
@@ -204,8 +225,8 @@ const Comments = ({ videoId, UserUploader }) => {
               onChange={(e) => setNewCommentText(e.target.value)}
             />
             <ButtonsDiv showButtons={isTextareaFocused}>
-              <CloseButton onClick={() => setTextareaFocused(false)}> Close </CloseButton>
-              <CommentButton onClick={handleComment}> Comment </CommentButton>
+              <CloseButton onClick={() => setTextareaFocused(false)}> {translations[language].close}  </CloseButton>
+              <CommentButton onClick={handleComment}> {translations[language].comment}  </CommentButton>
             </ButtonsDiv>
           </PostComment>
         </NewComment>

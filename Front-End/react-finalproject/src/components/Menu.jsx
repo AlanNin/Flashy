@@ -46,7 +46,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   padding: 24px 18.5px;
-  background-color: transparent;
+  background-color: ${({ theme }) => theme.menuwrapper};
 
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {

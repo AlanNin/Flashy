@@ -32,6 +32,12 @@ export const userSlice = createSlice({
         userVerified: (state, action) => {
             state.currentUser = action.payload;
         },
+        userToggleWatchHistoryPaused: (state, action) => {
+            state.currentUser = {
+                ...state.currentUser,
+                isWatchHistoryPaused: action.payload.isWatchHistoryPaused,
+            };
+        },
         userUpdateNotifications: (state, action) => {
             state.currentUser.newNotifications += 1;
         },
@@ -56,7 +62,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, userUpdated, userVerified, userUpdateNotifications, userClearNotifications, userToggleNotifications, subscription } =
+export const { loginStart, loginSuccess, loginFailure, logout, userUpdated, userVerified, userUpdateNotifications, userClearNotifications, userToggleNotifications, userToggleWatchHistoryPaused, subscription } =
     userSlice.actions;
 
 export default userSlice.reducer;

@@ -15,7 +15,7 @@ const MainContainer = styled.div`
   top: 0;
   margin: auto;
   min-height: 100vh;
-  background-color: rgba(15, 12, 18);
+  background-color: ${({ theme }) => theme.background};
   max-width: 1920px;
   overflow-x: clip;
 `;
@@ -45,7 +45,7 @@ const ShareDiv = styled.h1`
 
 const Share1 = styled.h1`
   font-size: 15px;
-  color: rgba(224, 175, 208, 0.8);
+  color: ${({ theme }) => theme.sharetxt};
   margin-right: 20px;
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 600;
@@ -53,7 +53,7 @@ const Share1 = styled.h1`
 
 const Share2 = styled.h1`
   font-size: 15px;
-  color: white;
+  color: ${({ theme }) => theme.text};
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 500;
 `;
@@ -61,10 +61,9 @@ const Share2 = styled.h1`
 
 const Header = styled.h1`
 font-size: 32px;
-color: rgba(224, 175, 208);
+color: ${({ theme }) => theme.trendsliderheader};
 margin-top: 32px;
 margin-left: 55px;
-
 font-weight: bold;
 font-family: "Roboto Condensed", Helvetica;
 `;
@@ -78,7 +77,7 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   padding: 32px 55px 32px 58px;
-  background-color: rgba(15, 12, 18);
+  background-color: ${({ theme }) => theme.background};
 `;
 
 

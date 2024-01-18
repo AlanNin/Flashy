@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import CardRecommendation from "./CardRecommendation";
+import { useLanguage } from '../utils/LanguageContext';
 
 const Container = styled.div`
   flex: 2;
@@ -41,6 +42,16 @@ const Recommendation = ({ tags, currentVideoId, NoRecommendations, setNoRecommen
     const filteredVideos = videos.filter((video) => video._id !== currentVideoId);
     const [cardLoaded, setCardLoaded] = useState(false);
     const [isRecommendationEmpty, setIsRecommendationEmpty] = useState(false);
+    const { language, setLanguage } = useLanguage();
+
+    const translations = {
+        en: {
+            norecommended: "No recommended videos found.",
+        },
+        es: {
+            norecommended: "Sin recomendaciones.",
+        },
+    };
 
 
     useEffect(() => {
@@ -63,7 +74,7 @@ const Recommendation = ({ tags, currentVideoId, NoRecommendations, setNoRecommen
             {cardLoaded ? (
                 filteredVideos.length === 0 ? (
                     <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
-                        No recommended videos found.
+                        {translations[language].norecommended}
                     </p>
                 ) : (
                     <CardContainer>

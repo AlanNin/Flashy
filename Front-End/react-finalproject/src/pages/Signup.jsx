@@ -537,7 +537,7 @@ const Signup = () => {
       console.log('Response from the server:', res);
 
       dispatch(loginSuccess(res.data));
-      toast.success(`Welcome to Flashy`);
+      toast.success(translations[language].toastw);
       navigate("/");
 
     } catch (error) {
@@ -590,7 +590,7 @@ const Signup = () => {
       console.log('Response from the server:', res);
 
       dispatch(loginSuccess(res.data));
-      toast.success(`Welcome to Flashy`);
+      toast.success(translations[language].toastw);
       navigate("/");
 
 
@@ -683,7 +683,7 @@ const Signup = () => {
         // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
         const res = await axios.post("/auth/signup", { name, displayname, email, password, captchaToken: token });
         dispatch(loginSuccess(res.data));
-        toast.success(`Welcome to Flashy`);
+        toast.success(translations[language].toastw);
         navigate('/');
       } catch (error) {
         dispatch(loginFailure());
@@ -867,6 +867,8 @@ const Signup = () => {
       passwordpopup1: "Password is at least 8 characters long.",
       passwordpopup2: "Password is at least okay strength or better.",
       passwordpopup3: "Password includes two of the following: letter, capital letter, number, or symbol.",
+
+      toastw: "Welcome to Flashy",
     },
     es: {
       title: "Inicio de Sesión",
@@ -906,6 +908,8 @@ const Signup = () => {
       passwordpopup1: "La contraseña tiene al menos 8 caracteres.",
       passwordpopup2: "La contraseña es por lo menos aceptable o mejor.",
       passwordpopup3: "La contraseña incluye dos de lo siguiente: letra, mayúscula, numero, o símbolo.",
+
+      toastw: "Bienvenido a Flashy",
     },
   };
 

@@ -248,6 +248,9 @@ export const deleteVideo = async (req, res, next) => {
         // Obtener la lista de usuarios que tienen el video en su videoProgress
         const usersWithVideoInVideoProgress = await User.find({ [`videoProgress.${videoId}`]: { $exists: true } });
 
+        // Obtener la lista de usuarios que tienen notificaciones relacionadas con el video
+        const usersWithVideoNotifications = await User.find({ 'notifications.videoId': videoId });
+
         // Eliminar el video del historial de cada usuario
         await Promise.all(
             usersWithVideoInHistory.map(async (user) => {
@@ -290,6 +293,17 @@ export const deleteVideo = async (req, res, next) => {
                 }
             })
         );
+
+        // Eliminar las notificaciones del video para cada usuario
+        await Promise.all(
+            usersWithVideoNotifications.map(async (user) => {
+                user.notifications = user.notifications.filter(
+                    (notification) => notification.videoId.toString() !== videoId
+                );
+                await user.save();
+            })
+        );
+
         // Eliminar el video del videoProgress de cada usuario
         await Promise.all(
             usersWithVideoInVideoProgress.map(async (user) => {
@@ -475,19 +489,79 @@ export const findByTag = async (req, res, next) => {
     }
 };
 
+// SEARCH VIDEOS AND PLAYLIST
 export const search = async (req, res, next) => {
     const query = req.query.q;
+
     try {
-        const videos = await Video.find({
-            title: { $regex: query, $options: "i" },
-            privacy: 'public',
+        const usersWithPlaylists = await User.find({
+            'playlists': {
+                $elemMatch: {
+                    $and: [
+                        { name: { $regex: query, $options: "i" } },
+                        { privacy: 'public' }
+                    ]
+                }
+            }
         }).limit(40);
-        res.status(200).json(videos);
+
+        const playlists = [];
+
+        for (const user of usersWithPlaylists) {
+            for (const playlist of user.playlists) {
+                if (playlist.name.match(new RegExp(query, 'i'))) {
+                    const videosLength = playlist.videos.length;
+
+                    // Logica para manejar las imágenes
+                    const lastVideoId = videosLength > 0 ? playlist.videos[videosLength - 1] : null;
+
+                    let defaultImage = null;
+
+                    if (lastVideoId) {
+                        const lastVideo = await Video.findById(lastVideoId);
+                        defaultImage = lastVideo ? lastVideo.imgUrl : null;
+                    }
+
+                    const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+
+                    playlist.image = playlistImage;
+
+                    playlists.push(playlist);
+                }
+            }
+        }
+
+        // Busca videos coincidentes
+        const matchingVideos = await Video.find({
+            $and: [
+                {
+                    $or: [
+                        { title: { $regex: query, $options: "i" } },
+                        { tags: { $in: [query] } }
+                    ]
+                },
+                { privacy: 'public' }
+            ]
+        }).limit(40);
+
+        // Busca usuarios coincidentes
+        const matchingUsers = await User.find({
+            $or: [
+                { displayname: { $regex: query, $options: "i" } },
+                { name: { $regex: query, $options: "i" } },
+                { email: { $regex: query, $options: "i" } }
+            ]
+        }).limit(40);
+
+        res.status(200).json({
+            playlists,
+            videos: matchingVideos,
+            users: matchingUsers,
+        });
     } catch (err) {
         next(err);
     }
 };
-
 
 export const TrendingSub = async (req, res, next) => {
     try {

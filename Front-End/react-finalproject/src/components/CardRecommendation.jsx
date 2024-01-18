@@ -247,6 +247,16 @@ const CardRecommendation = ({ type, video }) => {
     return <div>{noVideosMessage}</div>;
   }
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      views: "Views",
+    },
+    es: {
+      views: "Visitas",
+    },
+  };
+
   return (
     <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
       <Container>
@@ -261,7 +271,7 @@ const CardRecommendation = ({ type, video }) => {
             <ChannelName> {channel?.displayname} </ChannelName>
 
             <ViewsAndTimeeDiv>
-              <TxtViews> {formatViews(video?.views)} views </TxtViews>
+              <TxtViews> {formatViews(video?.views)} {translations[language].views} </TxtViews>
               <TxtTime> • {`\u00A0`} {timeago(video?.createdAt)} </TxtTime>
             </ViewsAndTimeeDiv>
           </Texts>

@@ -5,10 +5,13 @@ import BuscarIcono from "../assets/BuscarIcono.png";
 import ClearHistory from "../assets/BorrarComentarioIcono.png";
 import EmptyWatchHistoryIcon from "../assets/NotSubbedIcono.png";
 import InicioSesionIcono2 from "../assets/InicioSesionIcono2.png";
+import PauseIcon from "../assets/PauseIcon.png";
+import ResumeIcon from "../assets/ResumeIcon.png";
 import Footer from "../components/Footer";
 import { useLanguage } from '../utils/LanguageContext';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
+import { userToggleWatchHistoryPaused } from "../redux/userSlice";
 import axios from "axios";
 
 const MainContainer = styled.div`
@@ -128,9 +131,8 @@ const ItemClearHistory = styled.div`
     margin-left: 22px;
     gap: 22.5px;
     cursor: pointer;
-    padding: 22px 8px;
     border-radius: 30px;
-    padding: 8px 15px;
+    padding: 10px 15px;
     transition: background-color 0.5s;
 
     &:hover {
@@ -282,6 +284,7 @@ const LoadingCircle = styled.div`
 const History = () => {
     // CONST DEFINITION
     const { currentUser } = useSelector(state => state.user);
+    const dispatch = useDispatch();
     const [videos, setVideos] = useState([]);
     const { language, setLanguage } = useLanguage();
     const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -294,21 +297,56 @@ const History = () => {
             history: "Watch History",
             search: "Search in Watch History",
             clearhistory: "Clear Watch History",
+            pausehistory: "Pause Watch History",
+            unpausehistory: "Resume Watch History",
             emptyHistoryMessage1: "Seems like you haven't watch any video recently :(",
             emptyHistoryMessage2: "Don't miss any Flashy Videos, Watch Now!",
             emptyHistoryMessage1userless: "Seems like you currently are not logged in as a user :(",
             emptyHistoryMessage2userless: "Keep track of your recently watched videos, sign in now!",
             signin: "Sign in",
+
+            clearhistory: "Clear Watch History ",
+            clearhistorytxtempty: "Your watch history is currently empty.",
+            clearhistorytxt: "Your watch history will be completely cleared as well as the watch progress of these videos.",
+            cancel: "Cancel",
+            clear: "Clear",
+            goback: "Go Back",
+
+
+            pausehistory: "Pause Watch History ",
+            pausehistorytxt: "Your watch history and progress tracking will be paused, therefore we won't be able to give you these information in the future, do you want to pause?",
+            pause: "Pause",
+
+            resumehistory: "Resume Watch History",
+            resumehistorytxt: "Your watch history and progress tracking will be resume, this will help us providing you a better experience.",
+            resume: "Resume",
         },
         es: {
             history: "Historial de Reproducción",
             search: "Buscar en el Historial de Reproducción",
             clearhistory: "Limpiar Historial de Reproducción",
+            pausehistory: "Pausar Historial de Reproducción",
+            unpausehistory: "Resumir Historial de Reproducción",
             emptyHistoryMessage1: "Parece que no has visto ningún video recientemente :(",
             emptyHistoryMessage2: "No te pierdas ningún video, empieza ahora!",
             emptyHistoryMessage1userless: "Parece que aún no has iniciado sesión como usuario :(",
             emptyHistoryMessage2userless: "Manten registrados tus videos recientes, inicia sesión ahora!",
             signin: "Iniciar Sesión",
+
+            clearhistory: "Limpiar Historial de Reproducción",
+            clearhistorytxtempty: "Su historial de reproducción está vacio",
+            clearhistorytxt: "Su historial de visualización se borrará por completo, así como el progreso de visualización de estos videos.",
+            cancel: "Cancelar",
+            clear: "Limpiar",
+            goback: "Regresar",
+
+            pausehistory: "Pausar Historial de Reproducción",
+            pausehistorytxt: "Tu historial de reproducción y el seguimiento de tu progreso se pausarán, por lo que no podremos brindarte esta información en el futuro. ¿Quieres pausar?",
+            pause: "Pausar",
+
+            resumehistory: "Reanudar Historial de Reproducción",
+            resumehistorytxt: "Se reanudará tu historial de reproducciones y el seguimiento de tu progreso, lo que nos ayudará a brindarte una mejor experiencia.",
+            resume: "Reanudar",
         },
     };
 
@@ -427,7 +465,7 @@ const History = () => {
     // CLEAR WATCH HISTORY
     const [isClearHistoryPopupOpen, setIsClearHistoryPopupOpen] = useState(false);
 
-    const handleClearHistory = async () => {
+    const handleClearHistory = () => {
         setIsClearHistoryPopupOpen(true);
     };
 
@@ -455,6 +493,72 @@ const History = () => {
             document.body.style.overflow = 'auto';
         };
     }, [isClearHistoryPopupOpen]);
+
+    // PAUSE WATCH HISTORY
+    const [isPauseHistoryPopupOpen, setIsPauseHistoryPopupOpen] = useState(false);
+
+    const handlePauseHistory = () => {
+        setIsPauseHistoryPopupOpen(true);
+    };
+
+    const handlePauseConfirmation = async (confirmed) => {
+        setIsPauseHistoryPopupOpen(false);
+
+        if (confirmed) {
+            try {
+                const response = await axios.post(`/users/toggle-watchHistoryPaused`);
+                console.log(response.data.isWatchHistoryPaused);
+                dispatch(userToggleWatchHistoryPaused({ isWatchHistoryPaused: response.data.isWatchHistoryPaused }));
+            } catch (error) {
+                console.error('Error pausing watch history:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (isPauseHistoryPopupOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [isPauseHistoryPopupOpen]);
+
+    // RESUME WATCH HISTORY
+    const [isResumeHistoryPopupOpen, setIsResumeHistoryPopupOpen] = useState(false);
+
+    const handleResumeHistory = () => {
+        setIsResumeHistoryPopupOpen(true);
+    };
+
+    const handleResumeConfirmation = async (confirmed) => {
+        setIsResumeHistoryPopupOpen(false);
+
+        if (confirmed) {
+            try {
+                const response = await axios.post(`/users/toggle-watchHistoryPaused`);
+                dispatch(userToggleWatchHistoryPaused({ isWatchHistoryPaused: response.data.isWatchHistoryPaused }));
+            } catch (error) {
+                console.error('Error pausing watch history:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (isResumeHistoryPopupOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [isResumeHistoryPopupOpen]);
+
 
     return (
         <MainContainer>
@@ -503,6 +607,14 @@ const History = () => {
                             <ImgClearHistory src={ClearHistory} />
                             <ButtonTextClearHistory> {translations[language].clearhistory} </ButtonTextClearHistory>
                         </ItemClearHistory>
+
+                        <ItemClearHistory onClick={currentUser?.isWatchHistoryPaused ? handleResumeHistory : handlePauseHistory} style={{ marginTop: '-10px' }}>
+                            <ImgClearHistory src={currentUser?.isWatchHistoryPaused ? ResumeIcon : PauseIcon} />
+                            <ButtonTextClearHistory>
+                                {currentUser?.isWatchHistoryPaused ? translations[language].unpausehistory : translations[language].pausehistory}
+                            </ButtonTextClearHistory>
+                        </ItemClearHistory>
+
                     </SearchContainer>
                 </Wrapper>
             ) : (
@@ -534,29 +646,77 @@ const History = () => {
                     >
                         {videos.length === 0 ? (
                             <ClearHistoryPopupWrapper>
-                                <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
-                                <ClearHistoryPopupTxt> Your watch history is currently empty. </ClearHistoryPopupTxt>
+                                <ClearHistoryPopupTitle> {translations[language].clearhistory} </ClearHistoryPopupTitle>
+                                <ClearHistoryPopupTxt> {translations[language].clearhistorytxtempty} </ClearHistoryPopupTxt>
                                 <OptionsClearCancel>
                                     <ClearHistoryClear onClick={() => handleDeleteConfirmation(false)}>
-                                        Go Back
+                                        {translations[language].goback}
                                     </ClearHistoryClear>
                                 </OptionsClearCancel>
                             </ClearHistoryPopupWrapper>
                         ) : (
                             <ClearHistoryPopupWrapper>
-                                <ClearHistoryPopupTitle> Clear Watch History </ClearHistoryPopupTitle>
-                                <ClearHistoryPopupTxt> Your watch history will be completely cleared as well as the watch progress of these videos. </ClearHistoryPopupTxt>
+                                <ClearHistoryPopupTitle> {translations[language].clearhistory} </ClearHistoryPopupTitle>
+                                <ClearHistoryPopupTxt>  {translations[language].clearhistorytxt} </ClearHistoryPopupTxt>
                                 <OptionsClearCancel>
                                     <ClearHistoryCancel onClick={() => handleDeleteConfirmation(false)}>
-                                        Cancel
+                                        {translations[language].cancel}
                                     </ClearHistoryCancel>
                                     <ClearHistoryClear onClick={() => handleDeleteConfirmation(true)}>
-                                        Clear
+                                        {translations[language].clear}
                                     </ClearHistoryClear>
                                 </OptionsClearCancel>
                             </ClearHistoryPopupWrapper>
                         )}
 
+
+                    </ClearHistoryPopupContainer>
+                )
+            }
+
+            {
+                isPauseHistoryPopupOpen && (
+                    <ClearHistoryPopupContainer
+                        onDeleteConfirmed={() => handlePauseConfirmation(true)}
+                        onCancel={() => handlePauseConfirmation(false)}
+                    >
+
+                        <ClearHistoryPopupWrapper>
+                            <ClearHistoryPopupTitle> {translations[language].pausehistory} </ClearHistoryPopupTitle>
+                            <ClearHistoryPopupTxt> {translations[language].pausehistorytxt} </ClearHistoryPopupTxt>
+                            <OptionsClearCancel>
+                                <ClearHistoryCancel onClick={() => handlePauseConfirmation(false)}>
+                                    {translations[language].cancel}
+                                </ClearHistoryCancel>
+                                <ClearHistoryClear onClick={() => handlePauseConfirmation(true)}>
+                                    {translations[language].pause}
+                                </ClearHistoryClear>
+                            </OptionsClearCancel>
+                        </ClearHistoryPopupWrapper>
+
+                    </ClearHistoryPopupContainer>
+                )
+            }
+
+            {
+                isResumeHistoryPopupOpen && (
+                    <ClearHistoryPopupContainer
+                        onDeleteConfirmed={() => handleResumeConfirmation(true)}
+                        onCancel={() => handleResumeConfirmation(false)}
+                    >
+
+                        <ClearHistoryPopupWrapper>
+                            <ClearHistoryPopupTitle> {translations[language].resumehistory} </ClearHistoryPopupTitle>
+                            <ClearHistoryPopupTxt> {translations[language].resumehistorytxt}  </ClearHistoryPopupTxt>
+                            <OptionsClearCancel>
+                                <ClearHistoryCancel onClick={() => handleResumeConfirmation(false)}>
+                                    {translations[language].cancel}
+                                </ClearHistoryCancel>
+                                <ClearHistoryClear onClick={() => handleResumeConfirmation(true)}>
+                                    {translations[language].resume}
+                                </ClearHistoryClear>
+                            </OptionsClearCancel>
+                        </ClearHistoryPopupWrapper>
 
                     </ClearHistoryPopupContainer>
                 )

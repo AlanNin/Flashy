@@ -106,6 +106,7 @@ const ContactTxt = styled.p`
 
 const About = () => {
   const navigate = useNavigate();
+  const { language, setLanguage } = useLanguage();
 
   const handleGoHome = () => {
     navigate("/");
@@ -121,32 +122,53 @@ const About = () => {
     scrollToTop();
   }, []);
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      home: "Home",
+      about: "About",
+      aboutflashy: "About Flashy",
+      p1: "Flashy is a highly interactive and engaging web application for multimedia that allows visitors to view content posted by other users. Everyone has the option to register as a user and create personalized profiles. Once registered, users can share their own videos on the platform.",
+      p2: "The main page is the main attraction, acting as a meeting point for users, where they can discover the most popular and featured content. This website is geared towards user satisfaction and experience.",
+      p3: "- Alan Nin",
+      p4: "alanbusinessnin@gmail.com",
+    },
+    es: {
+      home: "Inicio",
+      about: "Acerca de",
+      aboutflashy: "Acerca de Flashy",
+      p1: "Flashy es una aplicación web altamente interactiva y atractiva para multimedia que permite a los visitantes ver contenido publicado por otros usuarios. Todos tienen la opción de registrarse como usuario y crear perfiles personalizados. Una vez registrados, los usuarios pueden compartir sus propios videos en la plataforma.",
+      p2: "La página principal es la atracción principal, actuando como un punto de encuentro para los usuarios, donde pueden descubrir el contenido más popular y destacado. Este sitio web está orientado hacia la satisfacción y experiencia del usuario.",
+      p3: "- Alan Nin",
+      p4: "alanbusinessnin@gmail.com",
+    },
+  };
+
   return (
     <MainContainer>
 
       <Wrapper>
 
         <HeaderDiv>
-          <Label onClick={handleGoHome}> Home </Label> &nbsp;&nbsp;•&nbsp;&nbsp; <SpanSoft> About </SpanSoft>
+          <Label onClick={handleGoHome}> {translations[language].home} </Label> &nbsp;&nbsp;•&nbsp;&nbsp; <SpanSoft> {translations[language].about} </SpanSoft>
         </HeaderDiv>
 
-        <TitleLabel> About Flashy </TitleLabel>
+        <TitleLabel> {translations[language].aboutflashy} </TitleLabel>
 
         <ParragraphDiv>
           <Parragraph>
-            Flashy is a highly interactive and engaging web application for multimedia that allows visitors to view content posted by other users.
-            Everyone has the option to register as a user and create personalized profiles. Once registered, users can share their own videos on the platform.
+            {translations[language].p1}
           </Parragraph>
 
           <Parragraph>
-            The main page is the main attraction, acting as a meeting point for users, where they can discover the most popular and featured content. This website is geared towards user satisfaction and experience.
+            {translations[language].p2}
           </Parragraph>
 
           <Parragraph>
-            - Alan Nin
+            {translations[language].p3}
           </Parragraph>
           <ContactTxt>
-            alanbusinessnin@gmail.com
+            {translations[language].p4}
           </ContactTxt>
 
         </ParragraphDiv>

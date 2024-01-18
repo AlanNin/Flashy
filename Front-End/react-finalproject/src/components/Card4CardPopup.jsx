@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import DuracionIcono from "../assets/DuracionIconoG.png"
+import LanguageIcono from '../assets/IdiomaIconoG.png';
 import ViewsIcon from '../assets/ViewsIcono2.png';
 import axios from "axios";
 import { useLanguage } from '../utils/LanguageContext';
@@ -271,6 +272,9 @@ const Card4CardPopup = ({ type, video }) => {
 
             <EstiloIconos src={ViewsIcon} />
             <EstiloTextos> {formatViews(video?.views)} </EstiloTextos>
+
+            <EstiloIconos src={LanguageIcono} />
+            <EstiloTextos> {video.language} </EstiloTextos>
 
           </TextsHeader>
 

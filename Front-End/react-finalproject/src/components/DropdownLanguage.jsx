@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { useLanguage } from '../utils/LanguageContext';
 
 const DropdownContainer = styled.div`
   position: relative;
@@ -55,18 +56,44 @@ const DropdownContent = styled.div`
   }
 `;
 
-const languageOptions = [
-  { code: 'EN', name: 'English (EN)' },
-  { code: 'ES', name: 'Spanish (ES)' },
-  { code: 'FR', name: 'French (FR)' },
-  { code: 'PT', name: 'Portuguese (PT)' },
-  { code: 'RU', name: 'Russian (RU)' },
-  { code: 'ZH', name: 'Mandarin Chinese (ZH)' },
-  { code: 'JP', name: 'Japanese (JP)' },
-  { code: 'KR', name: 'Korean (KR)' },
-];
-
 const DropdownLanguage = ({ selectedLanguage, onLanguageChange }) => {
+  const { language, setLanguage } = useLanguage();
+
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      en: "English (EN)",
+      es: "Spanish (ES)",
+      fr: "French (FR)",
+      pt: "Portuguese (PT)",
+      ru: "Russian (RU)",
+      zh: "Mandarin Chinese (ZH)",
+      jp: "Japanese (JP)",
+      kr: "Korean (KR)",
+    },
+    es: {
+      en: "Inglés (EN)",
+      es: "Español (ES)",
+      fr: "Francés (FR)",
+      pt: "Portugués (PT)",
+      ru: "Ruso (RU)",
+      zh: "Mandarin Chino (ZH)",
+      jp: "Japonés (JP)",
+      kr: "Coreano (KR)",
+    },
+  };
+
+  const languageOptions = [
+    { code: 'EN', name: translations[language].en },
+    { code: 'ES', name: translations[language].es },
+    { code: 'FR', name: translations[language].fr },
+    { code: 'PT', name: translations[language].pt },
+    { code: 'RU', name: translations[language].ru },
+    { code: 'ZH', name: translations[language].zh },
+    { code: 'JP', name: translations[language].jp },
+    { code: 'KR', name: translations[language].kr },
+  ];
+
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 

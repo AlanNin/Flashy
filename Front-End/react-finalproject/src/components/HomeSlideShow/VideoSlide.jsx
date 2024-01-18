@@ -267,7 +267,7 @@ const VideoSlide = ({ type, video, translations, language, index, setIsMoreInfo,
           <EstiloTextos>
             {video.subtitles && video.subtitles.length > 0
               ? video.subtitles[0].name + (video.subtitles[1] ? ', ' + video.subtitles[1].name : '') + (video.subtitles[2] ? ', ' + video.subtitles[2].name : '') + (video.subtitles[3] ? ', ' + video.subtitles[3].name : '')
-              : 'No Subtitles'}
+              : translations[language].nosubtitles}
 
           </EstiloTextos>
         </ContenedorIconosTextos>

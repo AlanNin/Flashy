@@ -5,6 +5,7 @@ import app from "../firebase";
 import BigAddIcon from "../assets/BigAddIcon.png";
 import ResetIcon from "../assets/ResetIcon.png";
 import RemoveMinusIcon from "../assets/RemoveMinusIcon.png";
+import { useLanguage } from '../utils/LanguageContext';
 
 const DropdownContainer = styled.div`
   position: relative;
@@ -136,18 +137,56 @@ const SubtitlelLabelFormat = styled.h1`
   `;
 
 
-const subtitleOptions = [
-  { code: 'EN', name: 'English (EN)' },
-  { code: 'ES', name: 'Spanish (ES)' },
-  { code: 'FR', name: 'French (FR)' },
-  { code: 'PT', name: 'Portuguese (PT)' },
-  { code: 'RU', name: 'Russian (RU)' },
-  { code: 'ZH', name: 'Mandarin Chinese (ZH)' },
-  { code: 'JP', name: 'Japanese (JP)' },
-  { code: 'KR', name: 'Korean (KR)' },
-];
-
 const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValidationError, subtitleNextValidationError, setSubtitleNextValidationError }) => {
+  const { language, setLanguage } = useLanguage();
+
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      en: "English (EN)",
+      es: "Spanish (ES)",
+      fr: "French (FR)",
+      pt: "Portuguese (PT)",
+      ru: "Russian (RU)",
+      zh: "Mandarin Chinese (ZH)",
+      jp: "Japanese (JP)",
+      kr: "Korean (KR)",
+
+      selectsub: "Select Subtitle",
+      uploading: "Uploading:",
+      subsuccess: "Subtitle uploaded successfully!",
+      formaterror: "This file format is not allowed",
+      addnew: "Add a new subtitle",
+    },
+    es: {
+      en: "Inglés (EN)",
+      es: "Español (ES)",
+      fr: "Francés (FR)",
+      pt: "Portugués (PT)",
+      ru: "Ruso (RU)",
+      zh: "Mandarin Chino (ZH)",
+      jp: "Japonés (JP)",
+      kr: "Coreano (KR)",
+
+      selectsub: "Seleccionar Subtítulo",
+      uploading: "Subido:",
+      subsuccess: "Subtítulo subido con éxito",
+      formaterror: "Este formato no está permitido",
+      addnew: "Añadir nuevo subtítulo",
+    },
+  };
+
+  const subtitleOptions = [
+    { code: 'EN', name: translations[language].en },
+    { code: 'ES', name: translations[language].es },
+    { code: 'FR', name: translations[language].fr },
+    { code: 'PT', name: translations[language].pt },
+    { code: 'RU', name: translations[language].ru },
+    { code: 'ZH', name: translations[language].zh },
+    { code: 'JP', name: translations[language].jp },
+    { code: 'KR', name: translations[language].kr },
+  ];
+
   const [emptyUrl, setemptyUrl] = useState(true);
 
   const [dropdowns, setDropdowns] = useState(
@@ -325,7 +364,7 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValid
           <DropdownButton onClick={() => toggleDropdown(index)} isOpen={dropdown.isOpen}>
             {dropdown.selectedSubtitle.length > 0
               ? subtitleOptions.find((option) => option.code === dropdown.selectedSubtitle[dropdown.selectedSubtitle.length - 1]?.name)?.name
-              : 'Select Subtitle'}
+              : translations[language].selectsub}
           </DropdownButton>
           <DropdownContent isOpen={dropdown.isOpen}>
             {getAvailableOptions(index).map((option) => (
@@ -340,9 +379,9 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValid
             <>
               {dropdown.subtitleFilePerc > 0 ? (
                 dropdown.subtitleFilePerc < 100 ? (
-                  <UploadSubtitleFile>Uploading: {dropdown.subtitleFilePerc}% </UploadSubtitleFile>
+                  <UploadSubtitleFile>{translations[language].uploading} {dropdown.subtitleFilePerc}% </UploadSubtitleFile>
                 ) : (
-                  <UploadSubtitleFile>Subtitle uploaded successfully!</UploadSubtitleFile>
+                  <UploadSubtitleFile>{translations[language].subsuccess}</UploadSubtitleFile>
                 )
               ) : (
                 <div style={{ display: 'flex' }}>
@@ -354,7 +393,7 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValid
                   />
 
                   {dropdown.formatError && dropdown.subtitleFilePerc === 0 && (
-                    <SubtitlelLabelFormat>This file format is not allowed</SubtitlelLabelFormat>
+                    <SubtitlelLabelFormat>{translations[language].formaterror}</SubtitlelLabelFormat>
                   )}
 
                 </div>
@@ -401,7 +440,7 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValid
       {dropdownCount < 8 && (
         <AddNewDropdown onClick={handleAddDropdown}>
           <AddNewDropdownImg src={BigAddIcon} />
-          <AddNewDropdownTxt> Add a new subtitle </AddNewDropdownTxt>
+          <AddNewDropdownTxt> {translations[language].addnew} </AddNewDropdownTxt>
         </AddNewDropdown>
       )}
 

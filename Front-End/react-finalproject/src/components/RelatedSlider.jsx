@@ -14,9 +14,11 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
   const translations = {
     en: {
       related: "RELATED",
+      norelated: "No related videos found.",
     },
     es: {
       related: "RELACIONADOS",
+      norelated: "Sin videos relacionados.",
     },
   };
 
@@ -136,7 +138,7 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
           ))}
         </StyledCarousel>
       ) : (
-        <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px' }}>No related videos found.</p>
+        <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px' }}>{translations[language].norelated}</p>
       )}
 
     </div >

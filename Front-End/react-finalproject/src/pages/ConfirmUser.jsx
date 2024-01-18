@@ -126,10 +126,14 @@ const ConfirmUser = () => {
 
   const translations = {
     en: {
-      explore: "Library",
+      accverified: "Account Verified!",
+      accverifiedtxt: "Now you can enjoy Flashy without any restriction",
+      gohome: "Go Home",
     },
     es: {
-      explore: "Librería",
+      accverified: "¡Cuenta verificada!",
+      accverifiedtxt: "Ahora puedes disfrutar de Flashy sin ningun restricción",
+      gohome: "Ir al Inicio",
     },
   };
 
@@ -171,11 +175,11 @@ const ConfirmUser = () => {
         <Container>
           <Content>
             <AccountVerifiedIlustrationImg src={AccountVerifiedIlustration} />
-            <Label> Account Verified! </Label>
-            <SubLabel> Now you can enjoy Flashy without any restriction </SubLabel>
+            <Label> {translations[language].accverified} </Label>
+            <SubLabel> {translations[language].accverifiedtxt}  </SubLabel>
 
             <Link to={"/"} style={{ width: 'max-content', height: 'max-content', top: '0em', left: 'calc(50% - 102px)', textDecoration: 'none' }}>
-              <GoHomeButton> Go Home </GoHomeButton>
+              <GoHomeButton> {translations[language].gohome} </GoHomeButton>
             </Link>
 
           </Content>

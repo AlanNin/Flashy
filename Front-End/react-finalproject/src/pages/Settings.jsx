@@ -880,6 +880,8 @@ const DeleteAccountDelete = styled.div`
 `;
 
 const Settings = () => {
+  const { language, setLanguage } = useLanguage();
+
   // GET SPECIFIC ROUTE
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -890,18 +892,6 @@ const Settings = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  // SIGN IN METHOD
-  const [signinMethod, setSigninMethod] = useState('');
-
-  useEffect(() => {
-    if (currentUser?.fromGoogle) {
-      setSigninMethod('You are currently signed in with a Google Account');
-    } else if (currentUser?.fromFacebook) {
-      setSigninMethod('You are currently signed in with a Facebook Account');
-    } else {
-      setSigninMethod('You are currently signed in with a Flashy Account');
-    }
-  }, [currentUser]);
 
   // RESET SCROLL
   const scrollToTop = () => {
@@ -912,20 +902,70 @@ const Settings = () => {
     scrollToTop();
   }, []);
 
-  // SETTINGS SECTIONS DEFINITION
-  const settingSections = [
-    "Account",
-    "Notifications",
-    "Advanced Settings",
-  ];
-
-  const [settingSection, setSettingSection] = useState(notificationsParam && notificationsParam >= 0 && notificationsParam <= 2 ? settingSections[notificationsParam] : settingSections[0]);
-
   // TRANSLATIONS
-  const { language, setLanguage } = useLanguage();
-
   const translations = {
     en: {
+      settings: "Settings",
+      account: "Account",
+      accounttxt: "Choose how other users can see you on Flashy",
+      hello: "Hello, ",
+
+      email: "EMAIL ADDRESS",
+      emailnotv1: "Not Verified",
+      emailnotv2: "Your account has not been verified,",
+      emailnotv3: "click here",
+      emailnotv4: "to resend verification email.",
+
+      username: "USERNAME",
+      displayname: "DISPLAY NAME",
+      joined: "JOINED",
+
+      chpass1: "Change Password",
+      chpass2: "CURRENT PASSWORD",
+      chpass3: "NEW PASSWORD",
+      chpass4: "CONFIRM NEW PASSWORD",
+
+      notifications: "Notifications",
+      notificationstxt: "Personalize your notifications to keep track of your favorite content",
+      general: "General",
+      generaltxt: "Manage your notifications on Flashy",
+      suscriptions: "Suscriptions",
+      suscriptionstxt: "Notify me about activity from the channels I'm subscribed to",
+      recc: "Recommended videos (Disabled)",
+      recctxt: "Notify me about videos that fit my taste",
+      replies: "Replies to my comment (Disabled)",
+      replistxt: "Notify me when someone replies my comment",
+      men: "Mentions (Disabled)",
+      mentxt: "Notify me when someone mentions me",
+      emailnot: "Email notifications",
+      emailnottxt: "Not available yet",
+
+      advsettside: "Advanced Settings",
+      advsett: "Advanced Settings",
+      advsetttxt: "We are here to make your experience unique",
+      useridsett: "User ID",
+      deleteacc: "Delete Account",
+      deleteacpopttxt: "This is a permanent action and cannot be undone",
+
+      deleteaccpopuptxt: "Are you sure you want to delete your account?",
+      deleteaccpopupnote: "Note: this action is permanent and cannot be undone, please be sure before you press the button delete.",
+
+      signingoogle: "You are currently signed in with a Google Account",
+      siginfacebook: "You are currently signed in with a Facebook Account",
+      signinflashy: "You are currently signed in with a Flashy Account",
+
+      toastpen: "Updating profile",
+      toastsuc: "Profile updated successfully",
+      toasterror: "There was an error updating your profile",
+      toastemailsent: "Verification email sent",
+      toastemailnoten: "Notifications enabled",
+      toastemailnotdis: "Notifications disabled",
+      toastuserid: "User ID copied in clipboard",
+      toastuserdelete: "User deleted successfully",
+
+      save: "Save",
+      cancel: "Cancel",
+      delete: "Delete",
 
       // VALIDATIONS --> EMAIL
       emailinvalid: "You must enter a valid email address",
@@ -960,6 +1000,67 @@ const Settings = () => {
       signin: "Sign in",
     },
     es: {
+      settings: "Ajustes",
+      account: "Cuenta",
+      accounttxt: "Elige cómo otros usuarios pueden verte en Flashy",
+      hello: "Hola, ",
+
+      email: "DIRECCIÓN DE CORREO ELECTRÓNICO",
+      emailnotv1: "No Verificado",
+      emailnotv2: "Tu cuenta no ha sido verificada,",
+      emailnotv3: "haz clic aquí",
+      emailnotv4: "para reenviar el correo de verificación.",
+
+      username: "NOMBRE DE USUARIO",
+      displayname: "NOMBRE A MOSTRAR",
+      joined: "SE UNIÓ EN",
+
+      chpass1: "Cambiar Contraseña",
+      chpass2: "CONTRASEÑA ACTUAL",
+      chpass3: "NUEVA CONTRASEÑA",
+      chpass4: "CONFIRMAR NUEVA CONTRASEÑA",
+
+      notifications: "Notificaciones",
+      notificationstxt: "Personaliza tus notificaciones para estar al tanto de tu contenido favorito",
+      general: "General",
+      generaltxt: "Administra tus notificaciones en Flashy",
+      suscriptions: "Suscripciones",
+      suscriptionstxt: "Notifícame sobre la actividad de los canales a los que estoy suscrito",
+      recc: "Videos recomendados (Desactivado)",
+      recctxt: "Notifícame sobre videos que se ajusten a mis gustos",
+      replies: "Respuestas a mi comentario (Desactivado)",
+      replistxt: "Notifícame cuando alguien responda a mi comentario",
+      men: "Menciones (Desactivado)",
+      mentxt: "Notifícame cuando alguien me mencione",
+      emailnot: "Notificaciones por correo electrónico",
+      emailnottxt: "Aún no disponible",
+
+      advsettside: "Avanzado",
+      advsett: "Configuraciones Avanzadas",
+      advsetttxt: "Estamos aquí para hacer única tu experiencia",
+      useridsett: "ID de Usuario",
+      deleteacc: "Eliminar Cuenta",
+      deleteacpopttxt: "Esta es una acción permanente y no se puede deshacer",
+
+      deleteaccpopuptxt: "¿Estás seguro de que quieres eliminar tu cuenta?",
+      deleteaccpopupnote: "Nota: esta acción es permanente y no se puede deshacer, asegúrate antes de presionar el botón de eliminar.",
+
+      signingoogle: "Has iniciado sesión con una cuenta de Google",
+      siginfacebook: "Has iniciado sesión con una cuenta de Facebook",
+      signinflashy: "Has iniciado sesión con una cuenta en Flashy",
+
+      save: "Guardar",
+      cancel: "Cancelar",
+      delete: "Eliminar",
+
+      toastpen: "Actualizando perfil",
+      toastsuc: "Perfil actualizado exitosamente",
+      toasterror: "Hubo un error al actualizar tu perfil",
+      toastemailsent: "Correo de verificación enviado",
+      toastemailnoten: "Notificaciones habilitadas",
+      toastemailnotdis: "Notificaciones deshabilitadas",
+      toastuserid: "ID de usuario copiado en el portapapeles",
+      toastuserdelete: "Usuario eliminado exitosamente",
 
       // VALIDATIONS --> EMAIL
       emailinvalid: "Debes ingresar un correo electrónico valido",
@@ -994,6 +1095,28 @@ const Settings = () => {
       signin: "Iniciar Sesión",
     },
   };
+
+  // SETTINGS SECTIONS DEFINITION
+  const settingSections = [
+    translations[language].account,
+    translations[language].notifications,
+    translations[language].advsettside,
+  ];
+
+  const [settingSection, setSettingSection] = useState(notificationsParam && notificationsParam >= 0 && notificationsParam <= 2 ? settingSections[notificationsParam] : settingSections[0]);
+
+  // SIGN IN METHOD
+  const [signinMethod, setSigninMethod] = useState('');
+
+  useEffect(() => {
+    if (currentUser?.fromGoogle) {
+      setSigninMethod(translations[language].signingoogle);
+    } else if (currentUser?.fromFacebook) {
+      setSigninMethod(translations[language].siginfacebook);
+    } else {
+      setSigninMethod(translations[language].signinflashy);
+    }
+  }, [currentUser]);
 
   // FORMATS
   const formatDate = (createdAt) => {
@@ -1466,9 +1589,9 @@ const Settings = () => {
           currentPassword: inputs?.currentpassword === '' || null || undefined ? null : inputs.currentpassword,
           newPassword: inputs?.newpassword === '' || null || undefined ? null : inputs.newpassword,
         }), {
-        pending: 'Updating profile',
-        success: 'Profile updated successfully',
-        error: 'There was an error updating your profile'
+        pending: translations[language].toastpen,
+        success: translations[language].toastsuc,
+        error: translations[language].toasterror
       }
       );
 
@@ -1505,7 +1628,7 @@ const Settings = () => {
   // RESEND EMAIL VERIFICATION
   const handleSendAccountVerification = async () => {
     try {
-      toast.success(`Verification email sent`);
+      toast.success(translations[language].toastemailsent);
       await axios.post(`/users/emailVerification`);
     } catch (error) {
       console.error("Error sending verification:", error);
@@ -1523,9 +1646,9 @@ const Settings = () => {
   const handleToggleNotifications = async () => {
     try {
       if (currentUser.notificationsEnabled === false) {
-        toast.success(`Notifications enabled`);
+        toast.success(translations[language].toastemailnoten);
       } else {
-        toast.success(`Notifications disabled`);
+        toast.success(translations[language].toastemailnotdis);
       }
       dispatch(userToggleNotifications());
       await axios.post(`/users/toggle-notifications`);
@@ -1539,7 +1662,7 @@ const Settings = () => {
   // ADVANCED SETTINGS --> COPY USER ID
   const handleCopyClick = () => {
     navigator.clipboard.writeText(currentUser?._id);
-    toast.success('User ID copied in clipboard');
+    toast.success(translations[language].toastuserid);
   };
 
   // ADVANCED SETTINGS --> DELETE ACCOUNT
@@ -1555,7 +1678,7 @@ const Settings = () => {
     if (confirmed) {
       try {
         dispatch(logout());
-        toast.success(`User deleted successfully`);
+        toast.success(translations[language].toastuserdelete);
         navigate('/');
         await axios.delete(`/users/${currentUser?._id}/remove/`);
       } catch (error) {
@@ -1586,7 +1709,7 @@ const Settings = () => {
 
             <SettingsListWrapper>
 
-              <SettingsListHeader> Settings </SettingsListHeader>
+              <SettingsListHeader> {translations[language].settings} </SettingsListHeader>
 
               {settingSections.map((section, index) => (
                 <SettingsListItem
@@ -1610,14 +1733,14 @@ const Settings = () => {
             <>
               <Wrapper >
 
-                <TitleLabel> Account </TitleLabel>
+                <TitleLabel>  {translations[language].account} </TitleLabel>
 
-                <Label> Choose how other users can see you on Flashy </Label>
+                <Label>  {translations[language].accounttxt}</Label>
                 <SubLabel> {signinMethod} </SubLabel>
 
                 <Line />
 
-                <LabelBold style={{ marginBottom: '25px' }}> Hello, {currentUser?.displayname} </LabelBold>
+                <LabelBold style={{ marginBottom: '25px' }}>  {translations[language].hello} {currentUser?.displayname} </LabelBold>
 
                 <AccountPresentationSection>
 
@@ -1656,7 +1779,7 @@ const Settings = () => {
                 <AccountSection isChangingPassword={isChangingPassword} IsVerified={currentUser?.isVerified}>
 
                   <SmallerLabel didChange={didEmailChange} isOkay={isEmailOkay} hasFocus={hasFocusEmail}>
-                    EMAIL ADDRESS
+                    {translations[language].email}
                   </SmallerLabel>
 
 
@@ -1689,16 +1812,16 @@ const Settings = () => {
                         <EmailNotConfirmedImgHeader>
 
                           <EmailNotConfirmedImg src={NoConfirmed} />
-                          <EmailNotConfirmedHeader> Not Verified </EmailNotConfirmedHeader>
+                          <EmailNotConfirmedHeader>  {translations[language].emailnotv1} </EmailNotConfirmedHeader>
 
                         </EmailNotConfirmedImgHeader>
 
                         <EmailNotConfirmedTxt>
-                          Your account has not been verified,
+                          {translations[language].emailnotv2}
                           <EmailNotConfirmedVerify onClick={handleSendAccountVerification}>
-                            click here
+                            {translations[language].emailnotv3}
                           </EmailNotConfirmedVerify>
-                          to resend verification email.
+                          {translations[language].emailnotv4}
                         </EmailNotConfirmedTxt>
 
                       </EmailNotConfirmed>
@@ -1707,7 +1830,7 @@ const Settings = () => {
 
 
                   <SmallerLabel didChange={didUsernameChange} isOkay={isUsernameOkay} hasFocus={hasFocusUsername}>
-                    USERNAME
+                    {translations[language].username}
                   </SmallerLabel>
                   <EditInput didChange={didUsernameChange} isOkay={isUsernameOkay}
                     type="text"
@@ -1720,7 +1843,7 @@ const Settings = () => {
                   />
 
                   <SmallerLabel didChange={didDisplayNameChange} isOkay={isDisplayNameOkay} hasFocus={hasFocusDisplayName}>
-                    DISPLAY NAME
+                    {translations[language].displayname}
                   </SmallerLabel>
                   <EditInput didChange={didDisplayNameChange} isOkay={isDisplayNameOkay}
                     type="text"
@@ -1732,7 +1855,7 @@ const Settings = () => {
                     onBlur={() => setHasFocusDisplayName(false)}
                   />
 
-                  <SmallerLabel> JOINED </SmallerLabel>
+                  <SmallerLabel>  {translations[language].joined} </SmallerLabel>
                   <NoEditInput
                     type="text"
                     name="Joined"
@@ -1742,11 +1865,11 @@ const Settings = () => {
 
                   <ChangePasswordDiv onClick={handleChangePassword}>
                     <ChangePasswordImg />
-                    <ChangePasswordLabel> Change Password </ChangePasswordLabel>
+                    <ChangePasswordLabel>  {translations[language].chpass1} </ChangePasswordLabel>
                   </ChangePasswordDiv>
 
                   <ChangePasswordSection>
-                    <SmallerLabel hasFocus={hasFocusCurrentPassword}> CURRENT PASSWORD </SmallerLabel>
+                    <SmallerLabel hasFocus={hasFocusCurrentPassword}>  {translations[language].chpass2} </SmallerLabel>
                     <EditInput
                       type="password"
                       name="currentpassword"
@@ -1759,7 +1882,7 @@ const Settings = () => {
                     />
 
                     <SmallerLabelNewPassoword hasFocus={hasFocusNewPassword} Strength={newPasswordStrength} Length={inputs?.newpassword?.length}>
-                      NEW PASSWORD
+                      {translations[language].chpass3}
                     </SmallerLabelNewPassoword>
                     <EditInputNewPassword
                       type="password"
@@ -1775,7 +1898,7 @@ const Settings = () => {
                     />
 
                     <SmallerLabel hasFocus={hasFocusConfirmNewPassword}>
-                      CONFIRM NEW PASSWORD
+                      {translations[language].chpass4}
                     </SmallerLabel>
                     <EditInput
                       type="password"
@@ -1791,7 +1914,7 @@ const Settings = () => {
 
                   <SaveButtonDiv>
                     <SaveButton onClick={handleSaveChanges} isSaveButtonEnable={isSaveButtonEnable}>
-                      Save
+                      {translations[language].save}
                     </SaveButton>
                   </SaveButtonDiv>
 
@@ -1913,23 +2036,23 @@ const Settings = () => {
             <>
               <Wrapper>
 
-                <TitleLabel> Notifications </TitleLabel>
+                <TitleLabel>  {translations[language].notifications} </TitleLabel>
 
-                <Label> Personalize your notifications to keep track of your favorite content </Label>
+                <Label>  {translations[language].notificationstxt}</Label>
                 <SubLabel> {signinMethod} </SubLabel>
 
                 <Line />
 
-                <Label style={{ marginTop: '20px' }}> General </Label>
-                <SubLabel style={{ marginBottom: '20px' }}> Manage your notifications on Flashy </SubLabel>
+                <Label style={{ marginTop: '20px' }}>  {translations[language].general} </Label>
+                <SubLabel style={{ marginBottom: '20px' }}>  {translations[language].generaltxt} </SubLabel>
 
                 <SwitchDiv>
                   <SwitchItem>
                     <Switch notificationsEnabled={notificationsEnabled} onClick={handleToggleNotifications} />
 
                     <SwitchTxt>
-                      <LabelRegular> Suscriptions </LabelRegular>
-                      <SubLabel style={{ fontSize: '15px' }}> Notify me about activity from the channels I'm subscribed to </SubLabel>
+                      <LabelRegular>  {translations[language].suscriptions} </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}>  {translations[language].suscriptionstxt} </SubLabel>
                     </SwitchTxt>
 
                   </SwitchItem>
@@ -1938,8 +2061,8 @@ const Settings = () => {
                     <Switch style={{ cursor: 'not-allowed' }} />
 
                     <SwitchTxt>
-                      <LabelRegular> Recommended videos (Disabled) </LabelRegular>
-                      <SubLabel style={{ fontSize: '15px' }}> Notify me about videos that fit my taste </SubLabel>
+                      <LabelRegular>  {translations[language].recc} </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}>  {translations[language].recctxt} </SubLabel>
                     </SwitchTxt>
 
                   </SwitchItem>
@@ -1948,8 +2071,8 @@ const Settings = () => {
                     <Switch style={{ cursor: 'not-allowed' }} />
 
                     <SwitchTxt>
-                      <LabelRegular> Replies to my comment (Disabled) </LabelRegular>
-                      <SubLabel style={{ fontSize: '15px' }}> Notify me when someone replies my comment </SubLabel>
+                      <LabelRegular>  {translations[language].replies} </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}>  {translations[language].replistxt} </SubLabel>
                     </SwitchTxt>
 
                   </SwitchItem>
@@ -1958,8 +2081,8 @@ const Settings = () => {
                     <Switch style={{ cursor: 'not-allowed' }} />
 
                     <SwitchTxt>
-                      <LabelRegular> Mentions (Disabled) </LabelRegular>
-                      <SubLabel style={{ fontSize: '15px' }}> Notify me when someone mentions me </SubLabel>
+                      <LabelRegular>  {translations[language].men} </LabelRegular>
+                      <SubLabel style={{ fontSize: '15px' }}>  {translations[language].mentxt} </SubLabel>
                     </SwitchTxt>
 
                   </SwitchItem>
@@ -1968,8 +2091,8 @@ const Settings = () => {
 
                 <Line />
 
-                <Label style={{ marginTop: '20px' }}> Email notifications</Label>
-                <SubLabel> Not available yet </SubLabel>
+                <Label style={{ marginTop: '20px' }}>  {translations[language].emailnot}</Label>
+                <SubLabel>  {translations[language].emailnottxt} </SubLabel>
 
               </Wrapper>
             </>
@@ -1979,9 +2102,9 @@ const Settings = () => {
             <>
               <Wrapper>
 
-                <TitleLabel> Advanced Settings </TitleLabel>
+                <TitleLabel>  {translations[language].advsett} </TitleLabel>
 
-                <Label> We are here to make your experience unique </Label>
+                <Label>  {translations[language].advsetttxt} </Label>
                 <SubLabel> {signinMethod} </SubLabel>
 
                 <Line />
@@ -1990,7 +2113,7 @@ const Settings = () => {
 
                   <AdvancedSettingItem>
 
-                    <LabelRegular> User ID </LabelRegular>
+                    <LabelRegular>  {translations[language].useridsett} </LabelRegular>
 
                     <AdvancedSettingsInput
                       type="text"
@@ -2006,11 +2129,11 @@ const Settings = () => {
 
                   <AdvancedSettingItem>
 
-                    <LabelRegular> Delete Account </LabelRegular>
+                    <LabelRegular>  {translations[language].deleteacc} </LabelRegular>
 
                     <AdvancedSettingItemColumn>
-                      <LabelDeleteAccount onClick={handleDeleteAccount}> Delete Account </LabelDeleteAccount>
-                      <SubLabel> This is a permanent action and cannot be undone </SubLabel>
+                      <LabelDeleteAccount onClick={handleDeleteAccount}>  {translations[language].deleteacc} </LabelDeleteAccount>
+                      <SubLabel>  {translations[language].deleteacpopttxt} </SubLabel>
 
                     </AdvancedSettingItemColumn>
 
@@ -2052,17 +2175,17 @@ const Settings = () => {
             onCancel={() => handleDeleteAccountConfirmation(false)}
           >
             <DeleteAccountPopupWrapper>
-              <DeleteAccountPopupTitle> Delete Account </DeleteAccountPopupTitle>
-              <DeleteAccountPopupTxt> Are you sure you want to delete your account? </DeleteAccountPopupTxt>
-              <DeleteAccountPopupTxt style={{ marginTop: '-25px', fontSize: '15px' }}> Note: this action is permanent and cannot be undone, please
-                be sure before you press the button delete.
+              <DeleteAccountPopupTitle> {translations[language].deleteacc} </DeleteAccountPopupTitle>
+              <DeleteAccountPopupTxt> {translations[language].deleteaccpopuptxt} </DeleteAccountPopupTxt>
+              <DeleteAccountPopupTxt style={{ marginTop: '-25px', fontSize: '15px' }}>
+                {translations[language].deleteaccpopupnote}
               </DeleteAccountPopupTxt>
               <OptionsDeleteCancel>
                 <DeleteAccountCancel onClick={() => handleDeleteAccountConfirmation(false)}>
-                  Cancel
+                  {translations[language].cancel}
                 </DeleteAccountCancel>
                 <DeleteAccountDelete onClick={() => handleDeleteAccountConfirmation(true)}>
-                  Delete
+                  {translations[language].delete}
                 </DeleteAccountDelete>
               </OptionsDeleteCancel>
             </DeleteAccountPopupWrapper>

@@ -82,6 +82,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    isWatchHistoryPaused: {
+        type: Boolean,
+        default: false,
+    },
     password: {
         type: String,
     },
@@ -120,10 +124,6 @@ const UserSchema = new mongoose.Schema({
         type: Map,
         of: Number,
         default: {},
-    },
-    videoHistory: {
-        type: [VideoHistorySchema],
-        default: [],
     },
     videoHistory: {
         type: [VideoHistorySchema],

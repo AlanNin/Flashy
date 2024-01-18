@@ -377,7 +377,7 @@ const Signin = () => {
           });
 
           dispatch(loginSuccess(signInResponse.data));
-          toast.success(`Welcome back to Flashy`);
+          toast.success(translations[language].toastshare);
           navigate("/");
 
         } catch (error) {
@@ -410,7 +410,7 @@ const Signin = () => {
       const res = await axios.post("/auth/externalsignin", userData);
 
       dispatch(loginSuccess(res.data));
-      toast.success(`Welcome back to Flashy`);
+      toast.success(translations[language].toastshare);
       navigate("/");
 
     } catch (error) {
@@ -468,7 +468,7 @@ const Signin = () => {
         const res = await axios.post("/auth/signin", { name, password, captchaToken: token });
 
         dispatch(loginSuccess(res.data));
-        toast.success(`Welcome back to Flashy`);
+        toast.success(translations[language].toastshare);
         navigate('/');
 
       } catch (error) {
@@ -529,6 +529,8 @@ const Signin = () => {
       signinErrormsg: "Username or password incorrect.",
       externalautherrormsg: "This email is not registered.",
       emptyfields: "Please complete all the fields requeried.",
+
+      toastwb: "Welcome back to Flashy",
     },
     es: {
       title: "Inicio de Sesión",
@@ -550,6 +552,8 @@ const Signin = () => {
       signinErrormsg: "Usuario o contraseña incorrecta.",
       externalautherrormsg: "Este correo no está registrado.",
       emptyfields: "Por favor rellena todos los campos para continuar.",
+
+      toastwb: "Bienvenido a Flashy",
     },
   };
 

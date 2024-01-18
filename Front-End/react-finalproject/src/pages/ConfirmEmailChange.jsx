@@ -113,10 +113,12 @@ const ConfirmEmailChange = () => {
 
   const translations = {
     en: {
-      explore: "Library",
+      emailupdated: "Email Updated Successfully!",
+      gosettings: "Go to Settings",
     },
     es: {
-      explore: "Librería",
+      emailupdated: "¡Correo actualizado con éxito!",
+      gosettings: "Ir a Ajustes",
     },
   };
 
@@ -154,10 +156,10 @@ const ConfirmEmailChange = () => {
         <Container>
           <Content>
             <AccountVerifiedIlustrationImg src={AccountVerifiedIlustration} />
-            <Label> Email Updated Successfully! </Label>
+            <Label> {translations[language].emailupdated} </Label>
 
             <Link to={"/settings"} style={{ width: 'max-content', height: 'max-content', top: '0em', left: 'calc(50% - 102px)', textDecoration: 'none' }}>
-              <GoHomeButton> Go to Settings </GoHomeButton>
+              <GoHomeButton> {translations[language].gosettings} </GoHomeButton>
             </Link>
 
           </Content>

@@ -1467,6 +1467,8 @@ export const unfollowPlaylist = async (req, res, next) => {
     }
 };
 
+
+
 // CHECK IF PLAYLIST EXISTS
 export const checkPlaylistExists = async (req, res, next) => {
     try {
@@ -1630,6 +1632,28 @@ export const toggleNotificationsEnabled = async (req, res, next) => {
 
         // Devuelve la respuesta
         res.status(200).json({ success: true, notificationsEnabled: user.notificationsEnabled });
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+};
+
+// TOGGLE WATCH HISTORY PAUSED
+export const toggleWatchHistoryPaused = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        user.isWatchHistoryPaused = !user.isWatchHistoryPaused;
+
+        await user.save();
+
+        res.status(200).json({ success: true, isWatchHistoryPaused: user.isWatchHistoryPaused });
     } catch (error) {
         console.error(error);
         next(error);

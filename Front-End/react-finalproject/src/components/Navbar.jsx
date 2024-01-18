@@ -319,13 +319,13 @@ const MenuUserImg = styled.img`
   width: 22px;
 `;
 
-const MenuUserText = styled.h3`
+const MenuUserText = styled.span`
+  display: flex;
   font-family: "Roboto Condensed", Helvetica;
   font-size: 15px;
   font-weight: 400;
   color: ${({ theme }) => theme.text};
-  letter-spacing: 0;
-  line-height: normal;
+  white-space: nowrap;
 `;
 
 const MenuUserLogoutDiv = styled.div`
@@ -434,7 +434,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
       channel: "Canal",
       settings: "Ajustes",
       help: "Ayuda",
-      about: "Acerca  de",
+      about: "Acerca de",
       logout: "Cerrar Sesión",
     },
   };

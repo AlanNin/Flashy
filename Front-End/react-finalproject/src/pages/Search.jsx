@@ -4,6 +4,8 @@ import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import SadFace from "../assets/NotSubbedIcono.png";
 import Card from "../components/Card";
+import CardPlaylist from "../components/CardPlaylist";
+import CardUser from "../components/CardUser";
 import { useLanguage } from '../utils/LanguageContext';
 import Footer from "../components/Footer";
 
@@ -74,25 +76,61 @@ const NovideosImg = styled.img`
   padding: 20 px;
 `;
 
+// SORT TYPE
+const FilterContainer = styled.div`
+    position: relative;
+    display: flex;
+    height: auto;
+    width: auto;
+    gap: 15px;
+    margin-left: 55px;
+`;
 
+const FilterItem = styled.div`
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Helvetica;
+    padding: 5px 10px;
+    border-radius: 10px;
+    width: max-content;
+    cursor: pointer;
+    transition: background 0.5s ease;
+    background: ${({ filterType }) => (filterType ? '#F1F1F1' : '#272727')};
+    color: ${({ filterType, theme }) => (filterType ? 'black' : theme.text)};
+
+    &:hover {
+      background: ${({ filterType }) => (filterType ? '#F1F1F1' : 'rgba(171, 171, 171, 0.4)')};
+    }
+`;
 
 const Search = () => {
     const [videos, setVideos] = useState([]);
+    const [playlists, setPlaylists] = useState([]);
+    const [users, setUsers] = useState([]);
     const query = useLocation().search;
     const qValue = new URLSearchParams(query).get("q");
     const { language, setLanguage } = useLanguage();
-    const [NoVideosFound, setNoVideosFound] = useState(false);
+    const [NoInfoFound, setNoInfoFound] = useState(false);
+    const [filterType, setFilterType] = useState('all');
 
     const translations = {
         en: {
             searchfor: "Search for:",
-            novideo1: "No videos found for this query",
+            novideo1: "No information found for this query",
             novideo2: "Try our Explore section to find new content!",
+
+            videos: "Videos",
+            playlist: "Playlist",
+            users: "Users",
         },
         es: {
             searchfor: "Busqueda:",
-            novideo1: "No se han encontrado videos para esta consulta",
+            novideo1: "No se ha encontrado información para esta consulta",
             novideo2: "Prueba nuestra sección Explorar para encuentrar nuevo contenido!",
+
+            videos: "Videos",
+            playlist: "Listas de Reproducción",
+            users: "Usuarios",
         },
     };
 
@@ -108,31 +146,144 @@ const Search = () => {
 
 
     useEffect(() => {
-        setNoVideosFound(false);
-        const fetchVideos = async () => {
-            const res = await axios.get(`/videos/search${query}`);
-            if (res && res.data && res.data.length > 0) {
+        setNoInfoFound(false);
 
-            } else {
-                setNoVideosFound(true);
+        const fetchSearch = async () => {
+            try {
+                const res = await axios.get(`/videos/search${query}`);
+
+                if (filterType === 'videos') {
+                    if (res.data.videos.length === 0) {
+                        setNoInfoFound(true);
+                        return;
+                    }
+                    setVideos(res.data.videos);
+                    return;
+                }
+
+                if (filterType === 'playlists') {
+                    if (res.data.playlists.length === 0) {
+                        setNoInfoFound(true);
+                        return;
+                    }
+                    setPlaylists(res.data.playlists);
+                    return;
+                }
+
+                if (filterType === 'users') {
+                    if (res.data.users.length === 0) {
+                        setNoInfoFound(true);
+                        return;
+                    }
+                    setUsers(res.data.users);
+                    return;
+                }
+
+                setVideos(res.data.videos);
+                setPlaylists(res.data.playlists);
+                setUsers(res.data.users);
+
+                if (res.data.videos.length === 0 && res.data.playlists.length === 0 && res.data.users.length === 0) {
+                    setNoInfoFound(true);
+                }
+
+            } catch (error) {
+                console.error("Error fetching playlist:", error);
+                setNoInfoFound(true);
             }
-            setVideos(res.data);
         };
-        fetchVideos();
-    }, [query]);
+
+        fetchSearch();
+
+    }, [query, filterType]);
 
     return (
         <MainContainer>
             <Header> {translations[language].searchfor}&nbsp;<SearchName>{qValue}</SearchName> </Header>
+
+            <FilterContainer>
+                <FilterItem
+                    onClick={() => {
+                        setFilterType(filterType === 'videos' ? 'all' : 'videos');
+                    }}
+                    filterType={filterType === 'videos' ? true : false}
+                >
+                    {translations[language].videos}
+                </FilterItem>
+
+                <FilterItem
+                    onClick={() => {
+                        setFilterType(filterType === 'playlists' ? 'all' : 'playlists');
+                    }}
+                    filterType={filterType === 'playlists' ? true : false}
+                >
+                    {translations[language].playlist}
+                </FilterItem>
+
+                <FilterItem
+                    onClick={() => {
+                        setFilterType(filterType === 'users' ? 'all' : 'users');
+                    }}
+                    filterType={filterType === 'users' ? true : false}
+                >
+                    {translations[language].users}
+                </FilterItem>
+            </FilterContainer>
+
             <Wrapper>
+
                 <Container>
-                    {videos.map(video => (
-                        <Card key={video._id} video={video} />
-                    ))}
+                    {filterType === 'all' &&
+                        <>
+                            {videos.map(video => (
+                                <Card key={video._id} video={video} />
+                            ))}
+                            {playlists.map((playlist) => (
+                                <CardPlaylist
+                                    key={playlist?._id}
+                                    playlist={playlist}
+                                />
+                            ))}
+                            {users.map((user) => (
+                                <CardUser
+                                    key={user?._id}
+                                    user={user}
+                                />
+                            ))}
+                        </>
+                    }
+                    {filterType === 'videos' &&
+                        <>
+                            {videos.map(video => (
+                                <Card key={video._id} video={video} />
+                            ))}
+                        </>
+                    }
+                    {filterType === 'playlists' &&
+                        <>
+                            {playlists.map((playlist) => (
+                                <CardPlaylist
+                                    key={playlist?._id}
+                                    playlist={playlist}
+                                />
+                            ))}
+                        </>
+                    }
+                    {filterType === 'users' &&
+                        <>
+                            {users.map((user) => (
+                                <CardUser
+                                    key={user?._id}
+                                    user={user}
+                                />
+                            ))}
+                        </>
+                    }
                 </Container>
+
             </Wrapper>
 
-            {NoVideosFound &&
+            {NoInfoFound &&
                 <NoVideosWrapper>
                     <NovideosImg src={SadFace} />
                     <NoVideos1>{translations[language].novideo1}</NoVideos1>
@@ -140,7 +291,7 @@ const Search = () => {
                 </NoVideosWrapper>
             }
 
-            {!NoVideosFound &&
+            {!NoInfoFound &&
                 <Footer />
             }
         </MainContainer>

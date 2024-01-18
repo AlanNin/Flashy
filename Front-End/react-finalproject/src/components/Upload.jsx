@@ -16,6 +16,7 @@ import PlaylistSelectBox from './PlaylistSelectBox';
 import DropdownLanguage from './DropdownLanguage';
 import DropdownSubtitle from './DropdownSubtitle';
 import SharePrivateComponent from "./SharePrivateComponent";
+import { useLanguage } from '../utils/LanguageContext';
 import { toast } from 'react-toastify';
 
 // ASSETS
@@ -143,13 +144,7 @@ const Wrapper = styled.div`
     position: relative;
   `;
 
-const steps = [
-    "Upload Video",
-    "Details",
-    "Thumbnails",
-    "Elements",
-    "Visibility",
-];
+
 
 const FixedTopMenu = styled.div`
     position: sticky;
@@ -376,7 +371,7 @@ const SelectFilesButton = styled.input`
     &:before {
         width: calc(100% - 24px);
         text-align: center;
-        content: 'SELECT FILE';
+        content: '${props => props.selectFile}';
         display: inline-block;
         background-color: #8e58d6;
         color: black;
@@ -540,7 +535,7 @@ const InputImage = styled.input`
   &:before {
       width: calc(100% - 24px);
       text-align: center;
-      content: 'SELECT FILE';
+      content: '${props => props.selectFile}';
       display: inline-block;
       background-color: #8e58d6;
       color: black;
@@ -964,6 +959,174 @@ const LandscapeThumbnailLabelFormat = styled(LabelFormat)`
 `;
 
 const Upload = ({ setOpen }) => {
+    const { language, setLanguage } = useLanguage();
+
+    // TRANSLATIONS
+    const translations = {
+        en: {
+            step1: "Upload Video",
+            step2: "Details",
+            step3: "Thumbnails",
+            step4: "Elements",
+            step5: "Visibility",
+
+            videorendering: "Video Rendering",
+            videorenderingtxt: "By rendering your video you will be creating different resolutions for the video player as well as preview thumbnails, but this may lead to a longer upload time.",
+            videorenderingop1: "Not this time",
+            videorenderingop2: "Render",
+
+            uploadingvideo: "Uploading Video",
+            uploadingvideotxt: "Thank you for your patience! Your video is currently being uploaded and will be available shortly",
+
+            dragdrop1: "Drag & Drop your video file to upload it",
+            dragdrop2: "You can also open the file explorer in the button below",
+
+            terms1: "Upon submitting videos to Flashy, you agree to adhere to Flashy's",
+            terms2: "Terms of Service and Conditions of Use.",
+            terms3: "Please ensure that you do not infringe on the copyright or privacy rights of others.",
+
+            detailsprovide: "Provide the details of your video",
+
+            inputtitle: "Video Title (Required)",
+            inputtitleph1: "Your current video title by default is",
+            inputtitleph2: "Add a Flashy title to your video...",
+
+            inputdesc: "Video Description (Required)",
+            inputdescph: "Write about your video, let the viewers know what's great about it...",
+
+            inputtags: "Video Tags (Optional)",
+            inputtagsph: "Separate the tags with commas (example: movie, anime)...",
+
+            playlist: "Playlist",
+            playlisttxt: "Add your video to a playlist to organize your content for viewers or yourself.",
+
+            thumbnail: "Set a thumbnail",
+            thumbnailtxt: "This thumbnail will be displayed on regular video cards. (Requiered) • Recommended Size: 1280x720",
+            thumbnailss: "Thumbnail uploaded successfully!",
+
+            vthumbnail: "Set a vertical thumbnail",
+            vthumbnailtxt: "This thumbnail will be displayed on the Trending Slider. (Requiered) • Recommended Size: 1080 x 1350",
+            vthumbnailss: "Vertical thumbnail uploaded successfully!",
+
+            lthumbnail: "Set a landscape thumbnail",
+            lthumbnailtxt: "This thumbnail will be displayed on the home slideshow. (Requiered) • Recommended Size: 2560x1440",
+            lthumbnailss: "Landscape thumbnail uploaded successfull",
+
+            language: "Language",
+            languagetxt: "Maximize your video's impact by selecting the appropriate language. (Requiered)",
+
+            subtitles: "Subtitles",
+            subtitlestxt: "Boost your audience reach with language subtitles for your video. (Optional, file format must be .vtt))",
+
+            visibility: "Visibility",
+            visibilitytxt: "Adjust privacy settings to control who can view your video. (Default: Public)",
+
+            public: "Public",
+            publictxt: "By setting your video to public, you can make it accessible to a wide audience... This feature will allow anyone to view, like, and share your content.",
+
+            private: "Private",
+            privatetxt: "Keep your video private by adjusting the privacy settings to ensure it's only visible to selected individuals.",
+            privateinvite: "INVITE USERS",
+
+            unlisted: "Unlisted",
+            unlistedtxt: "Choose unlisted for an exclusive touch. Keep your video private, sharing only with those you select. Make each view more personal and special.",
+
+            back: "Back",
+            next: "Next",
+            publish: "Publish",
+            fileformaterror: "This file format is not allowed, please upload an image",
+            previewexample: "Preview Example",
+            uploading: "Uploading:",
+            selectfile: "SELECT FILE",
+            toasterror: "This format is not valid",
+        },
+        es: {
+            step1: "Subir Video",
+            step2: "Detalles",
+            step3: "Miniaturas",
+            step4: "Elementos",
+            step5: "Visibilidad",
+
+            videorendering: "Renderizado de Video",
+            videorenderingtxt: "Al renderizar tu video, crearás diferentes resoluciones para el reproductor de video, así como miniaturas de vista previa, pero esto puede llevar a un tiempo de carga más largo.",
+            videorenderingop1: "No esta vez",
+            videorenderingop2: "Renderizar",
+
+            uploadingvideo: "Subiendo Video",
+            uploadingvideotxt: "¡Gracias por tu paciencia! Tu video se está cargando y estará disponible pronto.",
+
+            dragdrop1: "Arrastra y suelta tu archivo de video para subirlo",
+            dragdrop2: "También puedes abrir el explorador de archivos en el botón de abajo",
+
+            terms1: "Al enviar videos a Flashy, aceptas cumplir con los",
+            terms2: "Términos de Servicio y Condiciones de Uso de Flashy.",
+            terms3: "Asegúrate de no infringir los derechos de autor o la privacidad de otros.",
+
+            detailsprovide: "Proporciona los detalles de tu video",
+
+            inputtitle: "Título del Video (Requerido)",
+            inputtitleph1: "Tu título de video actual por defecto es",
+            inputtitleph2: "Añade un título llamativo a tu video...",
+
+            inputdesc: "Descripción del Video (Requerido)",
+            inputdescph: "Escribe sobre tu video, permite a los espectadores saber qué lo hace genial...",
+
+            inputtags: "Etiquetas del Video (Opcional)",
+            inputtagsph: "Separa las etiquetas con comas (ejemplo: película, anime)...",
+
+            playlist: "Lista de Reproducción",
+            playlisttxt: "Añade tu video a una lista de reproducción para organizar tu contenido para los espectadores o para ti mismo.",
+
+            thumbnail: "Establecer una miniatura",
+            thumbnailtxt: "Se mostrará en las tarjetas de video normales. (Requerido) • Tamaño recomendado: 1280x720",
+            thumbnailss: "¡Miniatura cargada exitosamente!",
+
+            vthumbnail: "Establecer una miniatura vertical",
+            vthumbnailtxt: "Se mostrará en el Trending Slider. (Requerido) • Tamaño recomendado: 1080 x 1350",
+            vthumbnailss: "¡Miniatura vertical cargada exitosamente!",
+
+            lthumbnail: "Establecer una miniatura horizontal",
+            lthumbnailtxt: "Se mostrará en el Slideshow de la página principal. (Requerido) • Tamaño recomendado: 2560x1440",
+            lthumbnailss: "¡Miniatura horizontal cargada exitosamente!",
+
+            language: "Idioma",
+            languagetxt: "Maximiza el impacto de tu video seleccionando el idioma adecuado. (Requerido)",
+
+            subtitles: "Subtítulos",
+            subtitlestxt: "Amplía tu alcance de audiencia con subtítulos en diferentes idiomas para tu video. (Opcional, el formato de archivo debe ser .vtt))",
+
+            visibility: "Visibilidad",
+            visibilitytxt: "Ajusta la configuración de privacidad para controlar quién puede ver tu video. (Predeterminado: Público)",
+
+            public: "Público",
+            publictxt: "Al configurar tu video como público, puedes hacerlo accesible a una amplia audiencia... Esta función permitirá que cualquiera vea, le guste y comparta tu contenido.",
+
+            private: "Privado",
+            privatetxt: "Mantén tu video privado ajustando la configuración de privacidad para asegurarte de que solo sea visible para personas seleccionadas.",
+            privateinvite: "INVITAR USUARIOS",
+
+            unlisted: "No listado",
+            unlistedtxt: "Elige la opción 'no listado' para un toque exclusivo. Mantén tu video privado, compartiéndolo solo con aquellos que elijas. Haz que cada vista sea más personal y especial.",
+
+            back: "Atrás",
+            next: "Siguiente",
+            publish: "Publicar",
+            fileformaterror: "Este formato de archivo no está permitido, por favor sube una imagen",
+            previewexample: "Ejemplo de Vista Previa",
+            uploading: "Subiendo",
+            selectfile: "ELEGIR ARCHIVO",
+            toasterror: "Este formato no es válido",
+        },
+    };
+
+    const steps = [
+        translations[language].step1,
+        translations[language].step2,
+        translations[language].step3,
+        translations[language].step4,
+        translations[language].step5,
+    ];
+
     const [img, setImg] = useState(undefined);
     const [imgVertical, setImgVertical] = useState(undefined);
     const [imgLandscape, setImgLandscape] = useState(undefined);
@@ -1321,7 +1484,7 @@ const Upload = ({ setOpen }) => {
 
             if (!allowedFormats.includes(fileExtension)) {
                 // Mostrar un mensaje de error si el formato no es permitido
-                toast.error(`This format is not valid`);
+                toast.error(translations[language].toasterror);
                 return;
             }
 
@@ -1349,7 +1512,7 @@ const Upload = ({ setOpen }) => {
             const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
 
             if (!allowedFormats.includes(fileExtension)) {
-                toast.error(`This format is not valid`);
+                toast.error(translations[language].toasterror);
                 e.target.value = null;
                 return;
             }
@@ -1510,6 +1673,7 @@ const Upload = ({ setOpen }) => {
         }
     };
 
+
     return (
         <ContainerBg>
 
@@ -1517,15 +1681,13 @@ const Upload = ({ setOpen }) => {
                 <ContainerProcessConfirmBg>
                     <ContainerProcessConfirm>
                         <WrapperProcessConfirm>
-                            <Label style={{ marginTop: '5px', fontSize: '28px', textAlign: 'left' }}> Video Rendering </Label>
+                            <Label style={{ marginTop: '5px', fontSize: '28px', textAlign: 'left' }}> {translations[language].videorendering} </Label>
                             <SubLabelProcessConfirm style={{ marginTop: '0px', fontSize: '17px' }}>
-                                By rendering your video you will be creating different
-                                resolutions for the video player as well as preview thumbnails,
-                                but this may lead to a longer upload time.
+                                {translations[language].videorenderingtxt}
                             </SubLabelProcessConfirm>
                             <ButtonsContainer>
-                                <NoProcessButton onClick={handleNotThisTime}> Not this time </NoProcessButton>
-                                <YesProcessButton onClick={handleRender}> Render </YesProcessButton>
+                                <NoProcessButton onClick={handleNotThisTime}> {translations[language].videorenderingop1} </NoProcessButton>
+                                <YesProcessButton onClick={handleRender}> {translations[language].videorenderingop2} </YesProcessButton>
                             </ButtonsContainer>
                         </WrapperProcessConfirm>
                     </ContainerProcessConfirm>
@@ -1536,8 +1698,8 @@ const Upload = ({ setOpen }) => {
                 <ContainerUploading>
                     <ContentContainer ref={contentRef}>
                         <WrapperUploading>
-                            <Label style={{ marginTop: '5px', fontSize: '28px' }}> Uploading Video </Label>
-                            <SubLabel style={{ marginTop: '0px', fontSize: '17px' }}> Thank you for your patience! Your video is currently being uploaded and will be available shortly </SubLabel>
+                            <Label style={{ marginTop: '5px', fontSize: '28px' }}> {translations[language].uploadingvideo} </Label>
+                            <SubLabel style={{ marginTop: '0px', fontSize: '17px' }}> {translations[language].uploadingvideotxt} </SubLabel>
                             <LoadingContainerUploading>
                                 <LoadingCircleUploading />
                             </LoadingContainerUploading>
@@ -1571,7 +1733,7 @@ const Upload = ({ setOpen }) => {
                                                     <RotateWrapper>
                                                         <LoadingCircle />
                                                         <UploadTextDiv>
-                                                            <UploadText>Uploading</UploadText>
+                                                            <UploadText>{translations[language].uploading}</UploadText>
                                                             <UploadText>{videoPerc}%</UploadText>
                                                         </UploadTextDiv>
                                                     </RotateWrapper>
@@ -1582,23 +1744,24 @@ const Upload = ({ setOpen }) => {
                                                 <UploadIconDiv onClick={handleIconUploadClick}>
                                                     <UploadIcon src={UploadVid} />
                                                 </UploadIconDiv>
-                                                <UploadIconText>Drag & Drop your video file to upload it</UploadIconText>
-                                                <UploadIconSubText>You can also open the file explorer in the button below</UploadIconSubText>
+                                                <UploadIconText>{translations[language].dragdrop1}</UploadIconText>
+                                                <UploadIconSubText>{translations[language].dragdrop2}</UploadIconSubText>
                                                 <SelectFilesButton
                                                     type="file"
                                                     accept="video/ogm, video/wmv, video/mpg, video/webm, video/ogv, video/mov, video/asx, video/mpeg, video/mp4, video/m4v, video/avi,"
                                                     ref={fileInputRef}
                                                     onChange={handleFileChange}
+                                                    selectFile={translations[language].selectfile}
                                                 />
                                             </>
                                         )}
                                         <TermsAndConditionsDiv>
                                             <Terms1>
-                                                Upon submitting videos to Flashy, you agree to adhere to Flashy's
-                                                <TermsLinks onClick={TermsFlashy}> Terms of Service and Conditions of Use. </TermsLinks>
+                                                {translations[language].terms1}
+                                                <TermsLinks onClick={TermsFlashy}> {translations[language].terms2} </TermsLinks>
                                             </Terms1>
                                             <Terms2>
-                                                Please ensure that you do not infringe on the copyright or privacy rights of others.
+                                                {translations[language].terms3}
                                             </Terms2>
                                         </TermsAndConditionsDiv>
 
@@ -1607,23 +1770,23 @@ const Upload = ({ setOpen }) => {
                             )}
                             {step === 1 && (
                                 <>
-                                    <Label style={{ marginTop: '0px' }}> Details </Label>
-                                    <SubLabel> Provide the details of your video </SubLabel>
+                                    <Label style={{ marginTop: '0px' }}> {translations[language].step2} </Label>
+                                    <SubLabel> {translations[language].detailsprovide} </SubLabel>
 
                                     <InputContainer>
                                         <Input
                                             type="text"
-                                            placeholder={`${defaultTitle ? `Your current video title by default is ${defaultTitle}` : 'Add a Flashy title to your video...'}`}
+                                            placeholder={`${defaultTitle ? `${translations[language].inputtitleph1} ${defaultTitle}` : `${translations[language].inputtitleph2}`}`}
                                             name="title"
                                             onChange={handleChange}
                                             value={inputs.title !== undefined ? inputs.title : defaultTitle}
                                         />
-                                        <TitleInput> Video Title (Required) </TitleInput>
+                                        <TitleInput> {translations[language].inputtitle} </TitleInput>
                                         <TitleCharCountInput TitleCharCounter={TitleCharCounter}>{TitleCharCounter}/150</TitleCharCountInput>
                                     </InputContainer>
                                     <InputContainer>
                                         <Desc
-                                            placeholder="Write about your video, let the viewers know what's great about it..."
+                                            placeholder={translations[language].inputdescph}
                                             name="desc"
                                             rows={8}
                                             onChange={(e) => {
@@ -1633,23 +1796,23 @@ const Upload = ({ setOpen }) => {
                                             value={inputs.desc}
                                             emptyDescError={emptyDescError}
                                         />
-                                        <TitleInput emptyDescError={emptyDescError}> Video Description (Required) </TitleInput>
+                                        <TitleInput emptyDescError={emptyDescError}> {translations[language].inputdesc} </TitleInput>
                                         <DescCharCountInput DescCharCounter={DescCharCounter}>{DescCharCounter}/500</DescCharCountInput>
                                     </InputContainer>
                                     <InputContainer>
                                         <Input
                                             type="text"
                                             name="tag"
-                                            placeholder="Separate the tags with commas (example: movie, anime)..."
+                                            placeholder={translations[language].inputtagsph}
                                             onChange={handleTags}
                                             value={inputs.tag}
                                         />
-                                        <TitleInput> Video Tags (Optional) </TitleInput>
+                                        <TitleInput> {translations[language].inputtags} </TitleInput>
                                         <TagCharCountInput TagCharCounter={TagCharCounter}>{TagCharCounter}/120</TagCharCountInput>
                                     </InputContainer>
 
-                                    <LabelPlaylist> Playlist </LabelPlaylist>
-                                    <SubLabelPlaylist> Add your video to a playlist to organize your content for viewers or yourself.</SubLabelPlaylist>
+                                    <LabelPlaylist> {translations[language].playlist} </LabelPlaylist>
+                                    <SubLabelPlaylist> {translations[language].playlisttxt}</SubLabelPlaylist>
 
 
                                     <PlaylistSelectBoxContainer>
@@ -1667,28 +1830,28 @@ const Upload = ({ setOpen }) => {
                             {step === 2 && (
                                 <>
                                     <TitleAndPreview>
-                                        <LabelStep2Thumbnail emptyThumbnailError={emptyThumbnailError}> Set a thumbnail</LabelStep2Thumbnail>
+                                        <LabelStep2Thumbnail emptyThumbnailError={emptyThumbnailError}> {translations[language].thumbnail} </LabelStep2Thumbnail>
 
                                         <PreviewDiv>
                                             <PreviewIcon src={PreviewIcono} onMouseEnter={handleShowPreview} onMouseLeave={handleHidePreview} />
                                             <ShowPreviewDiv showPreview={showPreview}>
-                                                <PreviewText> Preview Example </PreviewText>
+                                                <PreviewText> {translations[language].previewexample} </PreviewText>
                                                 <PreviewImg src={ThumbnailPreview} />
                                             </ShowPreviewDiv>
                                         </PreviewDiv>
 
                                     </TitleAndPreview>
 
-                                    <SubLabelStep2> This thumbnail will be displayed on regular video cards. (Requiered) • Recommended Size: 1280x720 </SubLabelStep2>
+                                    <SubLabelStep2> {translations[language].thumbnailtxt} </SubLabelStep2>
 
                                     {imgPerc > 0 ? (
                                         imgPerc < 100 ? (
                                             <div style={{ display: 'flex', marginBottom: '2px' }}>
-                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgPerc}%</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgPerc}%</UploadImage>
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', marginBottom: '2px' }}>
-                                                <UploadImage imgPerc={imgPerc}>Thumbnail uploaded successfully!</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].thumbnailss}</UploadImage>
                                                 <SideDropdownImg src={ResetIcon} onClick={resetThumbnail} />
                                             </div>
 
@@ -1699,35 +1862,36 @@ const Upload = ({ setOpen }) => {
                                                 type="file"
                                                 accept="image/jpeg, image/png, image/webp"
                                                 onChange={(e) => handleThumbnailFileChange(e)}
+                                                selectFile={translations[language].selectfile}
                                             />
 
-                                            <ThumbnailLabelFormat formatThumbnailError={formatThumbnailError}> This file format is not allowed, please upload an image </ThumbnailLabelFormat>
+                                            <ThumbnailLabelFormat formatThumbnailError={formatThumbnailError}> {translations[language].fileformaterror} </ThumbnailLabelFormat>
 
                                         </div>
                                     )}
 
 
                                     <TitleAndPreview>
-                                        <LabelStep2VerticalThumbnail emptyThumbnailVerticalError={emptyThumbnailVerticalError}>Set a vertical thumbnail</LabelStep2VerticalThumbnail>
+                                        <LabelStep2VerticalThumbnail emptyThumbnailVerticalError={emptyThumbnailVerticalError}>{translations[language].vthumbnail}</LabelStep2VerticalThumbnail>
 
                                         <PreviewDiv >
                                             <PreviewIcon src={PreviewIcono} onMouseEnter={handleVerticalShowPreview} onMouseLeave={handleVerticalHidePreview} />
                                             <ShowPreviewVerticalDiv showVerticalPreview={showVerticalPreview}>
-                                                <PreviewText> Preview Example </PreviewText>
+                                                <PreviewText> {translations[language].previewexample} </PreviewText>
                                                 <PreviewImg src={VerticalThumbnailPreview} />
                                             </ShowPreviewVerticalDiv>
                                         </PreviewDiv>
                                     </TitleAndPreview>
-                                    <SubLabelStep2> This thumbnail will be displayed on the Trending Slider. (Requiered) • Recommended Size: 1080 x 1350 </SubLabelStep2>
+                                    <SubLabelStep2> {translations[language].vthumbnailtxt} </SubLabelStep2>
 
                                     {imgVerticalPerc > 0 ? (
                                         imgVerticalPerc < 100 ? (
                                             <div style={{ display: 'flex', marginBottom: '9px' }}>
-                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgVerticalPerc}%</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgVerticalPerc}%</UploadImage>
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', marginBottom: '9px' }}>
-                                                <UploadImage imgPerc={imgPerc}>Vertical thumbnail uploaded successfully!</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].vthumbnailss}</UploadImage>
                                                 <SideDropdownImg src={ResetIcon} onClick={resetVerticalThumbnail} />
                                             </div>
                                         )
@@ -1737,31 +1901,32 @@ const Upload = ({ setOpen }) => {
                                                 type="file"
                                                 accept="image/jpeg, image/png, image/webp"
                                                 onChange={(e) => handleVerticalFileChange(e)}
+                                                selectFile={translations[language].selectfile}
                                             />
 
-                                            <VerticalThumbnailLabelFormat formatThumbnailVerticalError={formatThumbnailVerticalError}> This file format is not allowed, please upload an image </VerticalThumbnailLabelFormat>
+                                            <VerticalThumbnailLabelFormat formatThumbnailVerticalError={formatThumbnailVerticalError}> {translations[language].fileformaterror} </VerticalThumbnailLabelFormat>
 
                                         </div>
                                     )}
                                     <TitleAndPreviewLandscape imgPerc={imgPerc} imgVerticalPerc={imgVerticalPerc}>
 
-                                        <LabelStep2LandscapeThumbnail emptyThumbnailLandscapeError={emptyThumbnailLandscapeError}>Set a landscape thumbnail</LabelStep2LandscapeThumbnail>
+                                        <LabelStep2LandscapeThumbnail emptyThumbnailLandscapeError={emptyThumbnailLandscapeError}>{translations[language].lthumbnail}</LabelStep2LandscapeThumbnail>
 
                                         <PreviewDiv>
                                             <PreviewIcon src={PreviewIcono} onMouseEnter={handleLandscapeShowPreview} onMouseLeave={handleLandscapeHidePreview} />
                                         </PreviewDiv>
 
                                     </TitleAndPreviewLandscape>
-                                    <SubLabelStep2> This thumbnail will be displayed on the home slideshow. (Requiered) • Recommended Size: 2560x1440 </SubLabelStep2>
+                                    <SubLabelStep2> {translations[language].lthumbnailtxt} </SubLabelStep2>
 
                                     {imgLandscapePerc > 0 ? (
                                         imgLandscapePerc < 100 ? (
                                             <div>
-                                                <UploadImage imgPerc={imgPerc}>Uploading: {imgLandscapePerc}%</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].uploading} {imgLandscapePerc}%</UploadImage>
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex' }}>
-                                                <UploadImage imgPerc={imgPerc}>Landscape thumbnail uploaded successfully!</UploadImage>
+                                                <UploadImage imgPerc={imgPerc}>{translations[language].lthumbnailss}</UploadImage>
                                                 <SideDropdownImg src={ResetIcon} onClick={resetLandscapeThumbnail} />
                                             </div>
                                         )
@@ -1771,9 +1936,10 @@ const Upload = ({ setOpen }) => {
                                                 type="file"
                                                 accept="image/jpeg, image/png, image/webp"
                                                 onChange={(e) => handleLandscapeFileChange(e)}
+                                                selectFile={translations[language].selectfile}
                                             />
 
-                                            <LandscapeThumbnailLabelFormat formatThumbnailLandscapeError={formatThumbnailLandscapeError}> This file format is not allowed, please upload an image </LandscapeThumbnailLabelFormat>
+                                            <LandscapeThumbnailLabelFormat formatThumbnailLandscapeError={formatThumbnailLandscapeError}> {translations[language].fileformaterror} </LandscapeThumbnailLabelFormat>
 
                                         </div>
                                     )}
@@ -1781,8 +1947,8 @@ const Upload = ({ setOpen }) => {
                             )}
                             {step === 3 && (
                                 <>
-                                    <LabelStep3 emptyLanguageError={emptyLanguageError}>Language</LabelStep3>
-                                    <SubLabelStep3> Maximize your video's impact by selecting the appropriate language. (Requiered) </SubLabelStep3>
+                                    <LabelStep3 emptyLanguageError={emptyLanguageError}>{translations[language].language}</LabelStep3>
+                                    <SubLabelStep3> {translations[language].languagetxt} </SubLabelStep3>
                                     <SelecterAndFlags>
                                         <DropdownLanguage selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} />
                                         {selectedLanguage === 'EN' && (
@@ -1851,8 +2017,8 @@ const Upload = ({ setOpen }) => {
                                         )}
                                     </SelecterAndFlags>
 
-                                    <LabelStep3 style={{ marginTop: '50px' }}>Subtitles</LabelStep3>
-                                    <SubLabelStep3> Boost your audience reach with language subtitles for your video. (Optional, file format must be .vtt) </SubLabelStep3>
+                                    <LabelStep3 style={{ marginTop: '50px' }}>{translations[language].subtitles}</LabelStep3>
+                                    <SubLabelStep3> {translations[language].subtitlestxt} </SubLabelStep3>
 
                                     <DropDownSubtitlesContainer>
 
@@ -1870,8 +2036,8 @@ const Upload = ({ setOpen }) => {
                             )}
                             {step === 4 && (
                                 <>
-                                    <LabelStep3>Visibility</LabelStep3>
-                                    <SubLabelStep3 style={{ marginBottom: '10px' }}> Adjust privacy settings to control who can view your video. (Default: Public) </SubLabelStep3>
+                                    <LabelStep3>{translations[language].visibility}</LabelStep3>
+                                    <SubLabelStep3 style={{ marginBottom: '10px' }}> {translations[language].visibilitytxt} </SubLabelStep3>
 
                                     <ContainerSelectPrivacy>
 
@@ -1881,11 +2047,11 @@ const Upload = ({ setOpen }) => {
                                         >
                                             <DivSelectPrivacyColumn selected={inputs.privacy === "public"}>
                                                 <DivSelectPrivacyFlex>
-                                                    <PrivacyImg src={PublicIcon} />Public
+                                                    <PrivacyImg src={PublicIcon} />{translations[language].public}
                                                 </DivSelectPrivacyFlex>
 
                                                 <PrivacyDesc>
-                                                    By setting your video to public, you can make it accessible to a wide audience... This feature will allow anyone to view, like, and share your content.
+                                                    {translations[language].publictxt}
                                                 </PrivacyDesc>
                                             </DivSelectPrivacyColumn>
 
@@ -1898,17 +2064,17 @@ const Upload = ({ setOpen }) => {
                                         >
                                             <DivSelectPrivacyColumn selected={inputs.privacy === "private"}>
                                                 <DivSelectPrivacyFlex>
-                                                    <PrivacyImg src={PrivateIcon} />Private
+                                                    <PrivacyImg src={PrivateIcon} />{translations[language].private}
                                                 </DivSelectPrivacyFlex>
 
                                                 <PrivacyDesc privateSelected={privateSelected}>
-                                                    Keep your video private by adjusting the privacy settings to ensure it's only visible to selected individuals.
+                                                    {translations[language].privatetxt}
                                                 </PrivacyDesc>
 
                                                 {privateSelected && (
                                                     <>
                                                         <SharePrivateButton onClick={handleSharePrivate}>
-                                                            <SharePrivateImg src={SharePrivateIcon} /> INVITE USERS
+                                                            <SharePrivateImg src={SharePrivateIcon} /> {translations[language].privateinvite}
                                                         </SharePrivateButton>
                                                     </>
                                                 )}
@@ -1924,11 +2090,11 @@ const Upload = ({ setOpen }) => {
                                         >
                                             <DivSelectPrivacyColumn selected={inputs.privacy === "unlisted"}>
                                                 <DivSelectPrivacyFlex>
-                                                    <PrivacyImg src={UnlistedIcon} />Unlisted
+                                                    <PrivacyImg src={UnlistedIcon} />{translations[language].unlisted}
                                                 </DivSelectPrivacyFlex>
 
                                                 <PrivacyDesc>
-                                                    Choose unlisted for an exclusive touch. Keep your video private, sharing only with those you select. Make each view more personal and special.
+                                                    {translations[language].unlistedtxt}
                                                 </PrivacyDesc>
                                             </DivSelectPrivacyColumn>
 
@@ -1950,12 +2116,12 @@ const Upload = ({ setOpen }) => {
                             <FixedBottomMenu>
                                 {step > 1 && (
                                     <ButtonBack onClick={handleBack}>
-                                        Back
+                                        {translations[language].back}
                                     </ButtonBack>
                                 )}
                                 {step > 0 && (
                                     <ButtonNextUpload onClick={isLastStep ? handlePublishPressed : handleNext} step={step} buttonNextDisable={buttonNextDisable}>
-                                        {isLastStep ? "Publish" : "Next"}
+                                        {isLastStep ? translations[language].publish : translations[language].next}
                                     </ButtonNextUpload>
                                 )}
                             </FixedBottomMenu>
@@ -1966,7 +2132,7 @@ const Upload = ({ setOpen }) => {
 
             <>
                 <ShowPreviewLandscapeDiv showLandscapePreview={showLandscapePreview}>
-                    <PreviewText> Preview Example </PreviewText>
+                    <PreviewText> {translations[language].previewexample} </PreviewText>
                     <PreviewImg src={LandscapeThumbnailPreview} />
                 </ShowPreviewLandscapeDiv>
             </>

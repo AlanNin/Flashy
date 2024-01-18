@@ -1,49 +1,40 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 import styled, { css, keyframes } from "styled-components";
 import VideosLengthIcono from "../assets/VideosLengthIcono.png";
-import PublicIcon from "../assets/PublicIcon.png";
-import PrivateIcon from "../assets/PrivateIcon.png";
-import UnlistedIcon from "../assets/UnlistedIcon.png";
-import { useLanguage } from '../utils/LanguageContext';
-import moment from "moment";
-import "moment/locale/es";
-import { toast } from 'react-toastify';
 
 
 const Container = styled.div`
   position: relative;
   display: flex;
-  margin-bottom: 10px;
   border-radius: 5px;
   background: transparent;
   padding: 0px;
   width: max-content;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 25px;
 `;
 
 const PlaylistEffectContainer1 = styled.img`
   position: absolute;
-  width: 230px;
-  height: 130px;
+  width: 299px;
+  height: 135px;
   border-radius: 3px;
   overflow: hidden;
   z-index: 1;
-  top: -20px;
+  top: -23px;
   left: 19px;
   filter: blur(1px) brightness(0.3);
 `;
 
 const PlaylistEffectContainer2 = styled.img`
   position: absolute;
-  width: 255px;
-  height: 155px;
+  width: 324px;
+  height: 165px;
   border-radius: 3px;
   overflow: hidden;
-  z-index: 2;
-  top: -10px;
+  z-index: 1;
+  top: -13px;
   left: 7px;
   filter: blur(1px) brightness(0.7);
 `;
@@ -51,11 +42,11 @@ const PlaylistEffectContainer2 = styled.img`
 
 const ImageContainer = styled.div`
   position: relative;
-  width: 270px;
-  height: 170px;
+  width: 339px;
+  height: 175px;
   border-radius: 3px;
   overflow: hidden;
-  z-index: 3;
+  z-index: 1;
 `;
 
 const Image = styled.img`
@@ -151,7 +142,7 @@ const Title = styled.h1`
 `;
 
 
-const CardChannelPlaylist = ({ playlist, isCurrentUserUploader }) => {
+const CardPlaylist = ({ playlist }) => {
 
   // FORMATS
   const formatNumbers = (Numbers) => {
@@ -165,7 +156,6 @@ const CardChannelPlaylist = ({ playlist, isCurrentUserUploader }) => {
       return Numbers?.toString();
     }
   };
-
 
   return (
     <div>
@@ -183,14 +173,8 @@ const CardChannelPlaylist = ({ playlist, isCurrentUserUploader }) => {
             />
             <InfoVideosLength>
               <ImgVideosLength src={VideosLengthIcono} />
-              <TxtVideosLength> {formatNumbers(playlist?.videosLength)} videos </TxtVideosLength>
+              <TxtVideosLength> {formatNumbers(playlist?.videos?.length)} videos </TxtVideosLength>
             </InfoVideosLength>
-
-            {isCurrentUserUploader && (
-              <InfoPrivacy>
-                <ImgPrivacy src={playlist?.privacy === 'public' ? PublicIcon : playlist?.privacy === 'private' ? PrivateIcon : UnlistedIcon} />
-              </InfoPrivacy>
-            )}
 
             <InsideContainer>
               <Title> {playlist?.name} </Title>
@@ -207,4 +191,4 @@ const CardChannelPlaylist = ({ playlist, isCurrentUserUploader }) => {
   );
 };
 
-export default CardChannelPlaylist;
+export default CardPlaylist;

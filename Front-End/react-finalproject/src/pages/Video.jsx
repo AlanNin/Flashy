@@ -14,6 +14,7 @@ import RelatedSlider from "../components/RelatedSlider";
 import CanalIcono from "../assets/CanalIconoG.png"
 import DuracionIcono from "../assets/DuracionIconoG.png"
 import FechaIcono from "../assets/FechaIconoG.png"
+import SubscribedIcon from '../assets/SubscribedIcon.png';
 import ViewsIcon from '../assets/ViewsIcono2.png';
 import LanguageIcono from '../assets/IdiomaIcono.png';
 import CopyIcono from "../assets/CopyIcono.png";
@@ -255,20 +256,38 @@ const Description = styled.p`
   overflow: hidden;
 `;
 
+// SUBSCRIBE
 const Subscribe = styled.button`
-  background-color: ${({ isSubscribed }) => (isSubscribed ? 'rgb(196, 90, 148, 0.8)' : 'rgb(196, 90, 172, 0.5)')};
-  font-weight: 700;
-  font-size: 14px;
-  font-family: "Roboto", Helvetica;
-  color: white;
+  background-color: ${({ isSubscribed }) => (isSubscribed ? 'rgb(255, 0, 192, 0.15)' : 'rgb(227, 0, 252, 0.15)')};
   border: none;
+  transition: background-color 0.3s ease;
   border-radius: 5px;
   height: max-content;
-  padding: ${({ isSubscribed }) => (isSubscribed ? '8px 18px 10px 20px' : '10px 20px')};
+  padding: ${({ isSubscribed }) => (isSubscribed ? '9px 11px' : '10px 30.5px')};
   cursor: pointer;
+  margin-top: 10px;
   margin-left: 20px;
-  margin-top: 5px;
+  width: max-content;
+  display: flex;
 `;
+
+const SubscribeTxt = styled.div`
+  font-weight: 700;
+  font-size: 15px;
+  font-family: "Roboto", Helvetica;
+  color: white;
+  height: max-content;
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const SubscribeImg = styled.img`
+  height: 20px;
+  width: 20px;
+`;
+
 
 const ChannelInfo = styled.div`
   display: flex;
@@ -710,9 +729,57 @@ const VideoPage = () => {
   const translations = {
     en: {
       signin: "Sign in",
+      resume: "Resume Video",
+      resumetxt: "Would you like to resume this video or start over?",
+      resumeop1: "Start Over",
+      resumeop2: "Resume",
+      subscribed: "SUBSCRIBED",
+      subscribe: "SUBSCRIBE",
+      subscribeval: "You need to be logged in to subscribe.",
+      likeval: "You need to be logged in to like this video.",
+      dislikeval: "You need to be logged in to dislike this video.",
+      recommended: "RECOMMENDED",
+      privatevideo: "Private Video",
+      privatevideotxt: "Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access.",
+
+      public: "Public",
+      private: "Private",
+      unlisted: "Unlisted",
+
+      save: "Save",
+      share: "Share",
+      gohome: "Go Home",
+
+      toastshare: "Share Link copied in clipboard",
+      toastunsub: "Unsubscription successfull",
+      toastsub: "Suscription successfull",
     },
     es: {
       signin: "Iniciar Sesión",
+      resume: "Reanudar Video",
+      resumetxt: "¿Te gustaría reanudar este video o empezar de nuevo?",
+      resumeop1: "Empezar de Nuevo",
+      resumeop2: "Reanudar",
+      subscribed: "SUSCRITO",
+      subscribe: "SUSCRIBIRSE",
+      subscribeval: "Debes iniciar sesión para suscribirte.",
+      likeval: "Debes iniciar sesión para darle me gusta a este video.",
+      dislikeval: "Debes iniciar sesión para darle no me gusta a este video.",
+      recommended: "RECOMENDADO",
+      privatevideo: "Video Privado",
+      privatevideotxt: "¡Ups! Parece que este video está configurado como privado. No tienes permiso para verlo. Por favor, contacta al propietario para acceder.",
+
+      public: "Público",
+      private: "Privado",
+      unlisted: "No listado",
+
+      save: "Guardar",
+      share: "Compartir",
+      gohome: "Ir a Inicio",
+
+      toastshare: "Enlace copiado en el portapapeles",
+      toastunsub: "Desuscripción exitosa",
+      toastsub: "Suscripción exitosa",
     },
   };
 
@@ -769,6 +836,10 @@ const VideoPage = () => {
 
   // ADD TO HISTORY
   const UpdateHistory = async () => {
+    if (currentUser?.isWatchHistoryPaused) {
+      return;
+    }
+
     if (currentUser) {
       await axios.put(`/users/${currentUser?._id}/videos/${currentVideo?._id}/history`);
     }
@@ -794,7 +865,7 @@ const VideoPage = () => {
           const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data?._id}`);
           const userProgress = userProgressRes.data.progress || 0;
 
-          if (userProgress > 3) {
+          if (userProgress > 3 && !currentUser?.isWatchHistoryPaused) {
             setShowResumePopup(true);
           }
 
@@ -905,12 +976,12 @@ const VideoPage = () => {
       // Usuario ya está suscrito, realizar acción de desuscripción
       await axios.put(`/users/unsub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter - 1);
-      toast.success('Unsubscription successfull');
+      toast.success(translations[language].toastunsub);
     } else {
       // Usuario no está suscrito, realizar acción de suscripción
       await axios.put(`/users/sub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter + 1);
-      toast.success('Suscription successfull');
+      toast.success(translations[language].toastsub);
     }
 
     // Despachar la acción para actualizar el estado global (si es necesario)
@@ -945,6 +1016,11 @@ const VideoPage = () => {
   const [videoProgress, setVideoProgress] = useState(0);
 
   const saveVideoProgress = async () => {
+
+    if (currentUser?.isWatchHistoryPaused) {
+      return;
+    }
+
     try {
       await axios.post(`/videos/saveUserProgress/${currentVideo?._id}`, {
         progress: videoProgress,
@@ -1102,7 +1178,7 @@ const VideoPage = () => {
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard ');
+    toast.success(translations[language].toastshare);
   };
 
   useEffect(() => {
@@ -1234,14 +1310,14 @@ const VideoPage = () => {
                   <ResumePopupContainer>
                     <ResumePopupWrapper>
                       <ResumePopupText>
-                        Resume Video
+                        {translations[language].resume}
                       </ResumePopupText>
                       <ResumePopupSubText>
-                        Would you like to resume this video or start over?
+                        {translations[language].resumetxt}
                       </ResumePopupSubText>
                       <ResumePopupButtons>
-                        <ResumePopupButton onClick={handleStartOverClick}>Start Over</ResumePopupButton>
-                        <ResumePopupButton onClick={handleResumeClick}>Resume</ResumePopupButton>
+                        <ResumePopupButton onClick={handleStartOverClick}> {translations[language].resumeop1} </ResumePopupButton>
+                        <ResumePopupButton onClick={handleResumeClick}> {translations[language].resumeop2} </ResumePopupButton>
                       </ResumePopupButtons>
                     </ResumePopupWrapper>
                   </ResumePopupContainer>
@@ -1308,7 +1384,7 @@ const VideoPage = () => {
                           borderRadius: '10px',
                           marginTop: '-4px'
                         }}>
-                        {currentVideo?.privacy && currentVideo?.privacy.charAt(0).toUpperCase() + currentVideo?.privacy.slice(1)}
+                        {currentVideo?.privacy === 'public' ? translations[language].public : currentVideo?.privacy === 'private' ? translations[language].private : translations[language].unlisted}
                       </EstiloTextos>
 
                     </ContenedorIconosTextos>
@@ -1332,14 +1408,23 @@ const VideoPage = () => {
                             onClick={handleSub}
                             isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
                           >
-                            {currentUser?.subscribedUsers?.includes(channel?._id) ? "SUBSCRIBED ✔" : "SUBSCRIBE"}
+                            {currentUser?.subscribedUsers?.includes(channel?._id) ?
+                              <SubscribeTxt>
+                                <SubscribeImg src={SubscribedIcon} />
+                                {translations[language].subscribed}
+                              </SubscribeTxt>
+                              :
+                              <SubscribeTxt>
+                                {translations[language].subscribe}
+                              </SubscribeTxt>
+                            }
                           </Subscribe>
 
                         )}
                         {!currentUser && isSubscribePopupVisible && (
                           <SuscbribeNotLogged ref={subscribeRef}>
 
-                            <SuscbribeNotLoggedTxt> You need to be logged in to subscribe. </SuscbribeNotLoggedTxt>
+                            <SuscbribeNotLoggedTxt> {translations[language].subscribeval} </SuscbribeNotLoggedTxt>
 
                             <Link
                               to="../../signin"
@@ -1373,7 +1458,7 @@ const VideoPage = () => {
                         {!currentUser && isLikePopupVisible && (
                           <LikeNotLogged ref={likeRef}>
 
-                            <LikeNotLoggedTxt> You need to be logged in to like this video. </LikeNotLoggedTxt>
+                            <LikeNotLoggedTxt> {translations[language].likeval} </LikeNotLoggedTxt>
 
                             <Link
                               to="../../signin"
@@ -1405,7 +1490,7 @@ const VideoPage = () => {
                         {!currentUser && isDislikePopupVisible && (
                           <DislikeNotLogged ref={dislikeRef}>
 
-                            <DislikeLoggedTxt> You need to be logged in to dislike this video. </DislikeLoggedTxt>
+                            <DislikeLoggedTxt> {translations[language].dislikeval} </DislikeLoggedTxt>
 
                             <Link
                               to="../../signin"
@@ -1426,11 +1511,11 @@ const VideoPage = () => {
                       </DislikeButton>
                     </LikeAndDislikeButtons>
                     <Button onClick={handleSaveVideo}>
-                      <ButtonsImg src={VideoPlaylistIcono} /> Save
+                      <ButtonsImg src={VideoPlaylistIcono} /> {translations[language].save}
                     </Button>
 
                     <Button onClick={handleShare} ref={buttonShareRef}>
-                      <ButtonsImg src={VideoShareIcono} /> Share
+                      <ButtonsImg src={VideoShareIcono} /> {translations[language].share}
                     </Button>
 
                   </Buttons>
@@ -1449,27 +1534,35 @@ const VideoPage = () => {
 
               <RecommendationContainer>
 
-                <TitleHeader> RECOMMENDED </TitleHeader>
+                <TitleHeader> {translations[language].recommended} </TitleHeader>
                 <Recommendation tags={currentVideo?.tags} currentVideoId={currentVideo?._id} NoRecommendations={NoRecommendations} setNoRecommendations={setNoRecommendations} />
 
               </RecommendationContainer>
 
             </Wrapper >
           ) : (
-            <NotAllowedContainerBg>
-              <NotAllowedContainer>
-                <WrapperNotAllowed>
-                  <TitleNotAllowed> Private Video </TitleNotAllowed>
-                  <SubLabelNotAllowed>
-                    Oops! It looks like this video is set to private. You don't have permission to view it. Please contact the owner for access.
-                  </SubLabelNotAllowed>
-                </WrapperNotAllowed>
-                <Link to={"/"} style={{ textDecoration: "none", marginLeft: "auto" }}>
-                  <GoHomeNotAllowed > Go Home </GoHomeNotAllowed>
-                </Link>
+            <>
+              {
+                currentVideo?.userId !== currentUser?._id && (
+                  <>
+                    <NotAllowedContainerBg>
+                      <NotAllowedContainer>
+                        <WrapperNotAllowed>
+                          <TitleNotAllowed> {translations[language].privatevideo} </TitleNotAllowed>
+                          <SubLabelNotAllowed>
+                            {translations[language].privatevideotxt}
+                          </SubLabelNotAllowed>
+                        </WrapperNotAllowed>
+                        <Link to={"/"} style={{ textDecoration: "none", marginLeft: "auto" }}>
+                          <GoHomeNotAllowed > {translations[language].gohome} </GoHomeNotAllowed>
+                        </Link>
 
-              </NotAllowedContainer>
-            </NotAllowedContainerBg>
+                      </NotAllowedContainer>
+                    </NotAllowedContainerBg>
+                  </>
+                )
+              }
+            </>
           )}
         </>
       ) : (
@@ -1482,7 +1575,7 @@ const VideoPage = () => {
         isSharePopupVisible && (
           <SharePopupContainerBg>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share </ShareLabel>
+              <ShareLabel> {translations[language].share} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

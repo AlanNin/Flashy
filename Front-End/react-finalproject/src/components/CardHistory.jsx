@@ -496,8 +496,22 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
   // TRANSLATIONS
   const translations = {
     en: {
+      save: "Save",
+      share: "Share",
+      deletevideohistory: "Delete Video From History",
+      deletevideohistorytxt: "This video will be permanently removed from your watch history as well as your current watch progress.",
+      cancel: "Cancel",
+      delete: "Delete",
+      toastshare: "Share Link copied in clipboard",
     },
     es: {
+      save: "Guardar",
+      share: "Compartir",
+      deletevideohistory: "Eliminar Video del Historial",
+      deletevideohistorytxt: "Este video será permanentemente elminado de tu historial de reproducción así como su progreso de vista.",
+      cancel: "Cancelar",
+      delete: "Eliminar",
+      toastshare: "Enlace copiado en el portapapeles",
     },
   };
 
@@ -625,7 +639,7 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard ');
+    toast.success(translations[language].toastshare);
   };
 
 
@@ -715,11 +729,11 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
           <HistoryMenuOptions className="HistoryMenuOptions">
             <CommentOption onClick={handleSaveVideo}>
               <CommentOptionImg src={VideoPlaylistIcono} style={{ height: '25px' }} />
-              Save
+              {translations[language].save}
             </CommentOption>
             <CommentOption onClick={handleShare} >
               <CommentOptionImg src={VideoShareIconoOutline} style={{ height: '23px' }} />
-              Share
+              {translations[language].share}
             </CommentOption>
           </HistoryMenuOptions>
         )}
@@ -776,14 +790,14 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
             onCancel={() => handleDeleteConfirmation(false)}
           >
             <DeleteFromHistoryPopupWrapper>
-              <DeleteFromHistoryPopupTitle> Delete Video From History </DeleteFromHistoryPopupTitle>
-              <DeleteFromHistoryPopupTxt> This video will be permanently removed from your watch history as well as your current watch progress. </DeleteFromHistoryPopupTxt>
+              <DeleteFromHistoryPopupTitle> {translations[language].deletevideohistory} </DeleteFromHistoryPopupTitle>
+              <DeleteFromHistoryPopupTxt> {translations[language].deletevideohistorytxt} </DeleteFromHistoryPopupTxt>
               <OptionsDeleteCancel>
                 <DeleteFromHistoryCancel onClick={() => handleDeleteConfirmation(false)}>
-                  Cancel
+                  {translations[language].cancel}
                 </DeleteFromHistoryCancel>
                 <DeleteFromHistoryDelete onClick={() => handleDeleteConfirmation(true)}>
-                  Delete
+                  {translations[language].delete}
                 </DeleteFromHistoryDelete>
               </OptionsDeleteCancel>
             </DeleteFromHistoryPopupWrapper>
@@ -796,7 +810,7 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
         isSharePopupVisible && (
           <SharePopupContainerBg ref={shareRefBg}>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share </ShareLabel>
+              <ShareLabel> {translations[language].share} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

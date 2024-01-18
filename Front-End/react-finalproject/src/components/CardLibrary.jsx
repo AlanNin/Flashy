@@ -386,7 +386,7 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard ');
+    toast.success(translations[language].toastshare);
   };
 
 
@@ -534,6 +534,24 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
     return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
   };
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      views: "Views",
+      share: "Share",
+      save: "Save to playlist",
+      remove: "Remove from",
+      toastshare: "Share Link copied in clipboard",
+    },
+    es: {
+      views: "Visitas",
+      share: "Compartir",
+      save: "Guardar en playlist",
+      remove: "Eliminar de",
+      toastshare: "Enlace copiado en el portapapeles",
+    },
+  };
+
   return (
     <MainContainer isMenuDotsVisible={isMenuDotsVisible}>
       <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
@@ -549,7 +567,7 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
               <Title> {video?.title} </Title>
               <VideoInfDiv>
                 <VideoInfTxt> {channel?.displayname} </VideoInfTxt>
-                <VideoInfTxt> •  {`\u00A0`} {formatViews(video?.views)} views </VideoInfTxt>
+                <VideoInfTxt> •  {`\u00A0`} {formatViews(video?.views)} {translations[language].views} </VideoInfTxt>
                 <VideoInfTxt> • {`\u00A0`} {timeago(video?.createdAt)} </VideoInfTxt>
               </VideoInfDiv>
             </Texts>
@@ -570,15 +588,15 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
         <MenuOptions className="HistoryMenuOptions">
           <MenuOption onClick={handleShare}>
             <MenuOptionImg src={VideoShareIconoOutline} />
-            Share
+            {translations[language].share}
           </MenuOption>
           <MenuOption onClick={handleSaveVideo}>
             <MenuOptionImg src={VideoPlaylistIcono} />
-            Save to playlist
+            {translations[language].save}
           </MenuOption>
           <MenuOption onClick={handleRemoveVideo}>
             <MenuOptionImg src={RemoveTrashcan} />
-            Remove from {selectedPlaylist?.name}
+            {translations[language].remove} {selectedPlaylist?.name}
           </MenuOption>
         </MenuOptions>
       )}
@@ -587,7 +605,7 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
         isSharePopupVisible && (
           <SharePopupContainerBg ref={shareRefBg}>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share </ShareLabel>
+              <ShareLabel> {translations[language].share} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

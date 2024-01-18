@@ -519,52 +519,52 @@ const PopupImageGradientOverlay = styled.div`
   height: 60%;
   background: linear-gradient(to bottom,
     transparent,
-    rgba(25, 25, 25, 0.001),
-    rgba(25, 25, 25, 0.002),
-    rgba(25, 25, 25, 0.003),
-    rgba(25, 25, 25, 0.004),
-    rgba(25, 25, 25, 0.005),
-    rgba(25, 25, 25, 0.006),
-    rgba(25, 25, 25, 0.007),
-    rgba(25, 25, 25, 0.008),
-    rgba(25, 25, 25, 0.009),
-    rgba(24, 24, 24, 0.01),
-    rgba(24, 24, 24, 0.015),
-    rgba(24, 24, 24, 0.02),
-    rgba(24, 24, 24, 0.025),
-    rgba(24, 24, 24, 0.03),
-    rgba(24, 24, 24, 0.035),
-    rgba(24, 24, 24, 0.04),
-    rgba(24, 24, 24, 0.045),
-    rgba(24, 24, 24, 0.05),
-    rgba(24, 24, 24, 0.055),
-    rgba(24, 24, 24, 0.06),
-    rgba(24, 24, 24, 0.065),
-    rgba(24, 24, 24, 0.07),
-    rgba(24, 24, 24, 0.075),
-    rgba(24, 24, 24, 0.08),
-    rgba(24, 24, 24, 0.085),
-    rgba(24, 24, 24, 0.09),
-    rgba(24, 24, 24, 0.095),
-    rgba(24, 24, 24, 0.1),
-    rgba(24, 24, 24, 0.15),
-    rgba(24, 24, 24, 0.2),
-    rgba(24, 24, 24, 0.25),
-    rgba(24, 24, 24, 0.3),
-    rgba(24, 24, 24, 0.35),
-    rgba(24, 24, 24, 0.4),
-    rgba(24, 24, 24, 0.45),
-    rgba(24, 24, 24, 0.5),
-    rgba(24, 24, 24, 0.55),
-    rgba(24, 24, 24, 0.6),
-    rgba(24, 24, 24, 0.65),
-    rgba(24, 24, 24, 0.7),
-    rgba(24, 24, 24, 0.75),
-    rgba(24, 24, 24, 0.8),
-    rgba(24, 24, 24, 0.85),
-    rgba(24, 24, 24, 0.9),
-    rgba(24, 24, 24, 0.95),
-    rgba(24, 24, 24, 1));
+    rgba(15, 13, 18, 0.001),
+    rgba(15, 13, 18, 0.002),
+    rgba(15, 13, 18, 0.003),
+    rgba(15, 13, 18, 0.004),
+    rgba(15, 13, 18, 0.005),
+    rgba(15, 13, 18, 0.006),
+    rgba(15, 13, 18, 0.007),
+    rgba(15, 13, 18, 0.008),
+    rgba(15, 13, 18, 0.009),
+    rgba(10, 9, 12, 0.01),
+    rgba(10, 9, 12, 0.015),
+    rgba(10, 9, 12, 0.02),
+    rgba(10, 9, 12, 0.025),
+    rgba(10, 9, 12, 0.03),
+    rgba(10, 9, 12, 0.035),
+    rgba(10, 9, 12, 0.04),
+    rgba(10, 9, 12, 0.045),
+    rgba(10, 9, 12, 0.05),
+    rgba(10, 9, 12, 0.055),
+    rgba(10, 9, 12, 0.06),
+    rgba(10, 9, 12, 0.065),
+    rgba(10, 9, 12, 0.07),
+    rgba(10, 9, 12, 0.075),
+    rgba(10, 9, 12, 0.08),
+    rgba(10, 9, 12, 0.085),
+    rgba(10, 9, 12, 0.09),
+    rgba(10, 9, 12, 0.095),
+    rgba(10, 9, 12, 0.1),
+    rgba(10, 9, 12, 0.15),
+    rgba(10, 9, 12, 0.2),
+    rgba(10, 9, 12, 0.25),
+    rgba(10, 9, 12, 0.3),
+    rgba(10, 9, 12, 0.35),
+    rgba(10, 9, 12, 0.4),
+    rgba(10, 9, 12, 0.45),
+    rgba(10, 9, 12, 0.5),
+    rgba(10, 9, 12, 0.55),
+    rgba(10, 9, 12, 0.6),
+    rgba(10, 9, 12, 0.65),
+    rgba(10, 9, 12, 0.7),
+    rgba(10, 9, 12, 0.75),
+    rgba(10, 9, 12, 0.8),
+    rgba(10, 9, 12, 0.85),
+    rgba(10, 9, 12, 0.9),
+    rgba(10, 9, 12, 0.95),
+    rgba(10, 9, 12, 1));
   z-index: 2;
 `;
 
@@ -1289,10 +1289,30 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
   // TRANSLATIONS
   const translations = {
     en: {
-      views: "views",
+      watchnow: "Watch Now",
+      share: "Share",
+      nosubtitles: "No Subtitles",
+      youmightalsolike: "You might also like",
+      norecommended: "No recommended videos found",
+      deletevideo: "Delete Video",
+      areyousure: "Are you sure you want to delete",
+      note: "Note: This action is permanent and cannot be undone.",
+      cancel: "Cancel",
+      delete: "Delete",
+      toastshare: "Share Link copied in clipboard",
     },
     es: {
-      views: "visitas",
+      watchnow: "Ver Ahora",
+      share: "Compartir",
+      nosubtitles: "Sin subtítulos",
+      youmightalsolike: "También te podría gustar",
+      norecommended: "No se encontraron videos recomendados",
+      deletevideo: "Eliminar Video",
+      areyousure: "Estás seguro de eliminar",
+      note: "Nota: Esta acción es permanente y no se puede deshacer.",
+      cancel: "Cancelar",
+      delete: "Eliminar",
+      toastshare: "Enlace copiado en el portapapeles",
     },
   };
 
@@ -1393,7 +1413,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard ');
+    toast.success(translations[language].toastshare);
   };
 
   useEffect(() => {
@@ -1577,7 +1597,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
               <WatchNowSaveDiv>
                 <Link to={`/video/${video?._id}`} style={{ textDecoration: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '0px', margin: '0px' }}>
                   <WatchNowPopupDiv>
-                    <WatchNowPopupImg src={WatchNowIcono} /> Watch Now
+                    <WatchNowPopupImg src={WatchNowIcono} /> {translations[language].watchnow}
                   </WatchNowPopupDiv>
                 </Link>
 
@@ -1603,7 +1623,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
 
                     {video.tags?.length === 0 && (
                       <ShareButtonNoTag onClick={handleShare} ref={buttonShareRef}>
-                        <ShareButtonImgNoTag src={VideoShareIcono} /> Share
+                        <ShareButtonImgNoTag src={VideoShareIcono} /> {translations[language].share}
                       </ShareButtonNoTag>
                     )}
                   </ChannelContainer>
@@ -1634,7 +1654,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
                       <InfoElementImg src={SubtitleIconoG} />
                       {video.subtitles && video.subtitles?.length > 0
                         ? video.subtitles[0].name + (video.subtitles[1] ? ', ' + video.subtitles[1].name : '') + (video.subtitles[2] ? ', ' + video.subtitles[2].name : '') + (video.subtitles[3] ? ', ' + video.subtitles[3].name : '')
-                        : 'No Subtitles'}
+                        : translations[language].nosubtitles}
                     </InfoItem>
 
                   </InfoDiv>
@@ -1658,20 +1678,20 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
                   </RightItemsDiv>
                   {video.tags?.length > 0 && (
                     <ShareButton onClick={handleShare} ref={buttonShareRef}>
-                      <ShareButtonImg src={VideoShareIcono} /> Share
+                      <ShareButtonImg src={VideoShareIcono} /> {translations[language].share}
                     </ShareButton>
                   )}
                 </PopupBelowDivColumn>
               </PopupBelowContent>
 
               <RecommendationsContainer>
-                <LabelRecommendation> You might also like </LabelRecommendation>
+                <LabelRecommendation> {translations[language].youmightalsolike} </LabelRecommendation>
 
                 <ContainerRecommendation>
                   {cardLoaded ? (
                     filteredVideos?.length === 0 ? (
                       <p style={{ color: 'rgb(158, 93, 176)', fontWeight: 'bold', fontFamily: '"Roboto Condensed", Helvetica', fontSize: '18px', position: 'absolute', width: 'max-content' }}>
-                        No recommended videos found.
+                        {translations[language].norecommended}
                       </p>
                     ) : (
                       <CardContainerRecommendation>
@@ -1842,15 +1862,15 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
             onCancel={() => handleDeleteConfirmation(false)}
           >
             <DeleteVideoPopupWrapper>
-              <DeleteVideoPopupTitle> Delete Video </DeleteVideoPopupTitle>
-              <DeleteVideoPopupTxt> Are you sure you want to delete <DeleteVideoPopupVideoName>{video?.title}</DeleteVideoPopupVideoName>? </DeleteVideoPopupTxt>
-              <DeleteVideoPopupTxt style={{ marginTop: '-25px' }}> Note: This action is permanent and cannot be undone. </DeleteVideoPopupTxt>
+              <DeleteVideoPopupTitle> {translations[language].deletevideo} </DeleteVideoPopupTitle>
+              <DeleteVideoPopupTxt> {translations[language].areyousure} <DeleteVideoPopupVideoName>{video?.title}</DeleteVideoPopupVideoName>? </DeleteVideoPopupTxt>
+              <DeleteVideoPopupTxt style={{ marginTop: '-25px' }}> {translations[language].note} </DeleteVideoPopupTxt>
               <OptionsDeleteCancel>
                 <DeleteVideoCancel onClick={() => handleDeleteConfirmation(false)}>
-                  Cancel
+                  {translations[language].cancel}
                 </DeleteVideoCancel>
                 <DeleteVideoDelete onClick={() => handleDeleteConfirmation(true)}>
-                  Delete
+                  {translations[language].delete}
                 </DeleteVideoDelete>
               </OptionsDeleteCancel>
             </DeleteVideoPopupWrapper>
@@ -1862,7 +1882,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
         isSharePopupVisible && (
           <SharePopupContainerBg ref={shareRefBg}>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share </ShareLabel>
+              <ShareLabel> {translations[language].share} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

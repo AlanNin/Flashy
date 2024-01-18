@@ -194,6 +194,15 @@ const CardNotification = ({ notification, setNotificationsLoaded, handleNotifica
     return relativeTime.charAt(0).toUpperCase() + relativeTime.slice(1).toLowerCase();
   };
 
+  // TRANSLATIONS
+  const translations = {
+    en: {
+      hasuploaded: "has uploaded:",
+    },
+    es: {
+      hasuploaded: "ha publicado:",
+    },
+  };
 
   return (
     <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }} onClick={markNotificationAsRead}>
@@ -212,7 +221,7 @@ const CardNotification = ({ notification, setNotificationsLoaded, handleNotifica
             </ChannelContainer>
 
             <Texts titleLength={video?.title?.length}>
-              <Title titleLength={video?.title?.length}> {channel.displayname} has uploaded: {video?.title} </Title>
+              <Title titleLength={video?.title?.length}> {channel.displayname} {translations[language].hasuploaded} {video?.title} </Title>
               <TimeAgo> {timeago(video.createdAt)} </TimeAgo>
             </Texts>
 

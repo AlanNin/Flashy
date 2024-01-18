@@ -88,7 +88,7 @@ const SlideContainerDif = styled.div`
 const RankNumber = styled.h1`
   margin-top: 235px;
   font-size: 28px;
-  color: rgba(224, 175, 208, 0.8);
+  color: ${({ theme }) => theme.ranknumber};
   font-family: "Roboto Condensed", Helvetica;
 `;
 
@@ -100,19 +100,27 @@ const ChannelIcon = styled.img`
   width: 24px;
   right: 2px;
   cursor: pointer;
+  filter: ${({ theme }) => theme.filterimage};
 `;
 
 const ChannelName = styled.h1`
   position: absolute;
   bottom: 175px;
   right: 24.5px;
-  color: white;
+  color: ${({ theme }) => theme.text};
   font-family: "Roboto Condensed", Helvetica;
   font-weight: 400;
   font-size: 18px;
   margin-left: 20px;
   transform: rotate(-90deg);
   cursor: pointer;
+  
+  white-space: nowrap;
+  display: inline-block; 
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 `;
 
 const StyledLink = styled.a`

@@ -759,9 +759,87 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
   const translations = {
     en: {
       signin: "Sign in",
+      edited: "Edited",
+      edit: "Edit",
+      remove: "Remove",
+      close: "Close",
+      report: "Report",
+      reload: "Reload",
+      cancel: "Cancel",
+      goback: "Go back",
+      reply: "Reply",
+      view: "View",
+      replies: "Replies",
+      replyvalidation: "You need to be logged in to reply to this comment.",
+      likevalidation: "You need to be logged in to like this comment.",
+      dislikevalidation: "You need to be logged in to dislike this comment.",
+      reportvalidation: "You need to be logged in to report to this comment.",
+      removecomment: "Remove Comment",
+      removecommenttxt: "This comment will be removed permanently",
+      reportcomment: "Report Comment",
+      reportcommenttxt: "Please select the reason for this report",
+      alreadyreportcomment: "You have already reported this comment.",
+      reportsubmitted: "Report Submitted",
+      reportsubmittedtxt: "Thanks. We've received your report, if this comment goes against our guidelines we'll take actions.",
+
+      spam: "Spam",
+      spamtxt: "Unwanted, unsolicited messages sent in bulk.",
+      pornographycontent: "Pornography content",
+      pornographycontenttxt: "Explicit sexual material created for adult entertainment.",
+      child: "Child Abuse",
+      childtxt: "Harm to children through abuse or neglect.",
+      hate: "Hate Speech",
+      hatetxt: "Discriminatory speech promoting hostility and harm.",
+      terrorism: "Promotes Terrorism",
+      terrorismtxt: "Encouraging or supporting acts of terrorism.",
+      harrassment: "Harrassment or Bullying",
+      harrassmenttxt: "Aggressive behavior that harms or intimidates others.",
+      suicide: "Suicide or Self Injury",
+      suicidetxt: "False or inaccurate information that spreads and can cause confusion.",
+      missinformation: "Missinformation",
+      missinformationtxt: "Incorrect or misleading information.",
     },
     es: {
       signin: "Iniciar Sesión",
+      edited: "Editado",
+      edit: "Editar",
+      remove: "Eliminar",
+      close: "Cerrar",
+      report: "Reportar",
+      reload: "Recargar",
+      cancel: "Cancelar",
+      goback: "Regresar",
+      reply: "Responder",
+      view: "Ver",
+      replies: "Respuestas",
+      replyvalidation: "Necesitas iniciar sesión para responder a este comentario.",
+      likevalidation: "Necesitas iniciar sesión para dar me gusta a este comentario.",
+      dislikevalidation: "Necesitas iniciar sesión para dar no me gusta a este comentario.",
+      reportvalidation: "Necesitas haber iniciado sesión para reportar este comentario.",
+      removecomment: "Eliminar Comentario",
+      removecommenttxt: "Este comentario será eliminado permanentamente",
+      reportcomment: "Reportar Comentario",
+      reportcommenttxt: "Por favor seleccionar una razón para este reporte",
+      alreadyreportcomment: "Ya has reportado este comentario.",
+      reportsubmitted: "Reporte enviado",
+      reportsubmittedtxt: "Gracias. Recibimos su informe. Si este comentario va en contra de nuestras pautas, tomaremos medidas.",
+
+      spam: "Spam",
+      spamtxt: "Mensajes no solicitados enviados continuamente.",
+      pornographycontent: "Contenido pornográfico",
+      pornographycontenttxt: "Material sexual explícito creado para entretenimiento para adultos.",
+      child: "Abuso Infantil",
+      childtxt: "Daño a los niños por abuso o negligencia.",
+      hate: "Discurso de Odio",
+      hatetxt: "Discurso discriminatorio que promueve la hostilidad y el daño.",
+      terrorism: "Promueve el Terrorismo",
+      terrorismtxt: "Fomenta o apoya actos de terrorismo.",
+      harrassment: "Acoso o Intimidación",
+      harrassmenttxt: "Comportamiento agresivo que daña o intimida a otras.",
+      suicide: "Suicidio o Autolesión",
+      suicidetxt: "Información falsa o inexacta que se difunda y pueda causar confusión.",
+      missinformation: "Desinformación",
+      missinformationtxt: "Información incorrecta o engañosa.",
     },
   };
 
@@ -1143,7 +1221,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
             </Name>
             <Date> • {timeago(currentComment.createdAt)} </Date>
             {comment.edited && (
-              <EditedLabel> Edited </EditedLabel>
+              <EditedLabel> {translations[language].edited} </EditedLabel>
             )}
             {!isEditing && !isReplying && (
               <CommentMenu
@@ -1158,12 +1236,12 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                   <>
                     <EditComment onClick={handleEditComment}>
                       <RemoveEditReportCommentImg src={EditarComentarioIcono} />
-                      Edit
+                      {translations[language].edit}
                     </EditComment>
 
                     <RemoveComment onClick={handleDeleteComment}>
                       <RemoveEditReportCommentImg src={BorrarComentarioIcono} />
-                      Remove
+                      {translations[language].remove}
                     </RemoveComment>
                   </>
                 ) : (
@@ -1171,19 +1249,19 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                     <>
                       <ReportComment onClick={handleReportComment}>
                         <RemoveEditReportCommentImg src={ReportarComentarioIcono} />
-                        Report
+                        {translations[language].report}
                       </ReportComment>
 
                       <RemoveComment onClick={handleDeleteComment}>
                         <RemoveEditReportCommentImg src={BorrarComentarioIcono} />
-                        Remove
+                        {translations[language].remove}
                       </RemoveComment>
                     </>
                   ) : (
                     <>
                       <ReportComment onClick={handleReportComment}>
                         <RemoveEditReportCommentImg src={ReportarComentarioIcono} />
-                        Report
+                        {translations[language].report}
                       </ReportComment>
                     </>
                   )
@@ -1193,7 +1271,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                 {!currentUser && isReportPopupVisible && (
                   <ReportNotLogged ref={reportRef}>
 
-                    <ReportLoggedTxt> You need to be logged in to report to this comment. </ReportLoggedTxt>
+                    <ReportLoggedTxt> {translations[language].reportvalidation} </ReportLoggedTxt>
 
                     <Link
                       to="../../signin"
@@ -1221,15 +1299,15 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                 onCancel={() => handleDeleteConfirmation(false)}
               >
                 <RemoveCommentWrapper>
-                  <RemoveCommentTitle> Remove Comment </RemoveCommentTitle>
-                  <RemoveCommentTxt> This comment will be removed permanently. </RemoveCommentTxt>
+                  <RemoveCommentTitle> {translations[language].removecomment} </RemoveCommentTitle>
+                  <RemoveCommentTxt> {translations[language].removecommenttxt} </RemoveCommentTxt>
 
                   <RemoveDeleteCancel>
                     <RemoveCommentCancel onClick={() => handleDeleteConfirmation(false)}>
-                      Cancel
+                      {translations[language].cancel}
                     </RemoveCommentCancel>
                     <RemoveCommentDelete onClick={() => handleDeleteConfirmation(true)}>
-                      Delete
+                      {translations[language].remove}
                     </RemoveCommentDelete>
                   </RemoveDeleteCancel>
 
@@ -1245,8 +1323,8 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
               <ReportCommentContainer
               >
                 <ReportCommentWrapper>
-                  <ReportCommentTitle> Report Comment </ReportCommentTitle>
-                  <ReportCommentTxt> Please select the reason for this report </ReportCommentTxt>
+                  <ReportCommentTitle> {translations[language].reportcomment} </ReportCommentTitle>
+                  <ReportCommentTxt>  {translations[language].reportcommenttxt} </ReportCommentTxt>
 
                   <ReportReasonOption>
                     <input
@@ -1257,11 +1335,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Spam")}
                       checked={selectedReportReason === "Spam"}
                     />
-                    <label htmlFor="Spam"> Spam </label>
+                    <label htmlFor="Spam"> {translations[language].spam} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Unwanted, unsolicited messages sent in bulk. </HoverInfoText>
+                      <HoverInfoText> {translations[language].spamtxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1275,11 +1353,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Pornography Content")}
                       checked={selectedReportReason === "Pornography Content"}
                     />
-                    <label htmlFor="PornographyContent"> Pornography content </label>
+                    <label htmlFor="PornographyContent"> {translations[language].pornographycontent} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                      <HoverInfoText> {translations[language].pornographycontenttxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1293,11 +1371,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Child Abuse")}
                       checked={selectedReportReason === "Child Abuse"}
                     />
-                    <label htmlFor="ChildAbuse"> Child Abuse </label>
+                    <label htmlFor="ChildAbuse"> {translations[language].child} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Harm to children through abuse or neglect. </HoverInfoText>
+                      <HoverInfoText> {translations[language].childtxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1311,11 +1389,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Hate Speech")}
                       checked={selectedReportReason === "Hate Speech"}
                     />
-                    <label htmlFor="HateSpeech"> Hate Speech </label>
+                    <label htmlFor="HateSpeech"> {translations[language].hate} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Discriminatory speech promoting hostility and harm. </HoverInfoText>
+                      <HoverInfoText> {translations[language].hatetxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1329,11 +1407,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Promotes Terrorism")}
                       checked={selectedReportReason === "Promotes Terrorism"}
                     />
-                    <label htmlFor="PromotesTerrorism"> Promotes Terrorism </label>
+                    <label htmlFor="PromotesTerrorism"> {translations[language].terrorism} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Encouraging or supporting acts of terrorism. </HoverInfoText>
+                      <HoverInfoText> {translations[language].terrorismtxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1348,11 +1426,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Harrassment or Bullying")}
                       checked={selectedReportReason === "Harrassment or Bullying"}
                     />
-                    <label htmlFor="HarrassmentorBullying"> Harrassment or Bullying </label>
+                    <label htmlFor="HarrassmentorBullying"> {translations[language].harrassment} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Aggressive behavior that harms or intimidates others. </HoverInfoText>
+                      <HoverInfoText> {translations[language].harrassmenttxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1366,11 +1444,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Suicide or Self Injury")}
                       checked={selectedReportReason === "Suicide or Self Injury"}
                     />
-                    <label htmlFor="SuicideorSelfInjury"> Suicide or Self Injury </label>
+                    <label htmlFor="SuicideorSelfInjury"> {translations[language].suicide} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> False or inaccurate information that spreads and can cause confusion. </HoverInfoText>
+                      <HoverInfoText> {translations[language].suicidetxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
@@ -1384,21 +1462,21 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                       onChange={() => setSelectedReportReason("Missinformation")}
                       checked={selectedReportReason === "Missinformation"}
                     />
-                    <label htmlFor="Missinformation"> Missinformation </label>
+                    <label htmlFor="Missinformation"> {translations[language].missinformation} </label>
 
                     <ReportCommentInfo>
                       <InfoIcon src={ReportarComentarioInfoIcono} />
-                      <HoverInfoText> Explicit sexual material created for adult entertainment. </HoverInfoText>
+                      <HoverInfoText> {translations[language].missinformationtxt} </HoverInfoText>
                     </ReportCommentInfo>
 
                   </ReportReasonOption>
 
                   <ReportReportCancel>
                     <ReportCommentCancel onClick={handleReportComment}>
-                      Cancel
+                      {translations[language].cancel}
                     </ReportCommentCancel>
                     <ReportCommentReport onClick={() => handleReportCommentWithReason(selectedReportReason)}>
-                      Report
+                      {translations[language].report}
                     </ReportCommentReport>
                   </ReportReportCancel>
 
@@ -1410,11 +1488,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
             {showReportReasonPopup && existingReport && (
               <ReportCommentContainer>
                 <ReportCommentWrapper>
-                  <ReportCommentTitle> Report Comment </ReportCommentTitle>
-                  <ReportCommentTxt> You have already reported this comment </ReportCommentTxt>
+                  <ReportCommentTitle> {translations[language].reportcomment} </ReportCommentTitle>
+                  <ReportCommentTxt> {translations[language].alreadyreportcomment} </ReportCommentTxt>
                   <ReportReportCancel>
                     <ReportCommentReport onClick={handleReportComment}>
-                      Go back
+                      {translations[language].goback}
                     </ReportCommentReport>
                   </ReportReportCancel>
                 </ReportCommentWrapper>
@@ -1424,11 +1502,11 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
             {showReportSubmittedPopup && (
               <ReportCommentContainer>
                 <ReportCommentWrapper>
-                  <ReportCommentTitle> Report Submitted </ReportCommentTitle>
-                  <ReportCommentTxt> Thanks. We've received your report, if this comment goes against our guidelines we'll take actions.   </ReportCommentTxt>
+                  <ReportCommentTitle> {translations[language].reportsubmitted} </ReportCommentTitle>
+                  <ReportCommentTxt> {translations[language].reportsubmittedtxt} </ReportCommentTxt>
                   <ReportSubmitedButton>
                     <ReportCommentReport onClick={handleReportCommentSubmitedClose}>
-                      Reload
+                      {translations[language].reload}
                     </ReportCommentReport>
                   </ReportSubmitedButton>
                 </ReportCommentWrapper>
@@ -1448,7 +1526,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                 <ButtonsDiv style={{ marginRight: '8px' }}>
                   <CloseButton onClick={handleCancelEdit}> Close </CloseButton>
                   <EditButton disabled={!editedCommentText.trim()} onClick={handleSaveEdit}>
-                    Edit
+                    {translations[language].edit}
                   </EditButton>
                 </ButtonsDiv>
               </PostEdit>
@@ -1460,13 +1538,13 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
             <Replyy onClick={handleReplyClick}>
               <ReplyImg src={RespuestaIcono} />
-              <ReplyText> Reply </ReplyText>
+              <ReplyText> {translations[language].reply} </ReplyText>
             </Replyy>
 
             {!currentUser && isReplyPopupVisible && (
               <ReplyNotLogged ref={replyRef}>
 
-                <ReplyLoggedTxt> You need to be logged in to reply to this comment. </ReplyLoggedTxt>
+                <ReplyLoggedTxt> {translations[language].replyvalidation} </ReplyLoggedTxt>
 
                 <Link
                   to="../../signin"
@@ -1494,7 +1572,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
             {!currentUser && isLikePopupVisible && (
               <LikeNotLogged ref={likeRef}>
 
-                <LikeNotLoggedTxt> You need to be logged in to like this comment. </LikeNotLoggedTxt>
+                <LikeNotLoggedTxt> {translations[language].likevalidation} </LikeNotLoggedTxt>
 
                 <Link
                   to="../../signin"
@@ -1522,7 +1600,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
             {!currentUser && isDislikePopupVisible && (
               <DislikeNotLogged ref={dislikeRef}>
 
-                <DislikeLoggedTxt> You need to be logged in to dislike this comment. </DislikeLoggedTxt>
+                <DislikeLoggedTxt> {translations[language].dislikevalidation}  </DislikeLoggedTxt>
 
                 <Link
                   to="../../signin"
@@ -1556,8 +1634,8 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
                   onChange={(e) => setNewReplyText(e.target.value)}
                 />
                 <ButtonsDiv style={{ marginRight: '-7px' }}>
-                  <CloseButton onClick={handleReplyClick}> Close </CloseButton>
-                  <ReplyButton onClick={handleAddReply}> Reply </ReplyButton>
+                  <CloseButton onClick={handleReplyClick}> {translations[language].close} </CloseButton>
+                  <ReplyButton onClick={handleAddReply}> {translations[language].reply}  </ReplyButton>
                 </ButtonsDiv>
               </PostReply>
             </ReplyDiv>
@@ -1566,7 +1644,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
           {comment.replies.length > 0 && (
             <Replies isOpen={showReplySection} onClick={() => setShowReplies(!showReplies)} isEditing={isEditing}>
               <ArrowViewReplies> {showReplies ? '▲' : '▼'} </ArrowViewReplies>
-              <ViewReplies>View {comment.replies.length} replies</ViewReplies>
+              <ViewReplies>{translations[language].view} {comment.replies.length} {translations[language].replies}</ViewReplies>
             </Replies>
           )}
 

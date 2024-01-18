@@ -512,10 +512,46 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
 
   const translations = {
     en: {
+      new: "New Playlist",
+      create: "Create a New Playlist",
+      setname: "Set a name",
+      setnametxt: "New playlist, new vibes. What's your playlist name?",
       search: "Search for a playlist",
+      pname: "Playlist Name (Required)",
+      setimage: "Set an image",
+      setimagetxt: "Add a thumbnail image to your playlist for a personal touch. (Optional)",
+      uploading: "Uploading:",
+      imagesuccess: "Image uploaded successfully!",
+      setprivacy: "Set privacy",
+      setprivacytxt: "Control your playlist's privacy. Your videos, your rules. (Default: Public)",
+      public: "Public",
+      private: "Private",
+      unlisted: "Unlisted",
+      cancel: "Cancel",
+      done: "Done",
+      search: "Search for a playlist",
+
     },
     es: {
+      new: "Nueva Lista de Reproducción",
+      create: "Crear Nueva Lista de Reproducción",
+      setname: "Elige un nombre",
+      setnametxt: "Nueva lista de reproducción, nuevas vibras. ¿Cuál es el nombre de tu lista de reproducción?",
       search: "Busqueda de playlists",
+      pname: "Nombre de la lista de reproducción (Requerido)",
+      setimage: "Elige una imagen",
+      setimagetxt: "Agrega una imagen a tu lista de reproducción para darle un toque personal. (Opcional)",
+      uploading: "Subido:",
+      imagesuccess: "La imagen se ha subido con éxito",
+      setprivacy: "Elige una privacidad",
+      setprivacytxt: "Controla la privacidad de tu lista de reproducción. Tus vídeos, tus reglas. (Predeterminado: Público)",
+      public: "Pública",
+      private: "Privada",
+      unlisted: "Sin listar",
+      cancel: "Cancelar",
+      done: "Listo",
+      search: "Busqueda de playlists",
+
     },
   };
 
@@ -738,11 +774,11 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
         <FooterPlaylist>
           <NewPlayListButton onClick={handleNewPlaylistButtonClick}>
             <NewPlayListImg src={AddIcon} />
-            <NewPlayListTxt>New Playlist</NewPlayListTxt>
+            <NewPlayListTxt>{translations[language].new}</NewPlayListTxt>
           </NewPlayListButton>
           <DoneButton onClick={handleClosePlaylistPopup}>
             <DoneButtonTxt>
-              Done
+              {translations[language].done}
             </DoneButtonTxt>
           </DoneButton>
         </FooterPlaylist>
@@ -751,11 +787,11 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
           <>
             <NewPlayListContainerBg>
               <NewPlayListContainer>
-                <TitleNewPlaylist> Create a New Playlist </TitleNewPlaylist>
+                <TitleNewPlaylist> {translations[language].create} </TitleNewPlaylist>
 
                 <WrapperNewPlaylist>
-                  <LabelNewPlaylist>Set a name</LabelNewPlaylist>
-                  <SubLabelNewPlaylist> New playlist, new vibes. What's your playlist name? </SubLabelNewPlaylist>
+                  <LabelNewPlaylist>{translations[language].setname}</LabelNewPlaylist>
+                  <SubLabelNewPlaylist> {translations[language].setnametxt} </SubLabelNewPlaylist>
 
                   <InputContainerNewPlaylist>
                     <InputNewPlaylist
@@ -769,18 +805,18 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
                       value={inputs.name}
                       playlistnameError={playlistnameError}
                     />
-                    <TitleInputNewPlaylist InputNewPlaylist={InputNewPlaylist} playlistnameError={playlistnameError}> Playlist Name (Required) </TitleInputNewPlaylist>
+                    <TitleInputNewPlaylist InputNewPlaylist={InputNewPlaylist} playlistnameError={playlistnameError}> {translations[language].pname} </TitleInputNewPlaylist>
                     <CharCountLInputNewPlaylist>{inputs.name ? inputs.name.length : 0}/100</CharCountLInputNewPlaylist>
                   </InputContainerNewPlaylist>
 
-                  <LabelNewPlaylist>Set an image</LabelNewPlaylist>
-                  <SubLabelNewPlaylist> Add a thumbnail image to your playlist for a personal touch. (Optional) </SubLabelNewPlaylist>
+                  <LabelNewPlaylist>{translations[language].setimage}</LabelNewPlaylist>
+                  <SubLabelNewPlaylist> {translations[language].setimagetxt} </SubLabelNewPlaylist>
 
                   {imgPerc > 0 ? (
                     imgPerc < 100 ? (
-                      <UploadImageNewPlaylist>Uploading: {imgPerc}%</UploadImageNewPlaylist>
+                      <UploadImageNewPlaylist>{translations[language].uploading} {imgPerc}%</UploadImageNewPlaylist>
                     ) : (
-                      <UploadImageNewPlaylist>Image uploaded successfully!</UploadImageNewPlaylist>
+                      <UploadImageNewPlaylist>{translations[language].imagesuccess}</UploadImageNewPlaylist>
                     )
                   ) : (
                     <InputImageNewPlaylist
@@ -790,36 +826,36 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
                     />
                   )}
 
-                  <LabelNewPlaylist>Set privacy</LabelNewPlaylist>
-                  <SubLabelNewPlaylist> Control your playlist's privacy. Your videos, your rules. (Default: Public) </SubLabelNewPlaylist>
+                  <LabelNewPlaylist>{translations[language].setprivacy}</LabelNewPlaylist>
+                  <SubLabelNewPlaylist> {translations[language].setprivacytxt} </SubLabelNewPlaylist>
                   <ContainerSelectPrivacy>
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("public")}
                       selected={inputs.privacy === 'public'}
                     >
-                      <PlaylistImgNewPlaylist src={PublicIcon} selected={inputs.privacy === "public"} />Public
+                      <PlaylistImgNewPlaylist src={PublicIcon} selected={inputs.privacy === "public"} />{translations[language].public}
                     </DivSelectPrivacy>
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("private")}
                       selected={inputs.privacy === 'private'}
                     >
-                      <PlaylistImgNewPlaylist src={PrivateIcon} selected={inputs.privacy === "private"} />Private
+                      <PlaylistImgNewPlaylist src={PrivateIcon} selected={inputs.privacy === "private"} />{translations[language].private}
                     </DivSelectPrivacy>
 
                     <DivSelectPrivacy
                       onClick={() => handlePrivacyClick("unlisted")}
                       selected={inputs.privacy === "unlisted"}
                     >
-                      <PlaylistImgNewPlaylist src={UnlistedIcon} selected={inputs.privacy === "unlisted"} />Unlisted
+                      <PlaylistImgNewPlaylist src={UnlistedIcon} selected={inputs.privacy === "unlisted"} />{translations[language].unlisted}
                     </DivSelectPrivacy>
 
                   </ContainerSelectPrivacy>
                 </WrapperNewPlaylist>
                 <FooterNewPlaylist>
-                  <CancelPlaylistButton onClick={handleNewPlaylistButtonClick}> Cancel </CancelPlaylistButton>
-                  <DonePlaylistButton onClick={handleDoneNewPlaylist}> Done </DonePlaylistButton>
+                  <CancelPlaylistButton onClick={handleNewPlaylistButtonClick}> {translations[language].cancel} </CancelPlaylistButton>
+                  <DonePlaylistButton onClick={handleDoneNewPlaylist}> {translations[language].done} </DonePlaylistButton>
                 </FooterNewPlaylist>
               </NewPlayListContainer>
             </NewPlayListContainerBg>

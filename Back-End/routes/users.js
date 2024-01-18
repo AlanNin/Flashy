@@ -47,6 +47,7 @@ import {
     toggleNotificationsEnabled,
     getUserByUsername,
     getAllPlaylists,
+    toggleWatchHistoryPaused,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -190,5 +191,8 @@ router.get('/:userId/subscribers', getSubscribers);
 
 // TOGGLE NOTIFICATIONS
 router.post('/toggle-notifications', verifyToken, toggleNotificationsEnabled);
+
+// TOGGLE NOTIFICATIONS
+router.post('/toggle-watchHistoryPaused', verifyToken, toggleWatchHistoryPaused);
 
 export default router;

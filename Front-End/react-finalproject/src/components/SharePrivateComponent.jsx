@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import RemoveEmailIcon from "../assets/RemoveEmailIcon.png";
+import { useLanguage } from '../utils/LanguageContext';
 
 const SharePrivateContainerBg = styled.div`
   position: fixed;
@@ -153,6 +154,7 @@ const EmailBlockRemoveImg = styled.img`
 `;
 
 const SharePrivateComponent = ({ SharePrivate, onInviteChange, togglePopup, savedEmails }) => {
+  const { language, setLanguage } = useLanguage();
   const [emailList, setEmailList] = useState('');
   const [emails, setEmails] = useState(savedEmails || []);
   const inputRef = useRef(null);
@@ -194,16 +196,37 @@ const SharePrivateComponent = ({ SharePrivate, onInviteChange, togglePopup, save
     togglePopup();
   };
 
+  const translations = {
+    en: {
+      sharet: "Share Private Video",
+      invite: "Invite via Email",
+      inviteph: "Enter a new email",
+      invitesub: "You can invite others to be able to watch your private video by adding their email addresses here.",
+      note: "Note: to add an email just press 'space' or 'enter', to remove click in the minus icon.",
+      cancel: "Cancel",
+      save: "Save",
+    },
+    es: {
+      sharet: "Compartir Video Privado",
+      invite: "Invitar por Correo Electrónico",
+      inviteph: "Ingresa un nuevo correo",
+      invitesub: "Puedes invitar a otros a ver tu video privado agregando sus direcciones de correo electrónico aquí.",
+      note: "Nota: para agregar un correo electrónico, simplemente presiona 'espacio' o 'enter', para eliminar, haz clic en el icono de menos.",
+      cancel: "Cancelar",
+      save: "Guardar",
+    },
+  };
+
 
   return (
     <SharePrivateContainerBg>
       <SharePrivateContainer>
         <SharePrivateWrapper>
           <>
-            <SharePrivateTitle> Share Private Video </SharePrivateTitle>
-            <SharePrivateLabel>Invite via Email</SharePrivateLabel>
+            <SharePrivateTitle> {translations[language].sharet} </SharePrivateTitle>
+            <SharePrivateLabel>{translations[language].invite}</SharePrivateLabel>
             <SharePrivateSubLabel style={{ marginTop: '-20px' }}>
-              You can invite others to be able to watch your private video by adding their email addresses here.
+              {translations[language].invitesub}
             </SharePrivateSubLabel>
 
             <SharePrivateTextareaContainer
@@ -223,7 +246,7 @@ const SharePrivateComponent = ({ SharePrivate, onInviteChange, togglePopup, save
                   value={emailList}
                   onChange={handleEmailListChange}
                   onKeyPress={handleKeyPress}
-                  placeholder="Enter a new email"
+                  placeholder={translations[language].inviteph}
                   style={{
                     backgroundColor: 'transparent',
                     border: 'none',
@@ -241,14 +264,14 @@ const SharePrivateComponent = ({ SharePrivate, onInviteChange, togglePopup, save
             </SharePrivateTextareaContainer>
 
             <SharePrivateSubLabel style={{ marginBottom: '-20px' }}>
-              Note: to add an email just press 'space' or 'enter', to remove click in the minus icon.
+              {translations[language].note}
             </SharePrivateSubLabel>
           </>
         </SharePrivateWrapper>
 
         <SharePrivateFooter>
-          <SharePrivateCancelButton onClick={togglePopup}>Cancel</SharePrivateCancelButton>
-          <SharePrivateSaveButton onClick={handleSaveClick}>Save</SharePrivateSaveButton>
+          <SharePrivateCancelButton onClick={togglePopup}>{translations[language].cancel}</SharePrivateCancelButton>
+          <SharePrivateSaveButton onClick={handleSaveClick}>{translations[language].save}</SharePrivateSaveButton>
         </SharePrivateFooter>
       </SharePrivateContainer>
     </SharePrivateContainerBg>

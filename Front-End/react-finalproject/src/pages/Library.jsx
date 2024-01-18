@@ -1008,11 +1008,91 @@ const Library = () => {
       notlogged: "Seems like you currently are not logged in as a user :(",
       notlogged2: "Log in to enjoy your personalized playlists and save the videos that you love!",
       signin: "Sign in",
+
+      yourplaylists: "Your Playlists",
+      newpl: "New Playlist",
+
+      public: "Public",
+      publictxt: "Every user is allowed to search and view your playlist",
+
+      private: "Private",
+      privatetxt: "Only you are allowed to view your playlist",
+
+      unlisted: "Unlisted",
+      unlistedtxt: "Every user is allowed to view your playlist with the share link",
+
+      videos: "videos",
+      followers: "followers",
+      updated: "Updated",
+
+      adddesc: "Add a description to your playlist",
+      nodesc: "No description",
+
+      novideos: "Seems like you have no videos in this playlist yet",
+
+      deletepl: "Delete Playlist",
+      deleteplsure: "Are you sure you want to delete ",
+      deleteplnote: "Note: This action is permanent and cannot be undone.",
+
+      unfollowpl: "Unfollow Playlist",
+      unfollowplsure: "Are you sure you want to unfollow",
+
+      privatepl: "Private Playlist",
+      privatepltxt: "Oops! It looks like this playlist is set to private. You don't have permission to view it. Please contact the owner for any aditional info.",
+
+      sharepl: "Share Playlist",
+      gohome: "Go Home",
+      cancel: "Cancel",
+      save: "Save",
+      delete: "Delete",
+      unfollow: "Unfollow",
+
+      toastshare: "Share Link copied in clipboard",
     },
     es: {
       notlogged: "Parece que aún no has iniciado sesión como usuario :(",
       notlogged2: "Inicia sesión para disfrutar de tus listas de reproducción personalizadas!",
       signin: "Iniciar Sesión",
+
+      yourplaylists: "Listas de Reproducción",
+      newpl: "Nueva Playlist",
+
+      public: "Público",
+      publictxt: "Cada usuario puede buscar y ver su lista de reproducción",
+
+      private: "Privado",
+      privatetxt: "Sólo tú puedes ver tu lista de reproducción",
+
+      unlisted: "Sin listar",
+      unlistedtxt: "Todos los usuarios con el enlace pueden ver tu lista",
+
+      videos: "videos",
+      followers: "seguidores",
+      updated: "Actualizada",
+
+      adddesc: "Añade una descripción a tu lista",
+      nodesc: "Sin descripción",
+
+      novideos: "Lista de reproducción sin videos por el momento",
+
+      deletepl: "Eliminar Lista de Reproduccion",
+      deleteplsure: "¿Estás seguro de eliminar ",
+      deleteplnote: "Nota: esta acción es permanente y no se puede deshacer.",
+
+      unfollowpl: "Dejar de Seguir Lista de Reproducción",
+      unfollowplsure: "¿Estás seguro de dejar de seguir",
+
+      privatepl: "Playlist Privada",
+      privatepltxt: "¡Ups! Parece que esta lista de reproducción está configurada como privada. No tienes permiso para verlo. Comuníquese con el propietario para obtener información adicional.",
+
+      sharepl: "Compatir Lista de Reproducción",
+      gohome: "Ir al Inicio",
+      cancel: "Cancelar",
+      save: "Guardar",
+      delete: "Eliminar",
+      unfollow: "Dejar de Seguir",
+
+      toastshare: "Enlace copiado en el portapapeles",
     },
   };
 
@@ -1282,7 +1362,7 @@ const Library = () => {
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(shareLink);
-    toast.success('Share Link copied in clipboard');
+    toast.success(translations[language].toastshare);
   };
 
 
@@ -1421,7 +1501,7 @@ const Library = () => {
 
             <PlaylistsWrapper>
 
-              <PlaylistsHeader> Your Playlists </PlaylistsHeader>
+              <PlaylistsHeader> {translations[language].yourplaylists} </PlaylistsHeader>
 
               {playlists && playlists.map((playlist, index) => (
                 <PlaylistsItem
@@ -1435,7 +1515,7 @@ const Library = () => {
 
               <NewPlaylsitItem onClick={handleCreateNewPlaylist}>
                 <AddNewPlaylistImg src={AddNewPlaylist} />
-                New Playlist
+                {translations[language].newpl}
               </NewPlaylsitItem>
 
             </PlaylistsWrapper>
@@ -1478,8 +1558,8 @@ const Library = () => {
                       />
                       <EditPlaylistInfoNameCharCounter>{inputs.playlistname !== undefined ? inputs.playlistname.length : selectedPlaylist?.name.length}/100</EditPlaylistInfoNameCharCounter>
                       <EditPlaylistInfoNameButtons>
-                        <EditPlaylistInfoNameCancel onClick={handleEditPlaylistName}> Cancel </EditPlaylistInfoNameCancel>
-                        <EditPlaylistInfoNameSave onClick={handleSavePlaylistName}> Save </EditPlaylistInfoNameSave>
+                        <EditPlaylistInfoNameCancel onClick={handleEditPlaylistName}> {translations[language].cancel} </EditPlaylistInfoNameCancel>
+                        <EditPlaylistInfoNameSave onClick={handleSavePlaylistName}> {translations[language].save} </EditPlaylistInfoNameSave>
                       </EditPlaylistInfoNameButtons>
                     </div>
                   ) : (
@@ -1505,7 +1585,8 @@ const Library = () => {
                             : UnlistedIcon
                       }
                     />
-                    {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+                    {selectedPlaylist?.privacy === 'public' ? translations[language].public : selectedPlaylist?.privacy === 'private' ? translations[language].private : translations[language].unlisted}
+
                     <EditPlaylistInfoPrivacyImg src={ArrowDown} />
 
                     {isEditingPlaylistPrivacy && (
@@ -1518,10 +1599,10 @@ const Library = () => {
                           <EditPlaylistInfoPrivacyButtonImg src={PublicIcon} />
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
                             <EditPlaylistInfoPrivacyButtonText>
-                              Public
+                              {translations[language].public}
                             </EditPlaylistInfoPrivacyButtonText>
                             <EditPlaylistInfoPrivacyButtonSubText>
-                              Every user is allowed to search and view your playlist
+                              {translations[language].publictxt}
                             </EditPlaylistInfoPrivacyButtonSubText>
                           </div>
                         </EditPlaylistInfoPrivacyButton>
@@ -1533,10 +1614,10 @@ const Library = () => {
                           <EditPlaylistInfoPrivacyButtonImg src={PrivateIcon} />
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
                             <EditPlaylistInfoPrivacyButtonText>
-                              Private
+                              {translations[language].private}
                             </EditPlaylistInfoPrivacyButtonText>
                             <EditPlaylistInfoPrivacyButtonSubText>
-                              Only you are allowed to view your playlist
+                              {translations[language].privatetxt}
                             </EditPlaylistInfoPrivacyButtonSubText>
                           </div>
                         </EditPlaylistInfoPrivacyButton>
@@ -1548,10 +1629,10 @@ const Library = () => {
                           <EditPlaylistInfoPrivacyButtonImg src={UnlistedIcon} />
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginLeft: '5px' }}>
                             <EditPlaylistInfoPrivacyButtonText>
-                              Unlisted
+                              {translations[language].unlisted}
                             </EditPlaylistInfoPrivacyButtonText>
                             <EditPlaylistInfoPrivacyButtonSubText>
-                              Every user is allowed to view your playlist with the share link
+                              {translations[language].unlistedtxt}
                             </EditPlaylistInfoPrivacyButtonSubText>
                           </div>
                         </EditPlaylistInfoPrivacyButton>
@@ -1569,13 +1650,13 @@ const Library = () => {
                             : UnlistedIcon
                       }
                     />
-                    {selectedPlaylist?.privacy.charAt(0).toUpperCase() + selectedPlaylist?.privacy.slice(1)}
+                    {selectedPlaylist?.privacy === 'public' ? translations[language].public : selectedPlaylist?.privacy === 'private' ? translations[language].private : translations[language].unlisted}
                   </PlaylistInfoPrivacyDiv>
                 )}
 
-                <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} videos {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0}  followers </PlaylistInfoLengthAndFollowers>
+                <PlaylistInfoLengthAndFollowers> {selectedPlaylist?.videosLength} {translations[language].videos} {`\u00A0`}·{`\u00A0`} {selectedPlaylist?.followers?.length ? selectedPlaylist?.followers?.length : 0}  {translations[language].followers} </PlaylistInfoLengthAndFollowers>
 
-                <PlaylistInfoLastUpdated> Updated {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
+                <PlaylistInfoLastUpdated> {translations[language].updated} {timeago(selectedPlaylist?.lastUpdated)}</PlaylistInfoLastUpdated>
 
                 {selectedPlaylist?.name !== 'Watch Later' && (
                   <PlaylistInfoActionButtonsDiv>
@@ -1601,7 +1682,7 @@ const Library = () => {
                           type="text"
                           name="description"
                           placeholder={selectedPlaylist?.description === undefined || selectedPlaylist?.description === ''
-                            ? 'Add a description to your playlist'
+                            ? translations[language].adddesc
                             : selectedPlaylist?.description}
                           value={inputs?.description !== undefined ? inputs.description : selectedPlaylist?.description}
                           onChange={handleChangeDescription}
@@ -1611,8 +1692,8 @@ const Library = () => {
                           {inputs?.description !== undefined ? inputs?.description?.length : (selectedPlaylist?.description ? selectedPlaylist?.description.length : 0)}/300
                         </EditPlaylistInfoDescriptionCharCounter>
                         <EditPlaylistInfoDescriptionButtons>
-                          <EditPlaylistInfoDescriptionCancel onClick={handleEditPlaylistDescription}> Cancel </EditPlaylistInfoDescriptionCancel>
-                          <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylistDescription}> Save </EditPlaylistInfoDescriptionSave>
+                          <EditPlaylistInfoDescriptionCancel onClick={handleEditPlaylistDescription}> {translations[language].cancel} </EditPlaylistInfoDescriptionCancel>
+                          <EditPlaylistInfoDescriptionSave onClick={handleSavePlaylistDescription}> {translations[language].save} </EditPlaylistInfoDescriptionSave>
                         </EditPlaylistInfoDescriptionButtons>
                       </div>
                     ) : (
@@ -1623,11 +1704,11 @@ const Library = () => {
                           ) : (
                             selectedPlaylist?.creatorId === currentUser?._id ? (
                               <>
-                                Add a description to your playlist
+                                {translations[language].adddesc}
                               </>
                             ) : (
                               <>
-                                No description
+                                {translations[language].nodesc}
                               </>
                             )
                           )}
@@ -1651,7 +1732,7 @@ const Library = () => {
           <VideosContainer>
 
             {videos.videos?.length === 0 ? (
-              <VideosContainerNoVideoText>Seems like you have no videos in this playlist yet</VideosContainerNoVideoText>
+              <VideosContainerNoVideoText>{translations[language].novideos}</VideosContainerNoVideoText>
             ) : (
               <>
                 <VideosContainerCards>
@@ -1700,15 +1781,15 @@ const Library = () => {
             onCancel={() => handleDeleteConfirmation(false)}
           >
             <DeletePlaylistPopupWrapper>
-              <DeletePlaylistPopupTitle> Delete Playlist </DeletePlaylistPopupTitle>
-              <DeletePlaylistPopupTxt> Are you sure you want to delete <DeletePlaylistPopupPlaylistName>{selectedPlaylist?.name}</DeletePlaylistPopupPlaylistName>? </DeletePlaylistPopupTxt>
-              <DeletePlaylistPopupTxt style={{ marginTop: '-25px' }}> Note: This action is permanent and cannot be undone. </DeletePlaylistPopupTxt>
+              <DeletePlaylistPopupTitle> {translations[language].deletepl} </DeletePlaylistPopupTitle>
+              <DeletePlaylistPopupTxt> {translations[language].deleteplsure}<DeletePlaylistPopupPlaylistName>{selectedPlaylist?.name}</DeletePlaylistPopupPlaylistName>? </DeletePlaylistPopupTxt>
+              <DeletePlaylistPopupTxt style={{ marginTop: '-25px' }}> {translations[language].deleteplnote} </DeletePlaylistPopupTxt>
               <OptionsDeleteCancel>
                 <DeletePlaylistCancel onClick={() => handleDeleteConfirmation(false)}>
-                  Cancel
+                  {translations[language].cancel}
                 </DeletePlaylistCancel>
                 <DeletePlaylistDelete onClick={() => handleDeleteConfirmation(true)}>
-                  Delete
+                  {translations[language].delete}
                 </DeletePlaylistDelete>
               </OptionsDeleteCancel>
             </DeletePlaylistPopupWrapper>
@@ -1723,14 +1804,14 @@ const Library = () => {
             onCancel={() => handleUnfollowConfirmation(false)}
           >
             <UnfollowPlaylistPopupWrapper>
-              <UnfollowPlaylistPopupTitle> Unfollow Playlist </UnfollowPlaylistPopupTitle>
-              <UnfollowPlaylistPopupTxt> Are you sure you want to unfollow <UnfollowPlaylistPopupPlaylistName>{selectedPlaylist?.name}</UnfollowPlaylistPopupPlaylistName>? </UnfollowPlaylistPopupTxt>
+              <UnfollowPlaylistPopupTitle> {translations[language].unfollowpl} </UnfollowPlaylistPopupTitle>
+              <UnfollowPlaylistPopupTxt> {translations[language].unfollowplsure} <UnfollowPlaylistPopupPlaylistName>{selectedPlaylist?.name}</UnfollowPlaylistPopupPlaylistName>? </UnfollowPlaylistPopupTxt>
               <OptionsUnfollowCancel>
                 <UnfollowPlaylistCancel onClick={() => handleUnfollowConfirmation(false)}>
-                  Cancel
+                  {translations[language].cancel}
                 </UnfollowPlaylistCancel>
                 <UnfollowPlaylistUnfollow onClick={() => handleUnfollowConfirmation(true)}>
-                  Unfollow
+                  {translations[language].unfollow}
                 </UnfollowPlaylistUnfollow>
               </OptionsUnfollowCancel>
             </UnfollowPlaylistPopupWrapper>
@@ -1742,7 +1823,7 @@ const Library = () => {
         isSharePopupVisible && (
           <SharePopupContainerBg>
             <ShareContainer ref={shareRef}>
-              <ShareLabel> Share Playlist </ShareLabel>
+              <ShareLabel> {translations[language].sharepl} </ShareLabel>
               <CloseShare onClick={handleShare} src={CloseXGr} />
 
               <ShareExternalButtons>

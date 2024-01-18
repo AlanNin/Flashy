@@ -18,6 +18,7 @@ import { toast } from 'react-toastify';
 import axios from "axios";
 import CardChannel from "../components/CardChannel";
 import CardChannelPlaylist from "../components/CardChannelPlaylist";
+import NotFound404Component from "../components/NotFound404Component";
 import Footer from "../components/Footer";
 
 // NORMAL SECUENCE
@@ -463,10 +464,54 @@ const Channel = () => {
 
   const translations = {
     en: {
-      explore: "Library",
+      videos: "Videos",
+      playlists: "Playlists",
+      subscribers: "subscribers",
+      videoslow: "videos",
+      subscribed: "SUBSCRIBED",
+      subscribe: "SUBSCRIBE",
+      novideos: "This channel has not uploaded any public videos",
+      lastest: "Lastest",
+      popular: "Popular",
+      oldest: "Oldest",
+      noplaylist: "This channel doesn't have any public playlist",
+      lastestup: "Lastest Updated",
+      oldestup: "Oldest Updated",
+      about: "About",
+      nodesc: "No description",
+      chdetails: "Channel details",
+      joined: "Joined",
+
+      toastunsub: "Unsubscription successfull",
+      toastsub: "Suscription successfull",
+      toastpen: "Updating channel description",
+      toastsuc: "Channel description updated successfully",
+      toasterror: "There was an error updating your description",
     },
     es: {
-      explore: "Librería",
+      videos: "Videos",
+      playlists: "Listas de Reproducción",
+      subscribers: "suscriptores",
+      videoslow: "videos",
+      subscribed: "SUSCRIBIRSE",
+      subscribe: "SUSCRITO",
+      novideos: "Este canal no ha subido ningún video público",
+      lastest: "Más reciente",
+      popular: "Popular",
+      oldest: "Más antiguo",
+      noplaylist: "Este canal no tiene ninguna playlist pública",
+      lastestup: "Actualizado recientemente",
+      oldestup: "Últimos acutalizados",
+      about: "Acerca",
+      nodesc: "Sin descripción",
+      chdetails: "Detalles del canal",
+      joined: "Se unió en",
+
+      toastunsub: "Desuscripción exitosa",
+      toastsub: "Suscripción exitosa",
+      toastpen: "Actualizando descripción del canal",
+      toastsuc: "Descripción del canal actualizada con éxito",
+      toasterror: "Hubo un error al actualizar tu descripción",
     },
   };
 
@@ -482,8 +527,8 @@ const Channel = () => {
 
   // SETTINGS SECTIONS DEFINITION
   const accountSections = [
-    "Videos",
-    "Playlists",
+    translations[language].videos,
+    translations[language].playlists,
   ];
 
   const [accountSection, setAccountSection] = useState(accountParam && accountParam >= 0 && accountParam < 2 ? accountSections[accountParam] : accountSections[0]);
@@ -604,12 +649,12 @@ const Channel = () => {
       // Usuario ya está suscrito, realizar acción de desuscripción
       await axios.put(`/users/unsub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter - 1);
-      toast.success('Unsubscription successfull');
+      toast.success(translations[language].toastunsub);
     } else {
       // Usuario no está suscrito, realizar acción de suscripción
       await axios.put(`/users/sub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter + 1);
-      toast.success('Suscription successfull');
+      toast.success(translations[language].toastsub);
     }
 
     // Despachar la acción para actualizar el estado global (si es necesario)
@@ -645,9 +690,9 @@ const Channel = () => {
       const toastPromise = toast.promise(
         Promise.resolve(response),
         {
-          pending: 'Updating channel description',
-          success: 'Channel description updated successfully',
-          error: 'There was an error updating your description'
+          pending: translations[language].toastpen,
+          success: translations[language].toastsuc,
+          error: translations[language].toasterror
         }
       );
 
@@ -686,187 +731,194 @@ const Channel = () => {
 
   return (
     <MainContainer>
-      {pageLoaded && (
+      {channelExists ? (
         <>
-          <Container>
-            <Wrapper anyPopupOpen={anyPopupOpen}>
+          {pageLoaded && (
+            <>
+              <Container>
+                <Wrapper anyPopupOpen={anyPopupOpen}>
 
-              <AccountPresentationSection>
+                  <AccountPresentationSection>
 
-                <AccountProfileBanner src={channel?.banner ? channel?.banner : BannerPlaceholder} />
+                    <AccountProfileBanner src={channel?.banner ? channel?.banner : BannerPlaceholder} />
 
-                <ProfilePictureAndInfoDiv>
-                  <AccountProfilePicture src={channel?.img} />
-                  <ProfileNameAndInfo>
-                    <AccountProfileLabelName isCurrentUserUploader={isCurrentUserUploader}> {channel?.displayname} </AccountProfileLabelName>
-                    <AccountProfileLabelInfo style={{ marginTop: '5px' }}>
-                      @{channel?.name} · {formatNumbers(currentSuscriptionCounter)} subscribers · {formatNumbers(channel?.videosPosted)} videos
-                    </AccountProfileLabelInfo>
-                    <AccountProfileDescriptionDiv style={{ marginTop: '18px' }}>
-                      <AccountProfileDescription>
-                        {channel?.description ? channel?.description : 'No description'}
+                    <ProfilePictureAndInfoDiv>
+                      <AccountProfilePicture src={channel?.img} />
+                      <ProfileNameAndInfo>
+                        <AccountProfileLabelName isCurrentUserUploader={isCurrentUserUploader}> {channel?.displayname} </AccountProfileLabelName>
+                        <AccountProfileLabelInfo style={{ marginTop: '5px' }}>
+                          @{channel?.name} · {formatNumbers(currentSuscriptionCounter)} {translations[language].subscribers} · {formatNumbers(channel?.videosPosted)} {translations[language].videoslow}
+                        </AccountProfileLabelInfo>
+                        <AccountProfileDescriptionDiv style={{ marginTop: '18px' }}>
+                          <AccountProfileDescription>
+                            {channel?.description ? channel?.description : 'No description'}
 
-                      </AccountProfileDescription>
+                          </AccountProfileDescription>
 
-                      {!isCurrentUserUploader && (
-                        <AccountProfileDescriptionShowMore src={ArrowDown} onClick={handleToggleChannelDescriptionPopup} />
-                      )}
+                          {!isCurrentUserUploader && (
+                            <AccountProfileDescriptionShowMore src={ArrowDown} onClick={handleToggleChannelDescriptionPopup} />
+                          )}
 
-                      {isCurrentUserUploader && (
-                        <AccountProfileDescriptionShowMore src={EditIcono} style={{ marginTop: '-2px' }} onClick={handleToggleChannelDescriptionPopup} />
-                      )}
+                          {isCurrentUserUploader && (
+                            <AccountProfileDescriptionShowMore src={EditIcono} style={{ marginTop: '-2px' }} onClick={handleToggleChannelDescriptionPopup} />
+                          )}
 
-                    </AccountProfileDescriptionDiv>
+                        </AccountProfileDescriptionDiv>
 
-                    {currentUser && !isCurrentUserUploader && (
-                      <Subscribe
-                        onClick={handleSub}
-                        isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                        {currentUser && !isCurrentUserUploader && (
+                          <Subscribe
+                            onClick={handleSub}
+                            isSubscribed={currentUser?.subscribedUsers?.includes(channel?._id)}
+                          >
+                            {currentUser?.subscribedUsers?.includes(channel?._id) ?
+                              <SubscribeTxt>
+                                <SubscribeImg src={SubscribedIcon} />
+                                {translations[language].subscribed}
+                              </SubscribeTxt>
+                              :
+                              <SubscribeTxt>
+                                {translations[language].subscribe}
+                              </SubscribeTxt>
+                            }
+                          </Subscribe>
+
+                        )}
+
+                      </ProfileNameAndInfo>
+                    </ProfilePictureAndInfoDiv>
+
+                  </AccountPresentationSection>
+
+                  <SectionLine>
+
+                    {accountSections.map((section, index) => (
+                      <SectionTitle
+                        key={index}
+                        style={{ borderColor: accountSection === section ? 'rgba(255, 255, 255, 0.8)' : '' }}
+                        onClick={() => {
+                          setAccountSection(section);
+                          navigate(`/channel/@${channel?.name}?account=${index}`);
+                        }}
                       >
-                        {currentUser?.subscribedUsers?.includes(channel?._id) ?
-                          <SubscribeTxt>
-                            <SubscribeImg src={SubscribedIcon} />
-                            SUBSCRIBED
-                          </SubscribeTxt>
-                          :
-                          <SubscribeTxt>
-                            SUBSCRIBE
-                          </SubscribeTxt>
-                        }
-                      </Subscribe>
+                        {section}
+                      </SectionTitle>
+                    ))}
+                  </SectionLine>
 
-                    )}
-
-                  </ProfileNameAndInfo>
-                </ProfilePictureAndInfoDiv>
-
-              </AccountPresentationSection>
-
-              <SectionLine>
-
-                {accountSections.map((section, index) => (
-                  <SectionTitle
-                    key={index}
-                    style={{ borderColor: accountSection === section ? 'rgba(255, 255, 255, 0.8)' : '' }}
-                    onClick={() => {
-                      setAccountSection(section);
-                      navigate(`/channel/@${channel?.name}?account=${index}`);
-                    }}
-                  >
-                    {section}
-                  </SectionTitle>
-                ))}
-              </SectionLine>
-
-              {accountSection === accountSections[0] && (
-                <>
-                  {noVideosFound ? (
+                  {accountSection === accountSections[0] && (
                     <>
-                      <NoVideosContainer>
-                        This channel has not uploaded any videos
-                      </NoVideosContainer>
-                    </>
-                  ) : (
-                    <>
-                      <SortContainer>
-                        <SortItem
-                          onClick={() => {
-                            setSortType('lastest');
-                          }}
-                          sortType={sortType === 'lastest' ? true : false}
-                        >
-                          Lastest
-                        </SortItem>
+                      {noVideosFound ? (
+                        <>
+                          <NoVideosContainer>
+                            {translations[language].novideos}
+                          </NoVideosContainer>
+                        </>
+                      ) : (
+                        <>
+                          <SortContainer>
+                            <SortItem
+                              onClick={() => {
+                                setSortType('lastest');
+                              }}
+                              sortType={sortType === 'lastest' ? true : false}
+                            >
+                              {translations[language].lastest}
+                            </SortItem>
 
-                        <SortItem
-                          onClick={() => {
-                            setSortType('popular');
-                          }}
-                          sortType={sortType === 'popular' ? true : false}
-                        >
-                          Popular
-                        </SortItem>
+                            <SortItem
+                              onClick={() => {
+                                setSortType('popular');
+                              }}
+                              sortType={sortType === 'popular' ? true : false}
+                            >
+                              {translations[language].popular}
+                            </SortItem>
 
-                        <SortItem
-                          onClick={() => {
-                            setSortType('oldest');
-                          }}
-                          sortType={sortType === 'oldest' ? true : false}
-                        >
-                          Oldest
-                        </SortItem>
-                      </SortContainer>
+                            <SortItem
+                              onClick={() => {
+                                setSortType('oldest');
+                              }}
+                              sortType={sortType === 'oldest' ? true : false}
+                            >
+                              {translations[language].oldest}
+                            </SortItem>
+                          </SortContainer>
 
-                      <CardsContainer>
-                        {videos.map((video) => (
-                          <CardChannel
-                            key={video?._id}
-                            video={video}
-                            isCurrentUserUploader={isCurrentUserUploader}
-                            setAnyPopupOpen={setAnyPopupOpen}
-                            anyPopupOpen={anyPopupOpen}
-                            setFetchUpdated={setFetchUpdated}
-                          />
-                        ))}
-                      </CardsContainer>
-                    </>
-                  )}
-
-                </>
-              )}
-
-              {accountSection === accountSections[1] && (
-                <>
-                  {noPlaylistFound ? (
-                    <>
-                      <NoVideosContainer>
-                        This channel doesn't have any public playlist
-                      </NoVideosContainer>
-                    </>
-                  ) : (
-                    <>
-                      <SortContainer>
-                        <SortItem
-                          onClick={() => {
-                            setSortTypePlaylist('lastest');
-                          }}
-                          sortType={sortTypePlaylist === 'lastest' ? true : false}
-                        >
-                          Lastest Updated
-                        </SortItem>
-
-                        <SortItem
-                          onClick={() => {
-                            setSortTypePlaylist('oldest');
-                          }}
-                          sortType={sortTypePlaylist === 'oldest' ? true : false}
-                        >
-                          Oldest Updated
-                        </SortItem>
-                      </SortContainer>
-
-                      <PlaylistsContainer>
-                        {playlists.map((playlist) => (
-                          <CardChannelPlaylist
-                            key={playlist?._id}
-                            playlist={playlist}
-                            isCurrentUserUploader={isCurrentUserUploader}
-                          />
-                        ))}
-                      </PlaylistsContainer>
+                          <CardsContainer>
+                            {videos.map((video) => (
+                              <CardChannel
+                                key={video?._id}
+                                video={video}
+                                isCurrentUserUploader={isCurrentUserUploader}
+                                setAnyPopupOpen={setAnyPopupOpen}
+                                anyPopupOpen={anyPopupOpen}
+                                setFetchUpdated={setFetchUpdated}
+                              />
+                            ))}
+                          </CardsContainer>
+                        </>
+                      )}
 
                     </>
                   )}
 
-                </>
-              )}
+                  {accountSection === accountSections[1] && (
+                    <>
+                      {noPlaylistFound ? (
+                        <>
+                          <NoVideosContainer>
+                            {translations[language].noplaylist}
+                          </NoVideosContainer>
+                        </>
+                      ) : (
+                        <>
+                          <SortContainer>
+                            <SortItem
+                              onClick={() => {
+                                setSortTypePlaylist('lastest');
+                              }}
+                              sortType={sortTypePlaylist === 'lastest' ? true : false}
+                            >
+                              {translations[language].lastestup}
+                            </SortItem>
 
-            </Wrapper>
+                            <SortItem
+                              onClick={() => {
+                                setSortTypePlaylist('oldest');
+                              }}
+                              sortType={sortTypePlaylist === 'oldest' ? true : false}
+                            >
+                              {translations[language].oldestup}
+                            </SortItem>
+                          </SortContainer>
 
-          </Container>
+                          <PlaylistsContainer>
+                            {playlists.map((playlist) => (
+                              <CardChannelPlaylist
+                                key={playlist?._id}
+                                playlist={playlist}
+                                isCurrentUserUploader={isCurrentUserUploader}
+                              />
+                            ))}
+                          </PlaylistsContainer>
+
+                        </>
+                      )}
+
+                    </>
+                  )}
+
+                </Wrapper>
+
+              </Container>
+            </>
+          )}
         </>
+      ) : (
+        <div style={{ zIndex: '4' }}>
+          <NotFound404Component />
+        </div>
       )}
-
 
       {
         isChannelDescriptionPopup && (
@@ -875,7 +927,7 @@ const Channel = () => {
             <AboutContainer>
 
               <Header>
-                <HeaderTitle> About </HeaderTitle>
+                <HeaderTitle> {translations[language].about} </HeaderTitle>
                 <HeaderCloseX src={CloseXGr} onClick={handleToggleChannelDescriptionPopup} />
               </Header>
               <ContentWrapper style={{ marginBottom: '30px' }}>
@@ -913,14 +965,14 @@ const Channel = () => {
                         channel?.description
                       ) : (
                         <>
-                          No description
+                          {translations[language].nodesc}
                         </>
                       )}
                     </ChannelInfoDescription>
                   </>
                 )}
 
-                <OtherTitle> Channel details </OtherTitle>
+                <OtherTitle> {translations[language].chdetails} </OtherTitle>
 
                 <ChannelDetailsItem>
                   <ChannelDetailsItemImg src={EmailIcon} />
@@ -934,17 +986,17 @@ const Channel = () => {
 
                 <ChannelDetailsItem>
                   <ChannelDetailsItemImg src={SubscribersIcon} />
-                  <ChannelDetailsItemTxt> {formatNumbers(channel?.subscribers?.length)} subscribers </ChannelDetailsItemTxt>
+                  <ChannelDetailsItemTxt> {formatNumbers(channel?.subscribers?.length)} {translations[language].subscribers} </ChannelDetailsItemTxt>
                 </ChannelDetailsItem>
 
                 <ChannelDetailsItem>
                   <ChannelDetailsItemImg src={VideosPostedIcon} />
-                  <ChannelDetailsItemTxt> {formatNumbers(channel?.videosPosted)} videos </ChannelDetailsItemTxt>
+                  <ChannelDetailsItemTxt> {formatNumbers(channel?.videosPosted)} {translations[language].videoslow} </ChannelDetailsItemTxt>
                 </ChannelDetailsItem>
 
                 <ChannelDetailsItem style={{ paddingBottom: '0px' }}>
                   <ChannelDetailsItemImg src={InfoChannelIcon} />
-                  <ChannelDetailsItemTxt> Joined {formatDate(channel?.createdAt)} </ChannelDetailsItemTxt>
+                  <ChannelDetailsItemTxt> {translations[language].joined} {formatDate(channel?.createdAt)} </ChannelDetailsItemTxt>
                 </ChannelDetailsItem>
 
               </ContentWrapper>
