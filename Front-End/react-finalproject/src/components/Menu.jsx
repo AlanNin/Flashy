@@ -92,6 +92,7 @@ const Img = styled.img`
   width: 26px;
   margin-left: 7px;
   margin-bottom: 1px;
+filter: ${({ theme }) => theme.filterimage};
 
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
@@ -106,6 +107,7 @@ const ImgLightMode = styled.img`
   width: 26px;
   margin-left: 7px;
   margin-bottom: 1px;
+  filter: ${({ theme }) => theme.filterimage};
 
   @media only screen and (max-width: 980px),
     only screen and (max-height: 910px) {
@@ -153,6 +155,7 @@ const Img2 = styled.img`
   height: 26px;
   width: 26px;
   margin-left: 7px;
+  filter: ${({ theme }) => theme.filterimage};
 `;
 
 const LanguageSwitch = styled.div`
@@ -167,7 +170,7 @@ const LanguageSwitch = styled.div`
 
 const LanguageSquare = styled.div`
   padding: 4px 6px;
-  background-color: ${({ active, theme }) => (active ? "rgba(166, 65, 117 , 0.3)" : 'rgba(42, 41, 47)')};
+  background-color: ${({ active, theme }) => (active ? theme.squareactive : theme.squareinactive)};
   border-radius: 4px;
   transition: background-color 0.8s;
 `;

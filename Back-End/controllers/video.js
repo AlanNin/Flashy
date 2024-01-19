@@ -522,7 +522,7 @@ export const search = async (req, res, next) => {
                         defaultImage = lastVideo ? lastVideo.imgUrl : null;
                     }
 
-                    const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-webapp.appspot.com/o/LogoFlashyP.png?alt=media&token=69ce369f-fb70-4cba-8642-3c8f66278976';
+                    const playlistImage = playlist.image || defaultImage || 'https://firebasestorage.googleapis.com/v0/b/flashy-appw.appspot.com/o/LogoFlashyP.png?alt=media&token=5c2d4795-0054-4509-82e9-19a6a97fc68b ';
 
                     playlist.image = playlistImage;
 

@@ -317,6 +317,7 @@ const ChannelImage = styled.img`
   background-color: #999;
   cursor: pointer;
   margin-left: 4px;
+  object-fit: cover;
 `;
 
 const ChannelName = styled.h2`
@@ -1521,7 +1522,7 @@ const Card = ({ video }) => {
                       </p>
                     ) : (
                       <CardContainerRecommendation>
-                        {filteredVideos.map((video) => (
+                        {filteredVideos.slice(0, 15).map((video) => (
                           <Card4CardPopup type="sm" key={video?._id} video={video} />
                         ))}
                         <LabelFooter> @Flashy_Content </LabelFooter>
@@ -1604,7 +1605,7 @@ const Card = ({ video }) => {
               src={channel.img}
               onClick={() => handleGoToChannel()}
             />
-            <ChannelName onClick={() => handleGoToChannel()} > {channel.displayname} </ChannelName>
+            <ChannelName onClick={() => handleGoToChannel()} > {channel?.displayname?.split(' ')[0]} </ChannelName>
 
             <DetailContainer> <EstiloIconos src={FechaIcono} /> {timeago(video.createdAt)}</DetailContainer>
             <DetailContainer> <EstiloIconos src={DuracionIcono} /> {formatDuration(video.duration)}</DetailContainer>

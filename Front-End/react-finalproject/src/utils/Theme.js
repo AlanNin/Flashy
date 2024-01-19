@@ -22,6 +22,8 @@ export const darkTheme = {
   bgLighter: "rgba(30, 30, 30, 0.7)",
   borderColor: "rgba(90, 90, 90, 1)",
   menuwrapper: "transparent",
+  squareactive: "rgba(166, 65, 117, 0.3)",
+  squareinactive: "rgba(42, 41, 47)",
 
   //...
   bg: "#2A292F",
@@ -50,14 +52,15 @@ export const lightTheme = {
   ranknumber: "rgba(48, 16, 59)",
 
   // MENU
-  bgLighter: "rgba(30, 30, 30, 0.7)",
+  bgLighter: "rgba(84, 83, 83, 0.7)",
   borderColor: "rgba(18, 18, 18, 1)",
   menuwrapper: "rgba(243, 237, 245)",
-
+  squareactive: "rgba(192, 196, 193, 0.3)",
+  squareinactive: "rgba(166, 65, 117)",
   //...
   bg: "#f9f9f9",
   soft: "#f5f5f5",
-  loginbg: "#7c5373",
-  softloginbg: "#9B4D89",
-  closeMenu: "rgba(42, 41, 47, 0.8)",
+  loginbg: "rgba(199, 115, 180)",
+  softloginbg: "rgba(199, 115, 180)",
+  closeMenu: "rgba(97, 96, 97, 0.8)",
 };

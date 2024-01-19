@@ -1293,7 +1293,7 @@ const Upload = ({ setOpen }) => {
         }
         if (step === 3) {
             setButtonNextDisable(true);
-            if (inputs.language === undefined || subtitleValidationError) {
+            if (inputs.language === undefined) {
                 setButtonNextDisable(true);
             }
             else {

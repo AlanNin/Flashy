@@ -1065,7 +1065,7 @@ const VideoPage = () => {
         saveVideoProgress();
       }
 
-      if (newProgress >= 55 && !isViewIncreased) {
+      if (newProgress >= 30 && !isViewIncreased) {
         setIsViewIncreased(true);
         axios.put(`/videos/view/${currentVideo?._id}`)
           .then(() => {
@@ -1219,6 +1219,7 @@ const VideoPage = () => {
   // CONST DEFINITIONS
   const [wasVideoRendered, setWasVideoRendered] = useState(false);
   const [canPlay, setCanPlay] = useState(false);
+  const [canPlayShowResume, setCanPlayShowResume] = useState(false);
   const streamUrl = `https://stream.mux.com/${currentVideo?.videoUrlStream}.m3u8`;
   const videoUrl = currentVideo?.videoUrl;
   const sources = [
@@ -1246,6 +1247,7 @@ const VideoPage = () => {
 
   const handleCanPlay = () => {
     setCanPlay(true);
+    setCanPlayShowResume(true);
   };
 
   // FIX AUTO PLAY BECAUSE OF DELAYED LOADING
@@ -1306,7 +1308,7 @@ const VideoPage = () => {
 
               <Content>
 
-                {showResumePopup && (
+                {showResumePopup && canPlayShowResume && (
                   <ResumePopupContainer>
                     <ResumePopupWrapper>
                       <ResumePopupText>

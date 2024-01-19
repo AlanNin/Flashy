@@ -1695,7 +1695,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
                       </p>
                     ) : (
                       <CardContainerRecommendation>
-                        {filteredVideos.map((video) => (
+                        {filteredVideos.slice(0, 15).map((video) => (
                           <Card4CardPopup type="sm" key={video?._id} video={video} />
                         ))}
                         <LabelFooter> @Flashy_Content </LabelFooter>

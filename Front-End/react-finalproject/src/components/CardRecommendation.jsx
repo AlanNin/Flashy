@@ -97,57 +97,6 @@ const TxtTime = styled.h1`
   margin-top: 1px;  
 `;
 
-const InfoDuration = styled.div`
-  position: absolute;
-  margin: 10px;
-  height: 20px;
-  width: max-content;
-  background: rgb(36, 22, 33, 0.6);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  padding: 3px 10px;
-  bottom: 0px;
-  gap: 2px;
-`;
-
-const ImgDuration = styled.img`
-  height: 15px;
-  width: 15px;
-  margin-right: 5px;
-`;
-
-
-const TxtDuration = styled.h1`
-  font-size: 15px;
-  color: white;
-  font-family: "Roboto Condensed", Helvetica;
-  font-weight: 400;
-  margin-top: 1px;  
-`;
-
-const InfoTime = styled.div`
-  position: absolute;
-  margin: 10px;
-  height: 20px;
-  width: max-content;
-  background: rgb(36, 22, 33, 0.6);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  padding: 3px 10px;
-  bottom: 0px;
-  right: 0px;
-  gap: 2px;
-`;
-
-const ImgTime = styled.img`
-  height: 15px;
-  width: 15px;
-  margin-right: 5px;
-`;
-
-
 const CardRecommendation = ({ type, video }) => {
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();

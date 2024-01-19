@@ -20,6 +20,7 @@ const ArrowButtonRight = styled.div`
     height: 45.8px;
     border-radius: 30px;
     transition: background-color 0.5s;
+    background: rgba(18, 18, 18, 0.3);
 
     &:hover {
         background: rgba(124, 83, 115, 0.5);
@@ -42,7 +43,7 @@ const ArrowButtonLeft = styled.div`
     height: 45.8px;
     border-radius: 30px;
     transition: background-color 0.5s;
-
+    background: rgba(18, 18, 18, 0.3);
     &:hover {
         background: rgba(124, 83, 115, 0.5);
     }

@@ -696,9 +696,9 @@ const Help = ({ handleCloseHelp }) => {
                 <HelpOthersItemNumber>
                   2
                 </HelpOthersItemNumber>
-                {translations[language].sc62}
+                {translations[language].sc61}
                 <SubtextLinkClick onClick={handleSettings}>
-                  {translations[language].sc63}
+                  {translations[language].sc62}
                 </SubtextLinkClick>
               </HelpOthersItem>
 
@@ -706,14 +706,14 @@ const Help = ({ handleCloseHelp }) => {
                 <HelpOthersItemNumber>
                   3
                 </HelpOthersItemNumber>
-                {translations[language].sc64}
+                {translations[language].sc63}
               </HelpOthersItem>
 
               <HelpOthersItem>
                 <HelpOthersItemNumber>
                   4
                 </HelpOthersItemNumber>
-                {translations[language].sc65}
+                {translations[language].sc64}
               </HelpOthersItem>
 
             </>

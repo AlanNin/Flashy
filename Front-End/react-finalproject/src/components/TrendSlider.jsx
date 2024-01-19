@@ -1297,7 +1297,7 @@ const TrendSlider = ({ type = "trend" }) => {
                       </p>
                     ) : (
                       <CardContainerRecommendation>
-                        {filteredVideos.map((video) => (
+                        {filteredVideos.slice(0, 15).map((video) => (
                           <Card4CardPopup type="sm" key={MoreInfoInputs.videoId} video={video} />
                         ))}
                         <LabelFooter> @Flashy_Content </LabelFooter>

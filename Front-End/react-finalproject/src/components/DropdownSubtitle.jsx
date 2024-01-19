@@ -346,8 +346,6 @@ const DropdownSubtitle = ({ selectedSubtitle, onSubtitleChange, setSubtitleValid
 
     if (dropdowns.length === 1 && dropdowns[0].selectedSubtitle.length === 0) {
       setSubtitleValidationError(false);
-    } else {
-      setSubtitleValidationError(true);
     }
   }, [emptyUrl, selectedSubtitle]);
 
