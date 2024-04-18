@@ -124,8 +124,8 @@ const CardNotification = ({ notification, setNotificationsLoaded, handleNotifica
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const videoRes = await axios.get(`/videos/find/${notification.videoId}`);
-        const channelRes = await axios.get(`/users/find/${videoRes.data.userId}`);
+        const videoRes = await axios.get(`http://localhost:8800/api/videos/find/${notification.videoId}`);
+        const channelRes = await axios.get(`http://localhost:8800/api/users/find/${videoRes.data.userId}`);
 
         setVideo(videoRes.data);
         setChannel(channelRes.data);
@@ -144,7 +144,7 @@ const CardNotification = ({ notification, setNotificationsLoaded, handleNotifica
   const markNotificationAsRead = async () => {
     try {
       handleNotificationCenter();
-      await axios.put(`/users/notifications/${notification._id}/mark-as-read`);
+      await axios.put(`http://localhost:8800/api/users/notifications/${notification._id}/mark-as-read`);
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }

@@ -1427,7 +1427,7 @@ const Upload = ({ setOpen }) => {
                 inputs.title = defaultTitle;
             }
 
-            const uploadResponse = await axios.post("/videos", { ...inputs, tags, renderingVideo });
+            const uploadResponse = await axios.post("http://localhost:8800/api/videos", { ...inputs, tags, renderingVideo });
 
             // Verificar si la carga fue exitosa
             if (uploadResponse.status === 200) {
@@ -1440,7 +1440,7 @@ const Upload = ({ setOpen }) => {
                 for (const playlist of selectedPlaylists) {
                     try {
                         if (playlist) {
-                            await axios.put(`/users/${userId}/playlists/videos/${videoId}`, {
+                            await axios.put(`http://localhost:8800/api/users/${userId}/playlists/videos/${videoId}`, {
                                 playlistId: playlist,
                             });
                         } else {
@@ -1453,7 +1453,7 @@ const Upload = ({ setOpen }) => {
 
                 // ALLOW UPLOADER TO VIDEO
                 try {
-                    await axios.post(`/videos/${videoId}/allowedUsers`, {
+                    await axios.post(`http://localhost:8800/api/videos/${videoId}/allowedUsers`, {
                         email: userEmail,
                     });
                 } catch (error) {

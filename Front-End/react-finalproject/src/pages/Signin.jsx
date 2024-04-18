@@ -357,7 +357,7 @@ const Signin = () => {
       .then(async (result) => {
         try {
           // Verificar si el correo electrónico ya está registrado
-          const emailCheckResponse = await axios.post("/auth/checkemail", {
+          const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", {
             email: result.user.email,
           });
 
@@ -370,7 +370,7 @@ const Signin = () => {
           }
 
           // El usuario está registrado, continuar con el inicio de sesión
-          const signInResponse = await axios.post("/auth/externalsignin", {
+          const signInResponse = await axios.post("http://localhost:8800/api/auth/externalsignin", {
             name: result.user.displayName,
             email: result.user.email,
             img: result.user.photoURL,
@@ -407,7 +407,7 @@ const Signin = () => {
       };
 
 
-      const res = await axios.post("/auth/externalsignin", userData);
+      const res = await axios.post("http://localhost:8800/api/auth/externalsignin", userData);
 
       dispatch(loginSuccess(res.data));
       toast.success(translations[language].toastshare);
@@ -434,13 +434,13 @@ const Signin = () => {
 
     if (name !== "" && password !== "") {
       try {
-        const nameCheckResponse = await axios.post("/auth/checkname", { name });
+        const nameCheckResponse = await axios.post("http://localhost:8800/api/auth/checkname", { name });
 
         if (!nameCheckResponse.data.exists) {
           // Mostrar un mensaje de error para el nombre de usuario
           setSigninError(true);
         } else {
-          const passwordCheckResponse = await axios.post("/auth/checkpassword", { name, password });
+          const passwordCheckResponse = await axios.post("http://localhost:8800/api/auth/checkpassword", { name, password });
 
           if (passwordCheckResponse.data.isCorrect) {
             // La contraseña es correcta, proceder con el inicio de sesión
@@ -465,7 +465,7 @@ const Signin = () => {
     // Verifica si el token hCaptcha se recibió con éxito
     if (token) {
       try {
-        const res = await axios.post("/auth/signin", { name, password, captchaToken: token });
+        const res = await axios.post("http://localhost:8800/api/auth/signin", { name, password, captchaToken: token });
 
         dispatch(loginSuccess(res.data));
         toast.success(translations[language].toastshare);

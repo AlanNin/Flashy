@@ -1378,13 +1378,15 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
   useEffect(() => {
 
     const fetchChannel = async () => {
-      const res = await axios.get(`/users/find/${video.userId}`);
+      const res = await axios.get(`http://localhost:8800/api/users/find/${video.userId}`);
       setChannel(res.data);
     };
 
     const fetchProgress = async () => {
       if (currentUser) {
-        const userProgressRes = await axios.get(`/videos/userProgress/${video?._id}`);
+        const userProgressRes = await axios.get(`http://localhost:8800/api/videos/userProgress/${video._id}`, {
+          withCredentials: true
+        });
         setProgress(userProgressRes?.data?.progress);
       }
     };
@@ -1443,7 +1445,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
   useEffect(() => {
     setCardLoaded(false);
     const fetchVideos = async () => {
-      const res = await axios.get(`/videos/tags?tags=${video.tags}`);
+      const res = await axios.get(`http://localhost:8800/api/videos/tags?tags=${video.tags}`);
       setVideos(res.data);
       setCardLoaded(true);
     };
@@ -1501,7 +1503,7 @@ const CardChannel = ({ video, isCurrentUserUploader, setAnyPopupOpen, anyPopupOp
 
     if (confirmed) {
       try {
-        await axios.delete(`/videos/${video?._id}/delete`);
+        await axios.delete(`http://localhost:8800/api/videos/${video?._id}/delete`);
         setFetchUpdated(true);
       } catch (error) {
         console.error('Error deleting video:', error);

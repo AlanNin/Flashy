@@ -807,7 +807,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   // FECTH REPLY USER
   useEffect(() => {
     const fetchReplyUser = async () => {
-      const res = await axios.get(`/users/find/${reply.userId}`);
+      const res = await axios.get(`http://localhost:8800/api/users/find/${reply.userId}`);
       setChannel(res.data)
     };
     fetchReplyUser();
@@ -825,7 +825,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       setIsLikeDisabled(true);
 
       // Update the API route to likereply
-      await axios.put(`/users/likereply/${commentId}/${reply._id}`);
+      await axios.put(`http://localhost:8800/api/users/likereply/${commentId}/${reply._id}`);
 
       setCurrentReply((prevReply) => ({
         ...prevReply,
@@ -854,7 +854,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
     try {
       setIsDislikeDisabled(true);
 
-      await axios.put(`/users/dislikereply/${commentId}/${reply._id}`);
+      await axios.put(`http://localhost:8800/api/users/dislikereply/${commentId}/${reply._id}`);
 
       setCurrentReply((prevReply) => ({
         ...prevReply,
@@ -896,7 +896,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
   const handleSaveEdit = async () => {
     try {
-      const response = await axios.put(`/comments/${commentId}/replies/${currentReply._id}`, {
+      const response = await axios.put(`http://localhost:8800/api/comments/${commentId}/replies/${currentReply._id}`, {
         desc: editedReplyText,
       });
 
@@ -936,7 +936,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
 
     if (confirmed) {
       try {
-        await axios.delete(`/comments/${commentId}/replies/${currentReply._id}`);
+        await axios.delete(`http://localhost:8800/api/comments/${commentId}/replies/${currentReply._id}`);
 
         if (onCommentsReload) {
           onCommentsReload();
@@ -990,7 +990,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       return;
     }
     try {
-      const response = await axios.post(`/comments/${commentId}/replies/${currentReply._id}/report`, {
+      const response = await axios.post(`http://localhost:8800/api/comments/${commentId}/replies/${currentReply._id}/report`, {
         userId: currentUser._id,
         reason: selectedReportReason,
       });
@@ -1029,7 +1029,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
       const channelMention = channel._id;
       const replyContent = replyText.trim();
 
-      const response = await axios.post(`/comments/${commentId}/replies`, {
+      const response = await axios.post(`http://localhost:8800/api/comments/${commentId}/replies`, {
         userId: currentUser._id,
         replyTo: channelMention,
         desc: replyContent,
@@ -1058,7 +1058,7 @@ const ReplyComponent = ({ reply, UserUploader, commentId, onCommentsReload }) =>
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(`/users/find/${currentReply.replyTo}`);
+        const response = await axios.get(`http://localhost:8800/api/users/find/${currentReply.replyTo}`);
         const fetchedUser = response.data;
         setUser(fetchedUser);
 

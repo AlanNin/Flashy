@@ -1143,7 +1143,7 @@ const Library = () => {
 
     const timer = setTimeout(async () => {
       try {
-        const response = await axios.get(`/users/${currentUser?._id}/playlists-followed`);
+        const response = await axios.get(`http://localhost:8800/api/users/${currentUser?._id}/playlists-followed`);
         const fetchedPlaylists = response.data;
 
         if (fetchedPlaylists.length > 0 && playlistWasUpdated === true) {
@@ -1195,7 +1195,7 @@ const Library = () => {
   const handleUpdateImgDB = async () => {
     if (inputs.image !== undefined) {
       try {
-        await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { image: inputs.image });
+        await axios.put(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/update`, { image: inputs.image });
         handleUpdate();
         setImg(null);
         setImgPerc(0);
@@ -1260,7 +1260,7 @@ const Library = () => {
 
   const handleSavePlaylistName = async () => {
     try {
-      await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { name: inputs.playlistname });
+      await axios.put(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/update`, { name: inputs.playlistname });
 
     } catch (error) {
       console.error("Error updating playlist:", error);
@@ -1298,7 +1298,7 @@ const Library = () => {
 
   const handleEditPlaylistPrivacySave = async () => {
     try {
-      await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { privacy: inputs.privacy });
+      await axios.put(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/update`, { privacy: inputs.privacy });
 
     } catch (error) {
       console.error("Error updating playlist:", error);
@@ -1324,9 +1324,9 @@ const Library = () => {
   const handleSavePlaylistDescription = async () => {
     try {
       if (inputs.description === "") {
-        await axios.delete(`/users/playlists/${selectedPlaylist?._id}/delete-description`);
+        await axios.delete(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/delete-description`);
       } else {
-        await axios.put(`/users/playlists/${selectedPlaylist?._id}/update`, { description: inputs.description });
+        await axios.put(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/update`, { description: inputs.description });
       }
 
     } catch (error) {
@@ -1411,7 +1411,7 @@ const Library = () => {
 
     if (confirmed) {
       try {
-        await axios.delete(`/users/playlists/${selectedPlaylist?._id}/delete/`);
+        await axios.delete(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/delete/`);
         setPlaylistUpdated(true);
       } catch (error) {
         console.error('Error deleting history:', error);
@@ -1446,7 +1446,7 @@ const Library = () => {
 
     if (confirmed) {
       try {
-        await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
+        await axios.delete(`http://localhost:8800/api/users/playlists/unfollow/${selectedPlaylist?._id}/`);
         setPlaylistUpdated(true);
       } catch (error) {
         console.error('Error deleting history:', error);
@@ -1477,7 +1477,7 @@ const Library = () => {
     setWasPlaylistVideosUpdated(false);
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/users/${selectedPlaylist.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
+        const res = await axios.get(`http://localhost:8800/api/users/${selectedPlaylist.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
         setVideos(res.data);
       } catch (error) {
         //ignore error

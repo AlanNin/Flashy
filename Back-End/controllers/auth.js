@@ -92,6 +92,8 @@ export const signup = async (req, res, next) => {
 
         res.cookie('access_token', token, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'None'
         });
 
         req.body = { name: lowercaseName, email: lowercaseEmail, password: req.body.password };
@@ -124,7 +126,9 @@ export const signin = async (req, res, next) => {
         const { password, ...others } = user._doc;
 
         res.cookie("access_token", token, {
-            httpOnly: true
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None'
         })
             .status(200)
             .json(others);
@@ -142,6 +146,8 @@ export const SigninExternalAuth = async (req, res, next) => {
             res
                 .cookie("access_token", token, {
                     httpOnly: true,
+                    secure: true,
+                    sameSite: 'None'
                 })
                 .status(200)
                 .json(user._doc);
@@ -168,6 +174,8 @@ export const SignupExternalAuth = async (req, res, next) => {
             res
                 .cookie("access_token", token, {
                     httpOnly: true,
+                    secure: true,
+                    sameSite: 'None'
                 })
                 .status(200)
                 .json(savedUser._doc);

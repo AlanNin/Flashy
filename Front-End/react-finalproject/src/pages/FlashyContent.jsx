@@ -131,7 +131,7 @@ const Home = () => {
     setNoVideosFound(false);
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/videos/tag/${tag}`);
+        const res = await axios.get(`http://localhost:8800/api/videos/tag/${tag}`);
         if (res && res.data && res.data.length > 0) {
 
         } else {

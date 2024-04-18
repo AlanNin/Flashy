@@ -150,7 +150,7 @@ const Search = () => {
 
         const fetchSearch = async () => {
             try {
-                const res = await axios.get(`/videos/search${query}`);
+                const res = await axios.get(`http://localhost:8800/api/videos/search${query}`);
 
                 if (filterType === 'videos') {
                     if (res.data.videos.length === 0) {

@@ -357,7 +357,7 @@ const History = () => {
 
         const fetchHistory = async () => {
             try {
-                const res = await axios.get(`/users/${currentUser?._id}/history`);
+                const res = await axios.get(`http://localhost:8800/api/users/${currentUser?._id}/history`);
                 const videoHistory = res.data;
 
                 videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
@@ -365,7 +365,7 @@ const History = () => {
                 const detailedVideos = await Promise.all(
                     videoHistory.map(async (videoItem) => {
                         try {
-                            const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                            const videoDetails = await axios.get(`http://localhost:8800/api/videos/find/${videoItem.videoId._id}`);
                             return videoDetails.data;
                         } catch (error) {
                             return null;
@@ -394,7 +394,7 @@ const History = () => {
             setHistoryLoaded(false);
 
             try {
-                const res = await axios.get(`/users/${currentUser?._id}/history`);
+                const res = await axios.get(`http://localhost:8800/api/users/${currentUser?._id}/history`);
                 const videoHistory = res.data;
 
                 videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
@@ -402,7 +402,7 @@ const History = () => {
                 const detailedVideos = await Promise.all(
                     videoHistory.map(async (videoItem) => {
                         try {
-                            const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                            const videoDetails = await axios.get(`http://localhost:8800/api/videos/find/${videoItem.videoId._id}`);
                             return videoDetails.data;
                         } catch (error) {
                             return null;
@@ -431,7 +431,7 @@ const History = () => {
         setHistoryLoaded(false);
 
         try {
-            const res = await axios.get(`/users/${currentUser?._id}/history`);
+            const res = await axios.get(`http://localhost:8800/api/users/${currentUser?._id}/history`);
             const videoHistory = res.data;
 
             videoHistory.sort((a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt));
@@ -439,7 +439,7 @@ const History = () => {
             const detailedVideos = await Promise.all(
                 videoHistory.map(async (videoItem) => {
                     try {
-                        const videoDetails = await axios.get(`/videos/find/${videoItem.videoId._id}`);
+                        const videoDetails = await axios.get(`http://localhost:8800/api/videos/find/${videoItem.videoId._id}`);
                         return videoDetails.data;
                     } catch (error) {
                         return null;
@@ -474,7 +474,7 @@ const History = () => {
 
         if (confirmed) {
             try {
-                await axios.delete(`/users/${currentUser?._id}/history/clear`);
+                await axios.delete(`http://localhost:8800/api/users/${currentUser?._id}/history/clear`);
                 setIsHistoryUpdated(true);
             } catch (error) {
                 console.error('Error deleting history:', error);
@@ -506,7 +506,7 @@ const History = () => {
 
         if (confirmed) {
             try {
-                const response = await axios.post(`/users/toggle-watchHistoryPaused`);
+                const response = await axios.post(`http://localhost:8800/api/users/toggle-watchHistoryPaused`);
                 console.log(response.data.isWatchHistoryPaused);
                 dispatch(userToggleWatchHistoryPaused({ isWatchHistoryPaused: response.data.isWatchHistoryPaused }));
             } catch (error) {
@@ -539,7 +539,7 @@ const History = () => {
 
         if (confirmed) {
             try {
-                const response = await axios.post(`/users/toggle-watchHistoryPaused`);
+                const response = await axios.post(`http://localhost:8800/api/users/toggle-watchHistoryPaused`);
                 dispatch(userToggleWatchHistoryPaused({ isWatchHistoryPaused: response.data.isWatchHistoryPaused }));
             } catch (error) {
                 console.error('Error pausing watch history:', error);

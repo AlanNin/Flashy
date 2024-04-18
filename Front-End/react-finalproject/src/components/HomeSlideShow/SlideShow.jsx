@@ -909,13 +909,13 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
     if (MoreInfoInputs.userId !== undefined) {
 
       const fetchChannel = async () => {
-        const res = await axios.get(`/users/find/${MoreInfoInputs.userId}`);
+        const res = await axios.get(`http://localhost:8800/api/users/find/${MoreInfoInputs.userId}`);
         setChannel(res.data);
       };
 
       const fetchProgress = async () => {
         if (currentUser) {
-          const userProgressRes = await axios.get(`/videos/userProgress/${MoreInfoInputs.videoId}`);
+          const userProgressRes = await axios.get(`http://localhost:8800/api/videos/userProgress/${MoreInfoInputs.videoId}`);
           setProgress(userProgressRes?.data?.progress);
         }
       };
@@ -974,12 +974,11 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   useEffect(() => {
     setCardLoaded(false);
     const fetchVideos = async () => {
-      const res = await axios.get(`/videos/tags?tags=${MoreInfoInputs.tags}`);
+      const res = await axios.get(`http://localhost:8800/api/videos/tags?tags=${MoreInfoInputs.tags}`);
       setVideosR(res.data);
       setCardLoaded(true);
     };
     fetchVideos();
-
   }, [MoreInfoInputs.tags]);
 
   //...
@@ -988,9 +987,8 @@ const HomeSlideShow = ({ type = "mostliked" }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/videos/${type}`);
+        const res = await axios.get(`http://localhost:8800/api/videos/${type}`);
         setVideos(res.data);
-
       } catch (error) {
         console.error("Error fetching videos:", error);
       }

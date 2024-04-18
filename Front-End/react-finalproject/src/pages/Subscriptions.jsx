@@ -157,7 +157,7 @@ const Home = ({ type = "sub" }) => {
     setNoVideosFound(false);
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/videos/${type}`);
+        const res = await axios.get(`http://localhost:8800/api/videos/${type}`);
         if (res && res.data && res.data.length > 0) {
 
         } else {

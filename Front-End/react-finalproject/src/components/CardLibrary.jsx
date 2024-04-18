@@ -328,7 +328,7 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
           setNoVideosMessage('No hay videos recomendados');
           return;
         }
-        const res = await axios.get(`/users/find/${video.userId}`);
+        const res = await axios.get(`http://localhost:8800/api/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);
@@ -469,7 +469,7 @@ const CardLibrary = ({ video, index, setWasPlaylistVideosUpdated, selectedPlayli
   const handleRemoveVideo = async () => {
 
     try {
-      await axios.delete(`/users/playlists/${selectedPlaylist?._id}/videos/${video?._id}/delete`);
+      await axios.delete(`http://localhost:8800/api/users/playlists/${selectedPlaylist?._id}/videos/${video?._id}/delete`);
       setWasPlaylistVideosUpdated(true);
       handleUpdate();
     } catch (error) {

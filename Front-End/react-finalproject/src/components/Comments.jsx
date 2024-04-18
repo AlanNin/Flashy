@@ -138,7 +138,7 @@ const Comments = ({ videoId, UserUploader }) => {
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`/comments/${videoId}`);
+      const res = await axios.get(`http://localhost:8800/api/comments/${videoId}`);
       setComments(res.data);
     } catch (err) {
       console.error('Error fetching comments:', err);
@@ -147,7 +147,7 @@ const Comments = ({ videoId, UserUploader }) => {
 
   const handleComment = async () => {
     try {
-      const response = await axios.post('/comments', {
+      const response = await axios.post('http://localhost:8800/api/comments', {
         videoId,
         desc: newCommentText,
       });
@@ -174,7 +174,7 @@ const Comments = ({ videoId, UserUploader }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`/comments/${videoId}`);
+        const res = await axios.get(`http://localhost:8800/api/comments/${videoId}`);
         setComments(res.data);
       } catch (err) { }
     };

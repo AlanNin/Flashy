@@ -512,8 +512,8 @@ const Signup = () => {
       };
 
       // Check if the name and email are already registered
-      const nameCheckResponse = await axios.post("/auth/checkname", { name: userData.name });
-      const emailCheckResponse = await axios.post("/auth/checkemail", { email: userData.email });
+      const nameCheckResponse = await axios.post("http://localhost:8800/api/auth/checkname", { name: userData.name });
+      const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email: userData.email });
 
       if (nameCheckResponse.data.exists) {
         // Display an error message for username
@@ -532,7 +532,7 @@ const Signup = () => {
       }
 
       // If both username and email are available, proceed with external signup
-      const res = await axios.post("/auth/externalsignup", userData);
+      const res = await axios.post("http://localhost:8800/api/auth/externalsignup", userData);
 
       console.log('Response from the server:', res);
 
@@ -564,8 +564,8 @@ const Signup = () => {
       };
 
       // Check if the name and email are already registered
-      const nameCheckResponse = await axios.post("/auth/checkname", { name: userData.name });
-      const emailCheckResponse = await axios.post("/auth/checkemail", { email: userData.email });
+      const nameCheckResponse = await axios.post("http://localhost:8800/api/auth/checkname", { name: userData.name });
+      const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email: userData.email });
 
       if (nameCheckResponse.data.exists) {
         // Display an error message for username
@@ -585,7 +585,7 @@ const Signup = () => {
 
       console.log('Data being sent in the POST request:', userData);
 
-      const res = await axios.post("/auth/externalsignup", userData);
+      const res = await axios.post("http://localhost:8800/api/auth/externalsignup", userData);
 
       console.log('Response from the server:', res);
 
@@ -616,8 +616,8 @@ const Signup = () => {
     if (email !== "" && name !== "" && displayname !== "" && password !== "" && confirmpassword !== "") {
       try {
         // Check if the name is already registered
-        const nameCheckResponse = await axios.post("/auth/checkname", { name });
-        const emailCheckResponse = await axios.post("/auth/checkemail", { email });
+        const nameCheckResponse = await axios.post("http://localhost:8800/api/auth/checkname", { name });
+        const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email });
 
         //Check Username 
         const isNameValid = /^[^\s]{3,20}$/.test(name);
@@ -681,7 +681,7 @@ const Signup = () => {
     if (token) {
       try {
         // Realiza la solicitud de inicio de sesión solo si el captcha es exitoso
-        const res = await axios.post("/auth/signup", { name, displayname, email, password, captchaToken: token });
+        const res = await axios.post("http://localhost:8800/api/auth/signup", { name, displayname, email, password, captchaToken: token });
         dispatch(loginSuccess(res.data));
         toast.success(translations[language].toastw);
         navigate('/');

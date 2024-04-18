@@ -802,10 +802,10 @@ const Recovery = () => {
     if (inputs?.email !== undefined && inputs?.email !== '') {
 
       if (isEmailValid) {
-        const emailCheckResponse = await axios.post("/auth/checkemail", { email: inputs?.email });
+        const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email: inputs?.email });
         if (emailCheckResponse.data.exists) {
           setRecoverySection(recoverySections[4]);
-          await axios.post(`/users/recoverpassword`, { email: inputs.email });
+          await axios.post(`http://localhost:8800/api/users/recoverpassword`, { email: inputs.email });
         } else {
           setEmailError(true);
         }
@@ -861,7 +861,7 @@ const Recovery = () => {
       return;
     }
 
-    const response = await axios.get(`/users/confirmRecoverCode?code=${inputs.passwordcode}&email=${inputs.email}`);
+    const response = await axios.get(`http://localhost:8800/api/users/confirmRecoverCode?code=${inputs.passwordcode}&email=${inputs.email}`);
     const wasConfirmed = response.data;
 
     if (wasConfirmed && wasConfirmed.success) {
@@ -983,7 +983,7 @@ const Recovery = () => {
       setEmptyFieldsError(true);
     } else {
       if (passwordIsGood) {
-        const response = await axios.post(`/users/recoverPasswordUpdatePassword`, {
+        const response = await axios.post(`http://localhost:8800/api/users/recoverPasswordUpdatePassword`, {
           email: inputs.email,
           newPassword: inputs.newpassword
         });
@@ -1034,10 +1034,10 @@ const Recovery = () => {
     if (inputs?.uemail !== undefined && inputs?.uemail !== '') {
 
       if (isUEmailValid) {
-        const emailCheckResponse = await axios.post("/auth/checkemail", { email: inputs?.uemail });
+        const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email: inputs?.uemail });
         if (emailCheckResponse.data.exists) {
           setRecoverySection(recoverySections[2]);
-          await axios.post(`/users/recoverusername`, { email: inputs.uemail });
+          await axios.post(`http://localhost:8800/api/users/recoverusername`, { email: inputs.uemail });
         } else {
           setUEmailError(true);
         }

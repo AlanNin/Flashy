@@ -382,8 +382,9 @@ const LikeNotLogged = styled.div`
   flex-direction: column;
   height: max-content;
   background-color: rgba(89, 86, 92, 0.9);
-  width: auto;
-  border-radius: 0px 10px 10px 10px;
+  width: max-content;
+  margin-left: -210px;
+  border-radius: 10px 0px 10px 10px;
   padding: 10px;
   margin-top: 125px;
   z-index: 2;
@@ -406,10 +407,11 @@ const DislikeNotLogged = styled.div`
   flex-direction: column;
   height: max-content;
   background-color: rgba(89, 86, 92, 0.9);
-  width: auto;
-  border-radius: 0px 10px 10px 10px;
+  width: max-content;
+  border-radius: 10px 0px 10px 10px;
   padding: 10px;
   margin-top: 125px;
+  margin-left: -297px;
   z-index: 2;
 `;
 
@@ -841,7 +843,7 @@ const VideoPage = () => {
     }
 
     if (currentUser) {
-      await axios.put(`/users/${currentUser?._id}/videos/${currentVideo?._id}/history`);
+      await axios.put(`http://localhost:8800/api/users/${currentUser?._id}/videos/${currentVideo?._id}/history`);
     }
   };
 
@@ -851,8 +853,8 @@ const VideoPage = () => {
 
     const fetchData = async () => {
       try {
-        const videoRes = await axios.get(`/videos/find/${path}`);
-        const channelRes = await axios.get(`/users/find/${videoRes.data.userId}`);
+        const videoRes = await axios.get(`http://localhost:8800/api/videos/find/${path}`);
+        const channelRes = await axios.get(`http://localhost:8800/api/users/find/${videoRes.data.userId}`);
         if (!isMounted) {
           return; // Abort the operation if the component is unmounted
         }
@@ -862,7 +864,7 @@ const VideoPage = () => {
 
         if (currentUser) {
 
-          const userProgressRes = await axios.get(`/videos/userProgress/${videoRes.data?._id}`);
+          const userProgressRes = await axios.get(`http://localhost:8800/api/videos/userProgress/${videoRes.data?._id}`);
           const userProgress = userProgressRes.data.progress || 0;
 
           if (userProgress > 3 && !currentUser?.isWatchHistoryPaused) {
@@ -909,7 +911,7 @@ const VideoPage = () => {
   useEffect(() => {
     if (videoLoaded) {
 
-      axios.get(`/videos/${currentVideo?._id}/allowedUsers`)
+      axios.get(`http://localhost:8800/api/videos/${currentVideo?._id}/allowedUsers`)
         .then(response => {
           const allowedUsersData = response.data.allowedUsers;
 
@@ -948,7 +950,7 @@ const VideoPage = () => {
       return;
     }
 
-    await axios.put(`/users/like/${currentVideo?._id}`);
+    await axios.put(`http://localhost:8800/api/users/like/${currentVideo?._id}`);
     dispatch(like(currentUser?._id));
   };
 
@@ -960,7 +962,7 @@ const VideoPage = () => {
       return;
     }
 
-    await axios.put(`/users/dislike/${currentVideo?._id}`);
+    await axios.put(`http://localhost:8800/api/users/dislike/${currentVideo?._id}`);
     dispatch(dislike(currentUser?._id));
   };
 
@@ -974,12 +976,12 @@ const VideoPage = () => {
     // Verificar si el usuario está suscrito o no y realizar la acción correspondiente
     if (currentUser.subscribedUsers.includes(channel?._id)) {
       // Usuario ya está suscrito, realizar acción de desuscripción
-      await axios.put(`/users/unsub/${channel?._id}`);
+      await axios.put(`http://localhost:8800/api/users/unsub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter - 1);
       toast.success(translations[language].toastunsub);
     } else {
       // Usuario no está suscrito, realizar acción de suscripción
-      await axios.put(`/users/sub/${channel?._id}`);
+      await axios.put(`http://localhost:8800/api/users/sub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter + 1);
       toast.success(translations[language].toastsub);
     }
@@ -1022,7 +1024,7 @@ const VideoPage = () => {
     }
 
     try {
-      await axios.post(`/videos/saveUserProgress/${currentVideo?._id}`, {
+      await axios.post(`http://localhost:8800/api/videos/saveUserProgress/${currentVideo?._id}`, {
         progress: videoProgress,
       });
     } catch (error) {
@@ -1067,7 +1069,7 @@ const VideoPage = () => {
 
       if (newProgress >= 30 && !isViewIncreased) {
         setIsViewIncreased(true);
-        axios.put(`/videos/view/${currentVideo?._id}`)
+        axios.put(`http://localhost:8800/api/videos/view/${currentVideo?._id}`)
           .then(() => {
             // ...
           })
@@ -1399,9 +1401,13 @@ const VideoPage = () => {
 
 
                     <ChannelInfo>
-                      <ChannelImage src={channel?.img} />
+                      <Link to={`/channel/@${channel?.name}`} style={{ textDecoration: "none" }}>
+                        <ChannelImage src={channel?.img} />
+                      </Link>
                       <ChannelInfoTx>
-                        <ChannelName> {channel?.displayname} </ChannelName>
+                        <Link to={`/channel/@${channel?.name}`} style={{ textDecoration: "none", padding: "5px 0px" }}>
+                          <ChannelName> {channel?.displayname} </ChannelName>
+                        </Link>
                         <ChannelCounter> {currentSuscriptionCounter} </ChannelCounter>
                       </ChannelInfoTx>
                       <SuscbribeContainer>
@@ -1512,9 +1518,12 @@ const VideoPage = () => {
 
                       </DislikeButton>
                     </LikeAndDislikeButtons>
-                    <Button onClick={handleSaveVideo}>
-                      <ButtonsImg src={VideoPlaylistIcono} /> {translations[language].save}
-                    </Button>
+
+                    {currentUser && (
+                      <Button onClick={handleSaveVideo}>
+                        <ButtonsImg src={VideoPlaylistIcono} /> {translations[language].save}
+                      </Button>
+                    )}
 
                     <Button onClick={handleShare} ref={buttonShareRef}>
                       <ButtonsImg src={VideoShareIcono} /> {translations[language].share}

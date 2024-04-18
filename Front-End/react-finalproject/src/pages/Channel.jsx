@@ -559,7 +559,7 @@ const Channel = () => {
       setFetchUpdated(false);
 
       try {
-        const channelRes = await axios.get(`/users/findbyusername/${Username}`);
+        const channelRes = await axios.get(`http://localhost:8800/api/users/findbyusername/${Username}`);
         setChannel(channelRes.data);
         setCurrentSuscriptionCounter(channelRes.data.subscribers?.length);
         const isCurrentUserUploaderInternal = currentUser?._id === channelRes.data._id;
@@ -567,11 +567,11 @@ const Channel = () => {
         try {
           let res;
           if (isCurrentUserUploaderInternal) {
-            res = await axios.get(`/videos/user/allvideos`, {
+            res = await axios.get(`http://localhost:8800/api/videos/user/allvideos`, {
               params: { sort: sortType }
             });
           } else {
-            res = await axios.get(`/videos/user/${channelRes.data._id}/publicVideos`, {
+            res = await axios.get(`http://localhost:8800/api/videos/user/${channelRes.data._id}/publicVideos`, {
               params: { sort: sortType }
             });
           }
@@ -600,11 +600,11 @@ const Channel = () => {
           let response;
 
           if (isCurrentUserUploaderInternal) {
-            response = await axios.get(`/users/playlists`, {
+            response = await axios.get(`http://localhost:8800/api/users/playlists`, {
               params: { sort: sortTypePlaylist }
             });
           } else {
-            response = await axios.get(`/users/${channelRes.data._id}/playlists/public`, {
+            response = await axios.get(`http://localhost:8800/api/users/${channelRes.data._id}/playlists/public`, {
               params: { sort: sortTypePlaylist }
             });
           }
@@ -647,12 +647,12 @@ const Channel = () => {
     // Verificar si el usuario está suscrito o no y realizar la acción correspondiente
     if (currentUser.subscribedUsers.includes(channel?._id)) {
       // Usuario ya está suscrito, realizar acción de desuscripción
-      await axios.put(`/users/unsub/${channel?._id}`);
+      await axios.put(`http://localhost:8800/api/users/unsub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter - 1);
       toast.success(translations[language].toastunsub);
     } else {
       // Usuario no está suscrito, realizar acción de suscripción
-      await axios.put(`/users/sub/${channel?._id}`);
+      await axios.put(`http://localhost:8800/api/users/sub/${channel?._id}`);
       setCurrentSuscriptionCounter(currentSuscriptionCounter + 1);
       toast.success(translations[language].toastsub);
     }
@@ -685,7 +685,7 @@ const Channel = () => {
 
       if (inputs.description === undefined) { return; }
 
-      const response = await axios.post(`/users/updateDescription`, { description: inputs.description });
+      const response = await axios.post(`http://localhost:8800/api/users/updateDescription`, { description: inputs.description });
 
       const toastPromise = toast.promise(
         Promise.resolve(response),

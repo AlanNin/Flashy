@@ -655,7 +655,7 @@ const SharedPlaylist = () => {
     setWasFetchedDataUpdated(false);
     const Request = async () => {
       try {
-        const response = await axios.get(`/users/playlists/${path}`);
+        const response = await axios.get(`http://localhost:8800/api/users/playlists/${path}`);
         const fetchedPlaylists = response.data;
         setPlaylistExists(true);
         setSelectedPlaylist(fetchedPlaylists);
@@ -721,7 +721,7 @@ const SharedPlaylist = () => {
   // FOLLOW PLAYLIST
   const handleFollow = async () => {
     try {
-      await axios.post(`/users/playlists/follow/${selectedPlaylist?._id}/`);
+      await axios.post(`http://localhost:8800/api/users/playlists/follow/${selectedPlaylist?._id}/`);
       handleUpdateFetchedData();
     } catch (error) {
       console.error("Error updating playlist:", error);
@@ -740,7 +740,7 @@ const SharedPlaylist = () => {
 
     if (confirmed) {
       try {
-        await axios.delete(`/users/playlists/unfollow/${selectedPlaylist?._id}/`);
+        await axios.delete(`http://localhost:8800/api/users/playlists/unfollow/${selectedPlaylist?._id}/`);
         handleUpdateFetchedData();
       } catch (error) {
         console.error('Error deleting history:', error);
@@ -767,7 +767,7 @@ const SharedPlaylist = () => {
     if (selectedPlaylist) {
       const fetchVideos = async () => {
         try {
-          const res = await axios.get(`/users/${selectedPlaylist?.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
+          const res = await axios.get(`http://localhost:8800/api/users/${selectedPlaylist?.creatorId}/playlists/${selectedPlaylist?._id}/videos`);
           setVideos(res.data);
         } catch (error) {
           // ignore error

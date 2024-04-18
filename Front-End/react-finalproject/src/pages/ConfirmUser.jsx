@@ -149,13 +149,13 @@ const ConfirmUser = () => {
       if (currentUser?.isVerified === false) {
 
         try {
-          const response = await axios.get(`/users/confirm/${token}`);
+          const response = await axios.get(`http://localhost:8800/api/users/confirm/${token}`);
           const wasConfirmed = response.data;
 
           if (wasConfirmed && wasConfirmed.success) {
             setVerificationAvailable(true);
 
-            const res = await axios.get(`/users/find/${currentUser?._id}`);
+            const res = await axios.get(`http://localhost:8800/api/users/find/${currentUser?._id}`);
             dispatch(userVerified(res.data));
           }
 

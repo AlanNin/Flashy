@@ -559,14 +559,14 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
     const fetchPlaylists = async () => {
       try {
         // Fetch playlists and their video IDs
-        const response = await axios.get(`/users/${userId}/playlists`);
+        const response = await axios.get(`http://localhost:8800/api/users/${userId}/playlists`);
         const playlistsData = response.data;
 
         // Obtener los IDs de video de cada playlist
         const playlistsWithVideoIds = await Promise.all(
           playlistsData.map(async (playlist) => {
             try {
-              const videoIdsResponse = await axios.get(`/users/${userId}/playlists/${playlist._id}/videosId`);
+              const videoIdsResponse = await axios.get(`http://localhost:8800/api/users/${userId}/playlists/${playlist._id}/videosId`);
               const videoIdsInPlaylist = videoIdsResponse.data.videoIds; // Accede a la propiedad videoIds
               const isChecked = videoIdsInPlaylist.includes(videoId);
               return { ...playlist, isChecked };
@@ -604,12 +604,12 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
     try {
       if (checked) {
         // Add video to the playlist
-        await axios.put(`/users/${userId}/playlists/videos/${videoId}`, {
+        await axios.put(`http://localhost:8800/api/users/${userId}/playlists/videos/${videoId}`, {
           playlistId: playlistId,
         });
       } else {
         // Remove video from the playlist
-        await axios.delete(`/users/playlists/${playlistId}/videos/${videoId}/delete`);
+        await axios.delete(`http://localhost:8800/api/users/playlists/${playlistId}/videos/${videoId}/delete`);
       }
 
       // Update the state after the API call is successful
@@ -708,7 +708,7 @@ const PlaylistSelectBoxVideo = ({ userId, closePopup, videoId }) => {
         setPlaylistNameError(true);
       } else {
         // Usa directamente el estado actualizado
-        await axios.post(`/users/${userId}/playlists`, { ...inputs, creator: creatorName });
+        await axios.post(`http://localhost:8800/api/users/${userId}/playlists`, { ...inputs, creator: creatorName });
 
         setNewPlaylistPopup(!NewPlaylistPopup);
         resetNewPlaylistState();

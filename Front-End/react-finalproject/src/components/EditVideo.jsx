@@ -817,7 +817,7 @@ const EditVideo = ({ closePopup, video, setFetchUpdated }) => {
 
         try {
             const response = await toast.promise(
-                axios.put(`/videos/${video?._id}/update`, {
+                axios.put(`http://localhost:8800/api/videos/${video?._id}/update`, {
                     privacy: inputs?.privacy === video?.privacy ? undefined : inputs?.privacy,
                     title: inputs?.title === video?.title ? undefined : inputs?.title,
                     desc: inputs?.desc === video?.desc ? undefined : inputs?.desc,

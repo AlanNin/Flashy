@@ -376,7 +376,7 @@ const CreateNewPlaylist = ({ userId, handleCreateNewPlaylist, handleCreated }) =
         setPlaylistNameError(true);
       } else {
         // Usa directamente el estado actualizado
-        await axios.post(`/users/${userId}/playlists`, { ...inputs, creator: creatorName });
+        await axios.post(`http://localhost:8800/api/users/${userId}/playlists`, { ...inputs, creator: creatorName });
 
         handleCreateNewPlaylist();
         handleCreated();

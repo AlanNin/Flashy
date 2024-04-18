@@ -4,7 +4,11 @@ import { addComment, deleteComment, getComments, addReply, deleteReply, getRepli
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router();
-router.use(cors());
+router.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
+
 
 // AGREGAR COMENTARIO
 router.post("/", verifyToken, addComment)

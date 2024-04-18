@@ -141,7 +141,7 @@ const Terms = () => {
     es: {
       home: "Inicio",
       terms: "Términos",
-      termsFlashy: "Términos y Condiciones de Uso de Flashy",
+      termsflashy: "Términos y Condiciones de Uso de Flashy",
       t1: "1. Términos",
       p1: "Al acceder a este sitio web, accesible desde https://flashy.com, actualmente http://localhost:3000, acepta estar sujeto a estos Términos y Condiciones de Uso del Sitio web y acepta ser responsable del cumplimiento de las leyes locales aplicables. Si no está de acuerdo con alguno de estos términos, se le prohíbe el acceso a este sitio. Los materiales contenidos en este sitio web están protegidos por las leyes de derechos de autor y marcas comerciales.",
       t2: "2. Licencia de uso",

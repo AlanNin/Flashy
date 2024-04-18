@@ -35,5 +35,6 @@
     "string-similarity": "^4.0.4",
     "tenv": "^0.2.3",
     "uuid": "^9.0.1"
-  }
+  },
+  "proxy": "http://localhost:8800/api"
 }

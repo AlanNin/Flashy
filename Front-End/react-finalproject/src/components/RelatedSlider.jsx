@@ -26,7 +26,7 @@ const RelatedSlider = ({ videoId, UserUploader }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(`/videos/related/${videoId}`);
+        const res = await axios.get(`http://localhost:8800/api/videos/related/${videoId}`);
         setVideos(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);

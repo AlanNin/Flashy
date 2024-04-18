@@ -57,7 +57,7 @@ const Recommendation = ({ tags, currentVideoId, NoRecommendations, setNoRecommen
     useEffect(() => {
         setCardLoaded(false);
         const fetchVideos = async () => {
-            const res = await axios.get(`/videos/tags?tags=${tags}`);
+            const res = await axios.get(`http://localhost:8800/api/videos/tags?tags=${tags}`);
             setVideos(res.data);
             setCardLoaded(true);
             if (res.data.length < 2) {

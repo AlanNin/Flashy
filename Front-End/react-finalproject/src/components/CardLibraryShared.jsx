@@ -326,7 +326,7 @@ const CardLibraryShared = ({ video, index }) => {
           setNoVideosMessage('No hay videos recomendados');
           return;
         }
-        const res = await axios.get(`/users/find/${video.userId}`);
+        const res = await axios.get(`http://localhost:8800/api/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {
         console.error("Error fetching videos:", error);

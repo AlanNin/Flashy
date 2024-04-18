@@ -479,7 +479,7 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
-        const response = await axios.get(`/users/${userId}/playlists`);
+        const response = await axios.get(`http://localhost:8800/api/users/${userId}/playlists`);
         const playlistsWithChecked = response.data.map(playlist => ({
           ...playlist,
           isChecked: selectedPlaylists.includes(playlist._id),
@@ -580,7 +580,7 @@ const PlaylistSelectBox = ({ userId, onPlaylistChange, selectedPlaylists }) => {
         setPlaylistNameError(true);
       } else {
         // Usa directamente el estado actualizado
-        await axios.post(`/users/${userId}/playlists`, { ...inputs, creator: creatorName });
+        await axios.post(`http://localhost:8800/api/users/${userId}/playlists`, { ...inputs, creator: creatorName });
 
         setNewPlaylistPopup(!NewPlaylistPopup);
         resetNewPlaylistState();

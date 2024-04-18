@@ -131,13 +131,13 @@ const ConfirmEmailChange = () => {
   useEffect(() => {
     const ConfirmEmailChangeRequest = async () => {
       try {
-        const response = await axios.get(`/users/confirmEmailChange/${token}`);
+        const response = await axios.get(`http://localhost:8800/api/users/confirmEmailChange/${token}`);
         const wasConfirmed = response.data;
 
         if (wasConfirmed && wasConfirmed.success) {
           setVerificationAvailable(true);
 
-          const res = await axios.get(`/users/find/${currentUser?._id}`);
+          const res = await axios.get(`http://localhost:8800/api/users/find/${currentUser?._id}`);
           dispatch(userUpdated(res.data));
         }
 

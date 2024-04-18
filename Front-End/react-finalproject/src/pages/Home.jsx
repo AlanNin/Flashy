@@ -104,14 +104,14 @@ const Home = ({ type }) => {
       try {
         let res;
         if (currentUser && (currentUser.subscribers > 0 || currentUser.subscribedUsers.length > 0)) {
-          res = await axios.get(`/videos/${type}`);
+          res = await axios.get(`http://localhost:8800/api/videos/${type}`);
           if (res && res.data && res.data.length > 0) {
 
           } else {
-            res = await axios.get("/videos/random");
+            res = await axios.get("http://localhost:8800/api/videos/random");
           }
         } else {
-          res = await axios.get("/videos/random");
+          res = await axios.get("http://localhost:8800/api/videos/random");
         }
         setVideos(res.data);
       } catch (error) {

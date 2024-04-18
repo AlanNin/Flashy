@@ -855,7 +855,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
   useEffect(() => {
     const fetchComment = async () => {
-      const res = await axios.get(`/users/find/${comment.userId}`);
+      const res = await axios.get(`http://localhost:8800/api/users/find/${comment.userId}`);
       setChannel(res.data)
     };
     fetchComment();
@@ -878,7 +878,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
     try {
       setIsLikeDisabled(true);
 
-      await axios.put(`/users/likecomment/${comment._id}`);
+      await axios.put(`http://localhost:8800/api/users/likecomment/${comment._id}`);
 
       setCurrentComment((prevComment) => ({
         ...prevComment,
@@ -916,7 +916,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
     try {
       setIsDislikeDisabled(true);
 
-      await axios.put(`/users/dislikecomment/${comment._id}`);
+      await axios.put(`http://localhost:8800/api/users/dislikecomment/${comment._id}`);
 
       setCurrentComment((prevComment) => ({
         ...prevComment,
@@ -952,7 +952,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
   const handleSaveEdit = async () => {
     try {
-      const response = await axios.put(`/comments/${currentComment._id}`, {
+      const response = await axios.put(`http://localhost:8800/api/comments/${currentComment._id}`, {
         desc: editedCommentText,
       });
 
@@ -981,7 +981,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
     if (confirmed) {
       try {
-        await axios.delete(`/comments/${comment._id}`);
+        await axios.delete(`http://localhost:8800/api/comments/${comment._id}`);
 
         if (onCommentsReload) {
           onCommentsReload();
@@ -1034,7 +1034,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
       return;
     }
     try {
-      const response = await axios.post(`/comments/${comment._id}/report`, {
+      const response = await axios.post(`http://localhost:8800/api/comments/${comment._id}/report`, {
         userId: currentUser._id,
         reason: selectedReportReason,
       });
@@ -1076,7 +1076,7 @@ const Comment = ({ comment, UserUploader, onCommentsReload }) => {
 
   const handleAddReply = async () => {
     try {
-      const response = await axios.post(`/comments/${comment._id}/replies`, {
+      const response = await axios.post(`http://localhost:8800/api/comments/${comment._id}/replies`, {
         userId: currentUser._id,
         desc: newReplyText,
         likes: [],

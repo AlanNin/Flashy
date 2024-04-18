@@ -595,11 +595,16 @@ export const getByLikes = async (req, res, next) => {
 
         // Aggregate to find the top videos based on likes and dislikes within the last month
         const videos = await Video.aggregate([
+
+            // FILTER BY LAST MONTH
+            /*
             {
                 $match: {
                     createdAt: { $gte: oneMonthAgo }, // Videos within the last month
                 },
             },
+            */
+
             {
                 $project: {
                     _id: 1,
@@ -733,7 +738,6 @@ export const addView = async (req, res, next) => {
 export const getVideoProgress = async (req, res, next) => {
     const userId = req.user.id;
     const videoId = req.params.id;
-
     try {
         // Encuentra al usuario por su ID
         const user = await User.findById(userId);

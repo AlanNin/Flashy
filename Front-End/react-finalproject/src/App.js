@@ -26,8 +26,8 @@ import NotFound404 from "./pages/NotFound404";
 import ConfirmUser from "./pages/ConfirmUser";
 import ConfirmEmailChange from "./pages/ConfirmEmailChange";
 import { useSelector } from "react-redux";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const Container = styled.div`
   position: relative;
@@ -90,7 +90,7 @@ function App() {
   const { currentUser } = useSelector(state => state.user);
   const [darkMode, setDarkMode] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
-
+  axios.defaults.withCredentials = true;
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };

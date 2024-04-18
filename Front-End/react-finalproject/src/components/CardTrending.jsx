@@ -230,7 +230,7 @@ const CardTrending = ({ type, video, index, setIsMoreInfo, setMoreInfoInputs }) 
   useEffect(() => {
     const fetchChannel = async () => {
       try {
-        const res = await axios.get(`/users/find/${video.userId}`);
+        const res = await axios.get(`http://localhost:8800/api/users/find/${video.userId}`);
         setChannel(res.data);
       } catch (error) {
         console.error("Error fetching channel information:", error);
@@ -239,7 +239,9 @@ const CardTrending = ({ type, video, index, setIsMoreInfo, setMoreInfoInputs }) 
 
     const fetchProgress = async () => {
       if (currentUser) {
-        const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
+        const userProgressRes = await axios.get(`http://localhost:8800/api/videos/userProgress/${video._id}`, {
+          withCredentials: true
+        });
         setProgress(userProgressRes?.data?.progress);
       }
     };

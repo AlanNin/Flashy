@@ -52,7 +52,12 @@ import {
 import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router();
-router.use(cors());
+
+router.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
+
 
 // UPDATE USER
 router.put("/:id/update", verifyToken, update)
@@ -94,7 +99,7 @@ router.put('/likereply/:commentId/:replyId', verifyToken, likeReply);
 router.put('/dislikereply/:commentId/:replyId', verifyToken, dislikeReply);
 
 // UPDATE VIDEO HISTORY
-router.put("/:userId/videos/:videoId/history", verifyToken, updateVideoHistory);
+router.put("/:userId/videos/:videoId/history", updateVideoHistory);
 
 // GET VIDEO HISTORY
 router.get('/:id/history', verifyToken, getVideoHistory);

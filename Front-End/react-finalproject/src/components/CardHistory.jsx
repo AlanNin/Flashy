@@ -551,13 +551,15 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
   // FETCH INFO FOR CARDS
   useEffect(() => {
     const fetchChannel = async () => {
-      const res = await axios.get(`/users/find/${video.userId}`);
+      const res = await axios.get(`http://localhost:8800/api/users/find/${video.userId}`);
       setChannel(res.data);
     };
 
     const fetchProgress = async () => {
       if (currentUser) {
-        const userProgressRes = await axios.get(`/videos/userProgress/${video._id}`);
+        const userProgressRes = await axios.get(`http://localhost:8800/api/videos/userProgress/${video._id}`, {
+          withCredentials: true
+        });
         setProgress(userProgressRes?.data?.progress);
       }
     };
@@ -611,7 +613,7 @@ const CardHistory = ({ video, setIsHistoryUpdated }) => {
 
     if (confirmed) {
       try {
-        await axios.delete(`/users/${currentUser?._id}/videos/${video?._id}/history`);
+        await axios.delete(`http://localhost:8800/api/users/${currentUser?._id}/videos/${video?._id}/history`);
         setIsHistoryUpdated(true);
       } catch (error) {
         console.error('Error deleting video:', error);

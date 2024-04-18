@@ -205,7 +205,12 @@ const AccountSection = styled.div`
     padding: 20px 30px;
     border-radius: 8px;
 
-    height: ${({ isChangingPassword, IsVerified }) => {
+    height: ${({ isChangingPassword, IsVerified, externalLogging }) => {
+
+    if (externalLogging) {
+      return '400px';
+    }
+
     if (isChangingPassword) {
       if (!IsVerified) {
         return '802px';
@@ -1151,7 +1156,7 @@ const Settings = () => {
   const handleUpdateBannerDB = async () => {
     if (inputs.banner !== undefined && inputs.banner !== "" && inputs.banner !== null) {
       try {
-        const res = await axios.put(`/users/${currentUser?._id}/update`, {
+        const res = await axios.put(`http://localhost:8800/api/users/${currentUser?._id}/update`, {
           banner: inputs.banner
         });
         dispatch(userUpdated(res.data));
@@ -1243,7 +1248,7 @@ const Settings = () => {
   const handleUpdatePfPDB = async () => {
     if (inputs.img !== undefined && inputs.img !== "" && inputs.img !== null) {
       try {
-        const res = await axios.put(`/users/${currentUser?._id}/update`, {
+        const res = await axios.put(`http://localhost:8800/api/users/${currentUser?._id}/update`, {
           img: inputs.img
         });
         dispatch(userUpdated(res.data));
@@ -1383,7 +1388,7 @@ const Settings = () => {
     const handleCheckEmailDisponibility = async () => {
       try {
         if (inputs.email !== undefined) {
-          const emailCheckResponse = await axios.post("/auth/checkemail", { email: inputs?.email });
+          const emailCheckResponse = await axios.post("http://localhost:8800/api/auth/checkemail", { email: inputs?.email });
 
           if (emailCheckResponse.data.exists && inputs?.email?.length > 0 && inputs?.email !== currentUser.email) {
             setIsEmailNotAvailable(true);
@@ -1425,7 +1430,7 @@ const Settings = () => {
     const handleCheckEmailDisponibility = async () => {
       try {
         if (inputs.username !== undefined) {
-          const usernameCheckResponse = await axios.post("/auth/checkname", { name: inputs?.username });
+          const usernameCheckResponse = await axios.post("http://localhost:8800/api/auth/checkname", { name: inputs?.username });
 
           if (usernameCheckResponse.data.exists && inputs?.username?.length > 0 && inputs?.username !== currentUser.name) {
             setIsUsernameNotAvailable(true);
@@ -1582,7 +1587,7 @@ const Settings = () => {
 
     try {
       const res = await toast.promise(
-        axios.put(`/users/${currentUser?._id}/update`, {
+        axios.put(`http://localhost:8800/api/users/${currentUser?._id}/update`, {
           email: inputs?.email === '' || null || undefined ? null : inputs.email,
           name: inputs?.username === '' || null || undefined ? null : inputs.username,
           displayname: inputs?.displayname === '' || null || undefined ? null : inputs.displayname,
@@ -1629,7 +1634,7 @@ const Settings = () => {
   const handleSendAccountVerification = async () => {
     try {
       toast.success(translations[language].toastemailsent);
-      await axios.post(`/users/emailVerification`);
+      await axios.post(`http://localhost:8800/api/users/emailVerification`);
     } catch (error) {
       console.error("Error sending verification:", error);
     }
@@ -1651,7 +1656,7 @@ const Settings = () => {
         toast.success(translations[language].toastemailnotdis);
       }
       dispatch(userToggleNotifications());
-      await axios.post(`/users/toggle-notifications`);
+      await axios.post(`http://localhost:8800/api/users/toggle-notifications`);
     } catch (error) {
       console.error("Error sending verification:", error);
     }
@@ -1680,7 +1685,7 @@ const Settings = () => {
         dispatch(logout());
         toast.success(translations[language].toastuserdelete);
         navigate('/');
-        await axios.delete(`/users/${currentUser?._id}/remove/`);
+        await axios.delete(`http://localhost:8800/api/users/${currentUser?._id}/remove/`);
       } catch (error) {
         console.error('Error deleting history:', error);
       }
@@ -1776,7 +1781,10 @@ const Settings = () => {
                   <AccountProfileEmailLabel> {currentUser?.email}</AccountProfileEmailLabel>
                 </AccountPresentationSection>
 
-                <AccountSection isChangingPassword={isChangingPassword} IsVerified={currentUser?.isVerified}>
+                <AccountSection
+                  isChangingPassword={isChangingPassword}
+                  IsVerified={currentUser?.isVerified}
+                  externalLogging={currentUser?.fromFacebook || currentUser?.fromGoogle}>
 
                   <SmallerLabel didChange={didEmailChange} isOkay={isEmailOkay} hasFocus={hasFocusEmail}>
                     {translations[language].email}
@@ -1863,54 +1871,60 @@ const Settings = () => {
                     readOnly
                   />
 
-                  <ChangePasswordDiv onClick={handleChangePassword}>
-                    <ChangePasswordImg />
-                    <ChangePasswordLabel>  {translations[language].chpass1} </ChangePasswordLabel>
-                  </ChangePasswordDiv>
+                  {!currentUser.fromFacebook && !currentUser.fromGoogle && (
+                    <>
+                      <ChangePasswordDiv onClick={handleChangePassword}>
+                        <ChangePasswordImg />
+                        <ChangePasswordLabel>  {translations[language].chpass1} </ChangePasswordLabel>
+                      </ChangePasswordDiv>
 
-                  <ChangePasswordSection>
-                    <SmallerLabel hasFocus={hasFocusCurrentPassword}>  {translations[language].chpass2} </SmallerLabel>
-                    <EditInput
-                      type="password"
-                      name="currentpassword"
-                      placeholder=''
-                      autoComplete="off new-password"
-                      value={inputs.currentpassword !== undefined ? inputs.currentpassword : ''}
-                      onChange={handleCurrentPassword}
-                      onFocus={() => setHasCurrentPassword(true)}
-                      onBlur={() => setHasCurrentPassword(false)}
-                    />
 
-                    <SmallerLabelNewPassoword hasFocus={hasFocusNewPassword} Strength={newPasswordStrength} Length={inputs?.newpassword?.length}>
-                      {translations[language].chpass3}
-                    </SmallerLabelNewPassoword>
-                    <EditInputNewPassword
-                      type="password"
-                      name="newpassword"
-                      placeholder=''
-                      autoComplete="off new-password"
-                      value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
-                      onChange={handleNewPassword}
-                      onFocus={() => setHasFocusNewPassword(true)}
-                      onBlur={() => setHasFocusNewPassword(false)}
-                      Strength={newPasswordStrength}
-                      Length={inputs?.newpassword?.length}
-                    />
+                      <ChangePasswordSection>
+                        <SmallerLabel hasFocus={hasFocusCurrentPassword}>  {translations[language].chpass2} </SmallerLabel>
+                        <EditInput
+                          type="password"
+                          name="currentpassword"
+                          placeholder=''
+                          autoComplete="off new-password"
+                          value={inputs.currentpassword !== undefined ? inputs.currentpassword : ''}
+                          onChange={handleCurrentPassword}
+                          onFocus={() => setHasCurrentPassword(true)}
+                          onBlur={() => setHasCurrentPassword(false)}
+                        />
 
-                    <SmallerLabel hasFocus={hasFocusConfirmNewPassword}>
-                      {translations[language].chpass4}
-                    </SmallerLabel>
-                    <EditInput
-                      type="password"
-                      name="confirmnewpassword"
-                      placeholder=''
-                      autoComplete="off new-password"
-                      value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
-                      onChange={handleConfirmNewPassword}
-                      onFocus={() => setHasFocusConfirmNewPassword(true)}
-                      onBlur={() => setHasFocusConfirmNewPassword(false)}
-                    />
-                  </ChangePasswordSection>
+                        <SmallerLabelNewPassoword hasFocus={hasFocusNewPassword} Strength={newPasswordStrength} Length={inputs?.newpassword?.length}>
+                          {translations[language].chpass3}
+                        </SmallerLabelNewPassoword>
+                        <EditInputNewPassword
+                          type="password"
+                          name="newpassword"
+                          placeholder=''
+                          autoComplete="off new-password"
+                          value={inputs.newpassword !== undefined ? inputs.newpassword : ''}
+                          onChange={handleNewPassword}
+                          onFocus={() => setHasFocusNewPassword(true)}
+                          onBlur={() => setHasFocusNewPassword(false)}
+                          Strength={newPasswordStrength}
+                          Length={inputs?.newpassword?.length}
+                        />
+
+                        <SmallerLabel hasFocus={hasFocusConfirmNewPassword}>
+                          {translations[language].chpass4}
+                        </SmallerLabel>
+                        <EditInput
+                          type="password"
+                          name="confirmnewpassword"
+                          placeholder=''
+                          autoComplete="off new-password"
+                          value={inputs.confirmnewpassword !== undefined ? inputs.confirmnewpassword : ''}
+                          onChange={handleConfirmNewPassword}
+                          onFocus={() => setHasFocusConfirmNewPassword(true)}
+                          onBlur={() => setHasFocusConfirmNewPassword(false)}
+                        />
+                      </ChangePasswordSection>
+
+                    </>
+                  )}
 
                   <SaveButtonDiv>
                     <SaveButton onClick={handleSaveChanges} isSaveButtonEnable={isSaveButtonEnable}>

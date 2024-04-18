@@ -586,7 +586,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     }
 
     try {
-      const response = await axios.get(`/users/${userId}/subscribers`);
+      const response = await axios.get(`http://localhost:8800/api/users/${userId}/subscribers`);
 
       if (response.data.subscribers.includes(currentUser?._id)) {
         dispatch(userUpdateNotifications());
@@ -606,7 +606,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     }
 
     try {
-      const response = await axios.get("/users/notifications", {
+      const response = await axios.get("http://localhost:8800/api/users/notifications", {
       });
       setNotifications(response.data.notifications);
     } catch (error) {
@@ -620,7 +620,7 @@ const Navbar = ({ menuVisible, toggleMenu }) => {
     }
 
     try {
-      await axios.put(`/users/notifications/reset-new-notifications`);
+      await axios.put(`http://localhost:8800/api/users/notifications/reset-new-notifications`);
       dispatch(userClearNotifications());
     } catch (error) {
       console.error("Error fetching notifications:", error);

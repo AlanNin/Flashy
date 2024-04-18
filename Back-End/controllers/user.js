@@ -717,7 +717,7 @@ export const dislikeReply = async (req, res, next) => {
 // MANAGE USER HISTORY
 export const updateVideoHistory = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = req.params.userId;
         const videoId = req.params.videoId;
 
         const user = await User.findById(userId);
