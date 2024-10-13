@@ -6,3 +6,6 @@ dist/
 # Archivos sensibles (se recomienda no incluir credenciales)
 .env
 .env.local
+
+# ffmpeg
+ffmpeg-6.1-essentials_build/
